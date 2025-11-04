@@ -69,7 +69,7 @@ export function parsePaginationParams(request: NextRequest): PaginationParams {
   try {
     const url = request.url
     if (!url) {
-      console.error('Request URL is undefined:', request)
+      logError(new Error('Request URL is undefined'), { context: 'parsePaginationParams', request: String(request) })
       return { page: 1, limit: 10, skip: 0 }
     }
     
@@ -80,7 +80,7 @@ export function parsePaginationParams(request: NextRequest): PaginationParams {
 
     return { page, limit, skip }
   } catch (error) {
-    console.error('Error parsing pagination params:', error)
+    logError(error, { context: 'parsePaginationParams' })
     return { page: 1, limit: 10, skip: 0 }
   }
 }
@@ -90,7 +90,7 @@ export function parseSearchParams(request: NextRequest): SearchParams {
   try {
     const url = request.url
     if (!url) {
-      console.error('Request URL is undefined for search params:', request)
+      logError(new Error('Request URL is undefined for search params'), { context: 'parseSearchParams', request: String(request) })
       return { search: undefined, sortBy: undefined, sortOrder: 'desc' }
     }
     
@@ -102,7 +102,7 @@ export function parseSearchParams(request: NextRequest): SearchParams {
       sortOrder: (searchParams.get('sortOrder') as 'asc' | 'desc') || 'desc'
     }
   } catch (error) {
-    console.error('Error parsing search params:', error)
+    logError(error, { context: 'parseSearchParams' })
     return { search: undefined, sortBy: undefined, sortOrder: 'desc' }
   }
 }
@@ -110,8 +110,8 @@ export function parseSearchParams(request: NextRequest): SearchParams {
 // Reusable API context builder
 export async function buildApiContext(request: NextRequest): Promise<ApiContext | NextResponse> {
   try {
-    console.log('buildApiContext - Request URL:', request.url)
-    console.log('buildApiContext - Request method:', request.method)
+    logger.debug('buildApiContext - Request URL:', request.url)
+    logger.debug('buildApiContext - Request method:', request.method)
     
     const sessionResult = await validateSession()
     if (sessionResult instanceof NextResponse) {
@@ -122,12 +122,12 @@ export async function buildApiContext(request: NextRequest): Promise<ApiContext 
     const pagination = parsePaginationParams(request)
     const search = parseSearchParams(request)
 
-    console.log('buildApiContext - Parsed pagination:', pagination)
-    console.log('buildApiContext - Parsed search:', search)
+    logger.debug('buildApiContext - Parsed pagination:', pagination)
+    logger.debug('buildApiContext - Parsed search:', search)
 
     return { session, user, pagination, search }
   } catch (error) {
-    console.error('Error in buildApiContext:', error)
+    logError(error, { context: 'buildApiContext' })
     return formatErrorResponse('Failed to build API context', 500)
   }
 }

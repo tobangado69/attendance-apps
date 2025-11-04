@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { logError } from '@/lib/utils/logger'
 
 export interface CreateNotificationData {
   userId: string
@@ -18,7 +19,7 @@ export async function createNotification(data: CreateNotificationData) {
       }
     })
   } catch (error) {
-    console.error('Error creating notification:', error)
+    logError(error, { context: 'createNotification', userId: data.userId })
     throw error
   }
 }
@@ -29,7 +30,7 @@ export async function createBulkNotifications(notifications: CreateNotificationD
       data: notifications
     })
   } catch (error) {
-    console.error('Error creating bulk notifications:', error)
+    logError(error, { context: 'createBulkNotifications', count: notifications.length })
     throw error
   }
 }
@@ -125,7 +126,7 @@ export async function getManagersAndAdmins() {
       }
     })
   } catch (error) {
-    console.error('Error fetching managers and admins:', error)
+    logError(error, { context: 'getManagersAndAdmins' })
     return []
   }
 }
@@ -148,7 +149,7 @@ export async function getEmployeesInDepartment(department: string) {
       }
     })
   } catch (error) {
-    console.error('Error fetching employees in department:', error)
+    logError(error, { context: 'getEmployeesInDepartment', departmentId })
     return []
   }
 }

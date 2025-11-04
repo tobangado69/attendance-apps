@@ -1,4 +1,5 @@
 import { prisma } from './prisma'
+import { logError } from '@/lib/utils/logger'
 
 export interface CompanySettings {
   id: string
@@ -61,7 +62,7 @@ export async function getCompanySettings(): Promise<CompanySettings> {
 
     return settings
   } catch (error) {
-    console.error('Error fetching company settings:', error)
+    logError(error, { context: 'getCompanySettings' })
     
     // Return default settings if database error
     return {

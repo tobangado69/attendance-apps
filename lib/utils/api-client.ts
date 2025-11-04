@@ -3,6 +3,7 @@
  */
 
 import { cache, CacheKeys, CacheTTL } from './cache';
+import { logger } from './logger';
 
 interface ApiResponse<T> {
   data: T;
@@ -49,14 +50,14 @@ class ApiClient {
     if (method === 'GET' && useCache && !skipCache) {
       const cachedData = cache.get<T>(cacheKey);
       if (cachedData) {
-        console.log(`Cache hit: ${cacheKey}`);
+        logger.debug(`Cache hit: ${cacheKey}`);
         return cachedData;
       }
     }
 
     // Check for pending request to avoid duplicates
     if (pendingRequests.has(cacheKey)) {
-      console.log(`Deduplicating request: ${cacheKey}`);
+      logger.debug(`Deduplicating request: ${cacheKey}`);
       return pendingRequests.get(cacheKey)! as Promise<T>;
     }
 
@@ -79,7 +80,7 @@ class ApiClient {
       // Cache successful GET requests
       if (method === 'GET' && useCache && !skipCache) {
         cache.set(cacheKey, data, cacheTTL);
-        console.log(`Cached: ${cacheKey}`);
+        logger.debug(`Cached: ${cacheKey}`);
       }
 
       return data;
