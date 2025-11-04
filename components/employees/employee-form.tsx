@@ -237,12 +237,18 @@ export function EmployeeForm({
 
     if (!validation.success) {
       toast.error("Please fix the form errors");
-      console.error("Validation errors:", validation.errors);
-      console.error("Form data being validated:", dataToValidate);
+      logError(new Error("Validation failed"), { 
+        context: "employee-form", 
+        errors: validation.errors,
+        formData: dataToValidate 
+      });
 
       // Show specific field errors
       validation.errors?.forEach((error) => {
-        console.error(`Field "${error.field}": ${error.message}`);
+        logError(new Error(error.message), { 
+          context: "employee-form", 
+          field: error.field 
+        });
       });
       return;
     }
@@ -276,7 +282,7 @@ export function EmployeeForm({
         toast.error(data.error || "Failed to save employee");
       }
     } catch (error) {
-      console.error("Error saving employee:", error);
+      logError(error, { context: "employee-form - handleSubmit", employeeId: employee?.id });
       toast.error("Failed to save employee");
     } finally {
       setLoading(false);
