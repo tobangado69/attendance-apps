@@ -112,24 +112,16 @@ export function CompanySettingsForm({
               <Label htmlFor="timezone">Timezone</Label>
               <Select
                 value={form.timezone || BusinessRules.DEFAULT_TIMEZONE}
-                onValueChange={(value) =>
-                  setForm({ ...form, timezone: value })
-                }
+                onValueChange={(value) => setForm({ ...form, timezone: value })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select timezone" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="UTC">UTC</SelectItem>
-                  <SelectItem value="America/New_York">
-                    Eastern Time
-                  </SelectItem>
-                  <SelectItem value="America/Chicago">
-                    Central Time
-                  </SelectItem>
-                  <SelectItem value="America/Denver">
-                    Mountain Time
-                  </SelectItem>
+                  <SelectItem value="America/New_York">Eastern Time</SelectItem>
+                  <SelectItem value="America/Chicago">Central Time</SelectItem>
+                  <SelectItem value="America/Denver">Mountain Time</SelectItem>
                   <SelectItem value="America/Los_Angeles">
                     Pacific Time
                   </SelectItem>
@@ -154,7 +146,10 @@ export function CompanySettingsForm({
               <Input
                 id="workingHoursStart"
                 type="time"
-                value={form.workingHoursStart || BusinessRules.DEFAULT_WORKING_HOURS_START}
+                value={
+                  form.workingHoursStart ||
+                  BusinessRules.DEFAULT_WORKING_HOURS_START
+                }
                 onChange={(e) =>
                   setForm({
                     ...form,
@@ -168,7 +163,10 @@ export function CompanySettingsForm({
               <Input
                 id="workingHoursEnd"
                 type="time"
-                value={form.workingHoursEnd || BusinessRules.DEFAULT_WORKING_HOURS_END}
+                value={
+                  form.workingHoursEnd ||
+                  BusinessRules.DEFAULT_WORKING_HOURS_END
+                }
                 onChange={(e) =>
                   setForm({
                     ...form,
@@ -189,7 +187,10 @@ export function CompanySettingsForm({
                 type="number"
                 min="0"
                 max="60"
-                value={form.lateArrivalGraceMinutes || BusinessRules.DEFAULT_LATE_ARRIVAL_GRACE_MINUTES}
+                value={
+                  form.lateArrivalGraceMinutes ||
+                  BusinessRules.DEFAULT_LATE_ARRIVAL_GRACE_MINUTES
+                }
                 onChange={(e) =>
                   setForm({
                     ...form,
@@ -208,29 +209,37 @@ export function CompanySettingsForm({
                 min="1"
                 max="24"
                 step="0.5"
-                value={form.overtimeThresholdHours || BusinessRules.DEFAULT_OVERTIME_THRESHOLD_HOURS}
+                value={
+                  form.overtimeThresholdHours ||
+                  BusinessRules.DEFAULT_OVERTIME_THRESHOLD_HOURS
+                }
                 onChange={(e) =>
                   setForm({
                     ...form,
-                    overtimeThresholdHours: parseFloat(e.target.value) || BusinessRules.DEFAULT_OVERTIME_THRESHOLD_HOURS,
+                    overtimeThresholdHours:
+                      parseFloat(e.target.value) ||
+                      BusinessRules.DEFAULT_OVERTIME_THRESHOLD_HOURS,
                   })
                 }
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="workingDaysPerWeek">
-                Working Days per Week
-              </Label>
+              <Label htmlFor="workingDaysPerWeek">Working Days per Week</Label>
               <Input
                 id="workingDaysPerWeek"
                 type="number"
                 min="1"
                 max="7"
-                value={form.workingDaysPerWeek || BusinessRules.DEFAULT_WORKING_DAYS_PER_WEEK}
+                value={
+                  form.workingDaysPerWeek ||
+                  BusinessRules.DEFAULT_WORKING_DAYS_PER_WEEK
+                }
                 onChange={(e) =>
                   setForm({
                     ...form,
-                    workingDaysPerWeek: parseInt(e.target.value) || BusinessRules.DEFAULT_WORKING_DAYS_PER_WEEK,
+                    workingDaysPerWeek:
+                      parseInt(e.target.value) ||
+                      BusinessRules.DEFAULT_WORKING_DAYS_PER_WEEK,
                   })
                 }
               />
@@ -260,9 +269,7 @@ export function CompanySettingsForm({
               <Label htmlFor="currency">Currency</Label>
               <Select
                 value={form.currency || BusinessRules.DEFAULT_CURRENCY}
-                onValueChange={(value) =>
-                  setForm({ ...form, currency: value })
-                }
+                onValueChange={(value) => setForm({ ...form, currency: value })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select currency" />
@@ -292,4 +299,3 @@ export function CompanySettingsForm({
     </>
   );
 }
-
