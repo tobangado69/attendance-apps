@@ -202,7 +202,7 @@ class ApiClient {
         cache.delete(key);
       }
     });
-    console.log('Invalidated task caches');
+    logger.debug('Invalidated task caches');
   }
 
   invalidateEmployeeCaches() {
@@ -212,12 +212,12 @@ class ApiClient {
         cache.delete(key);
       }
     });
-    console.log('Invalidated employee caches');
+    logger.debug('Invalidated employee caches');
   }
 
   invalidateAllCaches() {
     cache.clear();
-    console.log('Cleared all caches');
+    logger.debug('Cleared all caches');
   }
 
   // Debug methods

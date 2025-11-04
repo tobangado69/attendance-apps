@@ -110,11 +110,11 @@ export function EmployeeForm({
           setFormData((prev) => ({ ...prev, department: result.data[0].id }));
         }
       } else {
-        console.error("Failed to fetch departments:", result);
+        logError(new Error("Failed to fetch departments"), { context: "employee-form", response: result });
         showErrorToast("Failed to load departments");
       }
     } catch (error) {
-      console.error("Error fetching departments:", error);
+      logError(error, { context: "employee-form - fetchDepartments" });
       showErrorToast("Failed to load departments");
     } finally {
       setDepartmentsLoading(false);
@@ -146,11 +146,11 @@ export function EmployeeForm({
           }))
         );
       } else {
-        console.error("Failed to fetch managers:", result);
+        logError(new Error("Failed to fetch managers"), { context: "employee-form", response: result });
         showErrorToast("Failed to load managers");
       }
     } catch (error) {
-      console.error("Error fetching managers:", error);
+      logError(error, { context: "employee-form - fetchManagers" });
       showErrorToast("Failed to load managers");
     } finally {
       setManagersLoading(false);
@@ -165,10 +165,7 @@ export function EmployeeForm({
   // Update form data when employee changes, but wait for departments/managers to load
   useEffect(() => {
     if (employee && !departmentsLoading && !managersLoading) {
-      console.log("Setting form data for employee:", {
-        name: employee.user.name,
-        role: employee.user.role,
-        department: employee.department,
+      // Set form data when employee data is loaded
         managerId: employee.managerId,
         manager: employee.manager,
       });
