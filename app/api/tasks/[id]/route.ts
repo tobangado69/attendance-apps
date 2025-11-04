@@ -236,7 +236,7 @@ export async function PUT(
         });
       }
     } catch (notificationError) {
-      console.error('Error sending real-time task notification:', notificationError);
+      logError(notificationError, { context: 'PUT /api/tasks/[id] - real-time notification', taskId: id });
     }
 
     return NextResponse.json({

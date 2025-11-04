@@ -146,7 +146,7 @@ export const POST = withAdminGuard(async (context, request: NextRequest) => {
 
     return formatApiResponse(departmentWithCount, undefined, 'Department created successfully')
   } catch (error) {
-    console.error('Error creating department:', error)
+    logError(error, { context: 'POST /api/settings/departments' })
     
     // Handle Prisma errors specifically
     if (error instanceof Error) {
