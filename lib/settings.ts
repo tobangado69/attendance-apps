@@ -1,5 +1,6 @@
 import { prisma } from './prisma'
 import { logError } from '@/lib/utils/logger'
+import { BusinessRules } from '@/lib/constants/business-rules'
 
 export interface CompanySettings {
   id: string
@@ -43,14 +44,14 @@ export async function getCompanySettings(): Promise<CompanySettings> {
       settings = await prisma.companySettings.create({
         data: {
           companyName: 'Employee Dashboard',
-          workingHoursStart: '08:00',
-          workingHoursEnd: '17:00',
-          lateArrivalGraceMinutes: 2,
-          overtimeThresholdHours: 8.0,
-          workingDaysPerWeek: 5,
-          timezone: 'UTC',
+          workingHoursStart: BusinessRules.DEFAULT_WORKING_HOURS_START,
+          workingHoursEnd: BusinessRules.DEFAULT_WORKING_HOURS_END,
+          lateArrivalGraceMinutes: BusinessRules.DEFAULT_LATE_ARRIVAL_GRACE_MINUTES,
+          overtimeThresholdHours: BusinessRules.DEFAULT_OVERTIME_THRESHOLD_HOURS,
+          workingDaysPerWeek: BusinessRules.DEFAULT_WORKING_DAYS_PER_WEEK,
+          timezone: BusinessRules.DEFAULT_TIMEZONE,
           dateFormat: 'MM/dd/yyyy',
-          currency: 'USD',
+          currency: BusinessRules.DEFAULT_CURRENCY,
           isActive: true
         }
       })
@@ -68,14 +69,14 @@ export async function getCompanySettings(): Promise<CompanySettings> {
     return {
       id: 'default',
       companyName: 'Employee Dashboard',
-      workingHoursStart: '08:00',
-      workingHoursEnd: '17:00',
-      lateArrivalGraceMinutes: 2,
-      overtimeThresholdHours: 8.0,
-      workingDaysPerWeek: 5,
-      timezone: 'UTC',
+      workingHoursStart: BusinessRules.DEFAULT_WORKING_HOURS_START,
+      workingHoursEnd: BusinessRules.DEFAULT_WORKING_HOURS_END,
+      lateArrivalGraceMinutes: BusinessRules.DEFAULT_LATE_ARRIVAL_GRACE_MINUTES,
+      overtimeThresholdHours: BusinessRules.DEFAULT_OVERTIME_THRESHOLD_HOURS,
+      workingDaysPerWeek: BusinessRules.DEFAULT_WORKING_DAYS_PER_WEEK,
+      timezone: BusinessRules.DEFAULT_TIMEZONE,
       dateFormat: 'MM/dd/yyyy',
-      currency: 'USD',
+      currency: BusinessRules.DEFAULT_CURRENCY,
       isActive: true,
       createdAt: new Date(),
       updatedAt: new Date()

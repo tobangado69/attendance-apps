@@ -230,10 +230,10 @@ export function TaskFilters({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="PENDING">Pending</SelectItem>
-                      <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
-                      <SelectItem value="COMPLETED">Completed</SelectItem>
-                      <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                      <SelectItem value={TaskStatus.PENDING}>Pending</SelectItem>
+                      <SelectItem value={TaskStatus.IN_PROGRESS}>In Progress</SelectItem>
+                      <SelectItem value={TaskStatus.COMPLETED}>Completed</SelectItem>
+                      <SelectItem value={TaskStatus.CANCELLED}>Cancelled</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

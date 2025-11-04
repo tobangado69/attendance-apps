@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
         lt: new Date(),
         not: null
       }
-      where.status = { not: 'COMPLETED' }
+      where.status = { not: TaskStatus.COMPLETED }
     }
 
     // Unassigned filter

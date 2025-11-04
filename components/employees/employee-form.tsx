@@ -19,6 +19,9 @@ import {
   type EmployeeUpdateFormData,
 } from "@/lib/validations";
 import { useValidation } from "@/hooks/use-validation";
+import { showErrorToast } from "@/lib/error-handler";
+import { logError } from "@/lib/utils/logger";
+import { EmployeeStatus } from "@/lib/constants/status";
 
 interface Department {
   id: string;
@@ -69,7 +72,7 @@ export function EmployeeForm({
     department: "Engineering",
     position: "Employee",
     salary: "",
-    status: "ACTIVE",
+      status: EmployeeStatus.ACTIVE,
     manager: "", // Manager ID
   });
   const [loading, setLoading] = useState(false);
@@ -166,10 +169,6 @@ export function EmployeeForm({
   useEffect(() => {
     if (employee && !departmentsLoading && !managersLoading) {
       // Set form data when employee data is loaded
-        managerId: employee.managerId,
-        manager: employee.manager,
-      });
-
       // Get department ID
       let departmentId = "";
       if (employee.department) {
@@ -204,7 +203,7 @@ export function EmployeeForm({
         department: departmentId,
         position: employee.position || "Software Developer",
         salary: employee.salary?.toString() || "",
-        status: employee.status || "ACTIVE",
+        status: employee.status || EmployeeStatus.ACTIVE,
         manager: managerUserId,
       });
     }
@@ -256,7 +255,7 @@ export function EmployeeForm({
       // For new employees, always set status to ACTIVE
       const dataToSend = employee
         ? validation.data
-        : { ...validation.data, status: "ACTIVE" };
+        : { ...validation.data, status: EmployeeStatus.ACTIVE };
 
       const response = await fetch(url, {
         method,
@@ -510,12 +509,12 @@ export function EmployeeForm({
               <SelectValue placeholder="Select status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ACTIVE">Active</SelectItem>
-              <SelectItem value="INACTIVE">Inactive</SelectItem>
-              <SelectItem value="LAYOFF">Layoff</SelectItem>
-              <SelectItem value="TERMINATED">Terminated</SelectItem>
-              <SelectItem value="ON_LEAVE">On Leave</SelectItem>
-              <SelectItem value="SUSPENDED">Suspended</SelectItem>
+              <SelectItem value={EmployeeStatus.ACTIVE}>Active</SelectItem>
+              <SelectItem value={EmployeeStatus.INACTIVE}>Inactive</SelectItem>
+              <SelectItem value={EmployeeStatus.LAYOFF}>Layoff</SelectItem>
+              <SelectItem value={EmployeeStatus.TERMINATED}>Terminated</SelectItem>
+              <SelectItem value={EmployeeStatus.ON_LEAVE}>On Leave</SelectItem>
+              <SelectItem value={EmployeeStatus.SUSPENDED}>Suspended</SelectItem>
             </SelectContent>
           </Select>
           {getFieldError("status") && (

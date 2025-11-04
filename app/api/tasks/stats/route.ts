@@ -32,7 +32,7 @@ export async function GET() {
     const pendingTasks = await prisma.task.count({
       where: {
         ...where,
-        status: 'PENDING'
+        status: TaskStatus.PENDING
       }
     })
 
@@ -40,7 +40,7 @@ export async function GET() {
     const inProgressTasks = await prisma.task.count({
       where: {
         ...where,
-        status: 'IN_PROGRESS'
+        status: TaskStatus.IN_PROGRESS
       }
     })
 
@@ -48,7 +48,7 @@ export async function GET() {
     const completedTasks = await prisma.task.count({
       where: {
         ...where,
-        status: 'COMPLETED'
+        status: TaskStatus.COMPLETED
       }
     })
 

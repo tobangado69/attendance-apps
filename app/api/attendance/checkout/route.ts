@@ -6,6 +6,7 @@ import { createNotification, NotificationTemplates, getManagersAndAdmins } from 
 import { broadcastNotification } from '@/lib/notifications/real-time'
 import { getCompanySettings, calculateOvertimeHours } from '@/lib/settings'
 import { logError } from '@/lib/utils/logger'
+import { EmployeeStatus } from '@/lib/constants/status'
 
 export async function POST(request: NextRequest) {
   try {
@@ -70,7 +71,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Check if employee status allows attendance
-      if (employee.status && employee.status !== 'ACTIVE') {
+      if (employee.status && employee.status !== EmployeeStatus.ACTIVE) {
         return NextResponse.json(
           { error: `Your account status is ${employee.status}. You cannot check out at this time.` },
           { status: 403 }

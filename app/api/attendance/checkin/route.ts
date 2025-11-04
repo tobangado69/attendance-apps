@@ -6,6 +6,7 @@ import { createNotification, NotificationTemplates, getManagersAndAdmins } from 
 import { broadcastNotification } from '@/lib/notifications/real-time'
 import { getCompanySettings, calculateLateMinutes, isLateArrival } from '@/lib/settings'
 import { logError } from '@/lib/utils/logger'
+import { AttendanceStatus, EmployeeStatus } from '@/lib/constants/status'
 
 export async function POST(request: NextRequest) {
   try {
@@ -70,7 +71,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Check if employee status allows attendance
-      if (employee.status && employee.status !== 'ACTIVE') {
+      if (employee.status && employee.status !== EmployeeStatus.ACTIVE) {
         return NextResponse.json(
           { error: `Your account status is ${employee.status}. You cannot check in at this time.` },
           { status: 403 }
@@ -108,12 +109,12 @@ export async function POST(request: NextRequest) {
         employeeId: employee?.id,
         checkIn: now,
         date: today,
-        status: isLate ? 'late' : 'present',
+        status: isLate ? AttendanceStatus.LATE : AttendanceStatus.PRESENT,
         notes
       },
       update: {
         checkIn: now,
-        status: isLate ? 'late' : 'present',
+        status: isLate ? AttendanceStatus.LATE : AttendanceStatus.PRESENT,
         notes
       }
     })

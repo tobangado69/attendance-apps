@@ -34,6 +34,7 @@ import { RoleGuard } from "@/components/auth/role-guard";
 import { useRole } from "@/hooks/use-role";
 import { exportEmployeesToExcel } from "@/lib/excel-export";
 import { showSuccessToast, showErrorToast } from "@/lib/error-handler";
+import { EmployeeStatus } from "@/lib/constants/status";
 
 interface Employee {
   id: string;
@@ -179,17 +180,17 @@ export function EmployeeList({ showAll = true }: EmployeeListProps) {
 
   const getStatusVariant = (status: string) => {
     switch (status) {
-      case "ACTIVE":
+      case EmployeeStatus.ACTIVE:
         return "default";
-      case "INACTIVE":
+      case EmployeeStatus.INACTIVE:
         return "secondary";
-      case "LAYOFF":
+      case EmployeeStatus.LAYOFF:
         return "destructive";
-      case "TERMINATED":
+      case EmployeeStatus.TERMINATED:
         return "destructive";
-      case "ON_LEAVE":
+      case EmployeeStatus.ON_LEAVE:
         return "outline";
-      case "SUSPENDED":
+      case EmployeeStatus.SUSPENDED:
         return "destructive";
       default:
         return "secondary";
@@ -198,17 +199,17 @@ export function EmployeeList({ showAll = true }: EmployeeListProps) {
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case "ACTIVE":
+      case EmployeeStatus.ACTIVE:
         return "Active";
-      case "INACTIVE":
+      case EmployeeStatus.INACTIVE:
         return "Inactive";
-      case "LAYOFF":
+      case EmployeeStatus.LAYOFF:
         return "Layoff";
-      case "TERMINATED":
+      case EmployeeStatus.TERMINATED:
         return "Terminated";
-      case "ON_LEAVE":
+      case EmployeeStatus.ON_LEAVE:
         return "On Leave";
-      case "SUSPENDED":
+      case EmployeeStatus.SUSPENDED:
         return "Suspended";
       default:
         return "Unknown";
@@ -240,7 +241,7 @@ export function EmployeeList({ showAll = true }: EmployeeListProps) {
             : emp.department || "N/A",
         position: emp.position || "N/A",
         salary: emp.salary || 0,
-        status: emp.status || "ACTIVE",
+        status: emp.status || EmployeeStatus.ACTIVE,
         role: emp.user.role,
         createdAt: new Date(emp.user.createdAt).toLocaleDateString(),
       }));
@@ -392,9 +393,9 @@ export function EmployeeList({ showAll = true }: EmployeeListProps) {
                     </TableCell>
                     <TableCell>
                       <Badge
-                        variant={getStatusVariant(employee.status || "ACTIVE")}
+                        variant={getStatusVariant(employee.status || EmployeeStatus.ACTIVE)}
                       >
-                        {getStatusLabel(employee.status || "ACTIVE")}
+                        {getStatusLabel(employee.status || EmployeeStatus.ACTIVE)}
                       </Badge>
                     </TableCell>
                     <TableCell>

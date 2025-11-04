@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { createNotification, NotificationTemplates } from '@/lib/notifications'
 import { logger, logError } from '@/lib/utils/logger'
+import { TaskStatus } from '@/lib/constants/status'
 
 export async function checkOverdueTasks() {
   try {
@@ -14,7 +15,7 @@ export async function checkOverdueTasks() {
           lt: today
         },
         status: {
-          in: ['PENDING', 'IN_PROGRESS']
+          in: [TaskStatus.PENDING, TaskStatus.IN_PROGRESS]
         }
       },
       include: {
@@ -74,7 +75,7 @@ export async function checkTasksDueSoon() {
           lte: tomorrow
         },
         status: {
-          in: ['PENDING', 'IN_PROGRESS']
+          in: [TaskStatus.PENDING, TaskStatus.IN_PROGRESS]
         }
       },
       include: {

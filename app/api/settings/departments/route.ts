@@ -6,17 +6,8 @@ import {
   formatErrorResponse,
   withAdminGuard 
 } from '@/lib/api/api-utils'
-import { z } from 'zod'
 import { departmentSchema } from '@/lib/validations'
 import { logError } from '@/lib/utils/logger'
-
-// Validation schema for department
-const departmentSchema = z.object({
-  name: z.string().min(1, 'Department name is required').max(100, 'Department name too long'),
-  description: z.string().optional(),
-  budget: z.number().min(0, 'Budget cannot be negative').optional(),
-  managerId: z.string().optional(),
-})
 
 export async function GET(request: NextRequest) {
   try {
