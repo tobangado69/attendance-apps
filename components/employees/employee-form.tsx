@@ -207,12 +207,6 @@ export function EmployeeForm({
         status: employee.status || "ACTIVE",
         manager: managerUserId,
       });
-
-      console.log("Form data set to:", {
-        department: departmentId,
-        manager: managerUserId,
-        managerEmployee: employee.manager,
-      });
     }
   }, [employee, departmentsLoading, managersLoading, managers]);
 
