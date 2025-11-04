@@ -136,7 +136,7 @@ class ApiClient {
     });
   }
 
-  async getNotifications(limit = 20, skipCache = false) {
+  async getNotifications(limit = BusinessRules.NOTIFICATIONS.MAX_PER_USER, skipCache = false) {
     return this.makeRequest(`/notifications?limit=${limit}`, {
       cacheTTL: CacheTTL.SHORT,
       skipCache,

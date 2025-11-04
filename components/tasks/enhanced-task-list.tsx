@@ -680,7 +680,7 @@ const EnhancedTaskList = memo(function EnhancedTaskList({
             id: "",
             title: "",
             description: "",
-            status: "PENDING",
+            status: TaskStatus.PENDING,
             priority: "MEDIUM",
             createdAt: new Date().toISOString(),
             creator: { id: "", name: "", email: "" },
