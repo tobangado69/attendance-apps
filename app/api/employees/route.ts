@@ -129,86 +129,35 @@ export const POST = withAdminManagerGuard(async (context, request: NextRequest) 
     const { name, email, password, role, employeeId, department, position, salary, status, manager } = validation.data
 
     // Check for existing records
-    const [existingUser, existingEmployee] = await Promise.all([
-      prisma.user.findUnique({ where: { email } }),
-      prisma.employee.findUnique({ where: { employeeId } })
-    ])
-
-    if (existingUser) {
+    const existing = await checkExistingRecords(email, employeeId)
+    if (existing.existingUser) {
       return formatErrorResponse('Email already exists', 400)
     }
-
-    if (existingEmployee) {
+    if (existing.existingEmployee) {
       return formatErrorResponse('Employee ID already exists', 400)
     }
 
     // Create user and employee in transaction
-    const result = await prisma.$transaction(async (tx) => {
-      const user = await tx.user.create({
-        data: {
-          name,
-          email,
-          password: password ? await bcrypt.hash(password, 12) : null,
-          role: role || 'EMPLOYEE'
-        } as { name: string; email: string; password: string | null; role: string }
+    let result
+    try {
+      result = await createEmployeeWithUser(prisma, {
+        name,
+        email,
+        password,
+        role: role || 'EMPLOYEE',
+        employeeId,
+        department,
+        position,
+        salary,
+        manager,
       })
-
-      // Handle department - convert name to ID if needed
-      let departmentId = null
-      if (department) {
-        // Check if department is already an ID (cuid format)
-        if (department.startsWith('cmf')) {
-          departmentId = department
-        } else {
-          // It's a department name, find the ID
-          const dept = await tx.department.findFirst({
-            where: { name: department }
-          })
-          if (dept) {
-            departmentId = dept.id
-          } else {
-            return formatErrorResponse(`Department '${department}' not found`, 400)
-          }
-        }
+    } catch (createError) {
+      const errorMessage = createError instanceof Error ? createError.message : 'Failed to create employee'
+      if (errorMessage.includes('Department') || errorMessage.includes('Manager')) {
+        return formatErrorResponse(errorMessage, 400)
       }
-
-      // Handle manager - convert user ID to employee ID if provided
-      let managerId = null
-      if (manager && manager !== 'no-manager') {
-        // Manager could be either a user ID or employee ID
-        // First try to find by user ID (most common case from form)
-        let managerEmployee = await tx.employee.findFirst({
-          where: { userId: manager }
-        })
-        
-        // If not found by user ID, try as employee ID
-        if (!managerEmployee && manager.startsWith('cmf')) {
-          managerEmployee = await tx.employee.findUnique({
-            where: { id: manager }
-          })
-        }
-        
-        if (managerEmployee) {
-          managerId = managerEmployee.id
-        } else {
-          return formatErrorResponse(`Manager with ID '${manager}' not found`, 400)
-        }
-      }
-
-      const employee = await tx.employee.create({
-        data: {
-          userId: user.id,
-          employeeId,
-          departmentId,
-          managerId,
-          position,
-          salary: salary ? parseFloat(salary.toString()) : null,
-          isActive: true
-        } as { userId: string; employeeId: string; departmentId: string | null; managerId: string | null; position: string | null; salary: number | null; isActive: boolean }
-      })
-
-      return { user, employee }
-    })
+      throw createError
+    }
 
     // Send notifications
     try {

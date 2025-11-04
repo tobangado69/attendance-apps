@@ -4,11 +4,8 @@
  * Following DRY principles and separation of concerns
  */
 
-import { PrismaClient, Prisma } from '@prisma/client';
+import { PrismaClient, Prisma, User, Employee } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-import { logError } from '@/lib/utils/logger';
-import { formatErrorResponse } from '@/lib/api/api-utils';
-import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 interface EmployeeCreateData {
@@ -22,6 +19,11 @@ interface EmployeeCreateData {
   salary?: number;
   status?: string;
   manager?: string;
+}
+
+interface CreateEmployeeResult {
+  user: User;
+  employee: Employee;
 }
 
 /**
@@ -149,7 +151,7 @@ export async function createEmployeeRecord(
 export async function createEmployeeWithUser(
   prismaClient: PrismaClient,
   data: EmployeeCreateData
-): Promise<{ user: any; employee: any }> {
+): Promise<CreateEmployeeResult> {
   return prismaClient.$transaction(async (tx) => {
     // Resolve department ID
     const departmentId = await resolveDepartmentId(tx, data.department);
