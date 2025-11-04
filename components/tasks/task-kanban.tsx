@@ -464,7 +464,7 @@ export function TaskKanban({ showAll = true }: TaskKanbanProps) {
             id: "",
             title: "",
             description: "",
-            status: "PENDING",
+            status: TaskStatus.PENDING,
             priority: "MEDIUM",
             createdAt: new Date().toISOString(),
             creator: { id: "", name: "", email: "" },

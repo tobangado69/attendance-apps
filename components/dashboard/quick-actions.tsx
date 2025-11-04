@@ -57,7 +57,7 @@ export function QuickActions({ className }: QuickActionsProps) {
         if (data.success && data.data) {
           const status = {
             isActive: data.data.isActive,
-            status: data.data.status || "ACTIVE",
+            status: data.data.status || EmployeeStatus.ACTIVE,
           };
           console.log("Quick Actions - Setting employee status:", status);
           setEmployeeStatus(status);
