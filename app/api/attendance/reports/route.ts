@@ -6,6 +6,7 @@ import {
   formatErrorResponse,
   validateRole
 } from '@/lib/api/api-utils'
+import { AttendanceStatus } from '@/lib/constants/status'
 
 export async function GET(request: NextRequest) {
   try {

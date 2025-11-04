@@ -42,6 +42,7 @@ import { format } from "date-fns";
 import { useDebounce } from "@/hooks/use-debounce";
 import { exportAttendanceToExcel } from "@/lib/excel-export";
 import { AttendanceStatus } from "@/lib/constants/status";
+import { logError } from "@/lib/utils/logger";
 
 interface AttendanceRecord {
   id: string;
@@ -242,7 +243,8 @@ export function AttendanceList({ showAll = false }: AttendanceListProps) {
             };
           }
           acc[dept].totalEmployees++;
-          if (record.status === AttendanceStatus.PRESENT) acc[dept].presentEmployees++;
+          if (record.status === AttendanceStatus.PRESENT)
+            acc[dept].presentEmployees++;
           acc[dept].totalHours += record.totalHours || 0;
           return acc;
         }, {} as Record<string, { department: string; totalHours: number }>)
@@ -250,7 +252,7 @@ export function AttendanceList({ showAll = false }: AttendanceListProps) {
 
       exportAttendanceToExcel(dailyData, employeeData, departmentData);
     } catch (error) {
-      console.error("Export failed:", error);
+      logError(error, { context: "attendance-list - exportAttendance" });
     }
   };
 
@@ -511,9 +513,13 @@ export function AttendanceList({ showAll = false }: AttendanceListProps) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All statuses</SelectItem>
-                  <SelectItem value={AttendanceStatus.PRESENT}>Present</SelectItem>
+                  <SelectItem value={AttendanceStatus.PRESENT}>
+                    Present
+                  </SelectItem>
                   <SelectItem value={AttendanceStatus.LATE}>Late</SelectItem>
-                  <SelectItem value={AttendanceStatus.ABSENT}>Absent</SelectItem>
+                  <SelectItem value={AttendanceStatus.ABSENT}>
+                    Absent
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -661,7 +667,8 @@ export function AttendanceList({ showAll = false }: AttendanceListProps) {
                 {debouncedSearchTerm ? (
                   <div>
                     <p>
-                      No attendance records found for &quot;{debouncedSearchTerm}&quot;
+                      No attendance records found for &quot;
+                      {debouncedSearchTerm}&quot;
                     </p>
                     <Button
                       variant="outline"
