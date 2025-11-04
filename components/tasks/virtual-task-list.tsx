@@ -32,6 +32,7 @@ import {
 import { VirtualList } from "@/components/ui/virtual-list";
 import { format } from "date-fns";
 import { SessionProp } from "@/lib/types/session";
+import { TaskStatus } from "@/lib/constants/status";
 
 interface Task {
   id: string;
@@ -129,9 +130,9 @@ const TaskRow = memo(function TaskRow({
       <TableCell>
         <Badge
           variant={
-            task.status === "COMPLETED"
+            task.status === TaskStatus.COMPLETED
               ? "default"
-              : task.status === "CANCELLED"
+              : task.status === TaskStatus.CANCELLED
               ? "destructive"
               : "secondary"
           }
