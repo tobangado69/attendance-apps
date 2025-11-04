@@ -1,0 +1,210 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Employee Dashboard" [level=1] [ref=e5]
+      - navigation [ref=e6]:
+        - link "Dashboard" [ref=e7] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e8]
+          - text: Dashboard
+        - link "Profile" [ref=e13] [cursor=pointer]:
+          - /url: /dashboard/profile
+          - img [ref=e14]
+          - text: Profile
+        - link "Employees" [ref=e17] [cursor=pointer]:
+          - /url: /dashboard/employees
+          - img [ref=e18]
+          - text: Employees
+        - link "Attendance" [ref=e23] [cursor=pointer]:
+          - /url: /dashboard/attendance
+          - img [ref=e24]
+          - text: Attendance
+        - link "Tasks" [ref=e27] [cursor=pointer]:
+          - /url: /dashboard/tasks
+          - img [ref=e28]
+          - text: Tasks
+        - link "Reports" [ref=e31] [cursor=pointer]:
+          - /url: /dashboard/reports
+          - img [ref=e32]
+          - text: Reports
+        - link "Settings" [ref=e34] [cursor=pointer]:
+          - /url: /dashboard/settings
+          - img [ref=e35]
+          - text: Settings
+      - button "Sign out" [ref=e39]:
+        - img
+        - text: Sign out
+    - generic [ref=e40]:
+      - banner [ref=e41]:
+        - generic [ref=e42]:
+          - generic [ref=e44]:
+            - img [ref=e45]
+            - textbox "Search employees, tasks..." [ref=e48]
+          - generic [ref=e49]:
+            - button "3" [ref=e51]:
+              - img
+              - generic [ref=e52]: "3"
+            - generic [ref=e53]:
+              - generic [ref=e54]:
+                - paragraph [ref=e55]: Bapak Manager
+                - paragraph [ref=e56]: MANAGER
+              - generic [ref=e58]: B
+      - main [ref=e59]:
+        - generic [ref=e60]:
+          - generic [ref=e61]:
+            - heading "Dashboard" [level=1] [ref=e62]
+            - paragraph [ref=e63]: Welcome back! Here's what's happening today.
+          - generic [ref=e64]:
+            - generic [ref=e65]:
+              - generic [ref=e66]:
+                - generic [ref=e67]: Total Employees
+                - img [ref=e68]
+              - generic [ref=e73]:
+                - generic [ref=e74]: "10"
+                - paragraph [ref=e75]: Active employees
+            - generic [ref=e76]:
+              - generic [ref=e77]:
+                - generic [ref=e78]: Present Today
+                - img [ref=e79]
+              - generic [ref=e82]:
+                - generic [ref=e83]: "1"
+                - paragraph [ref=e84]: Checked in today
+            - generic [ref=e85]:
+              - generic [ref=e86]:
+                - generic [ref=e87]: Pending Tasks
+                - img [ref=e88]
+              - generic [ref=e91]:
+                - generic [ref=e92]: "0"
+                - paragraph [ref=e93]: Tasks to complete
+            - generic [ref=e94]:
+              - generic [ref=e95]:
+                - generic [ref=e96]: Attendance Rate
+                - img [ref=e97]
+              - generic [ref=e100]:
+                - generic [ref=e101]: 100%
+                - paragraph [ref=e102]: This month
+          - generic [ref=e103]:
+            - generic [ref=e104]:
+              - generic [ref=e106]: Recent Activity
+              - generic [ref=e108]:
+                - generic [ref=e109]:
+                  - img [ref=e111]
+                  - generic [ref=e114]:
+                    - paragraph [ref=e115]: Abdul Rohim checked in at 11.59.13
+                    - generic [ref=e116]:
+                      - paragraph [ref=e117]: about 2 hours ago
+                      - generic [ref=e118]: completed
+                - generic [ref=e119]:
+                  - img [ref=e121]
+                  - generic [ref=e124]:
+                    - paragraph [ref=e125]: Abdul Rohim checked out at 11.59.15
+                    - generic [ref=e126]:
+                      - paragraph [ref=e127]: about 2 hours ago
+                      - generic [ref=e128]: completed
+                - generic [ref=e129]:
+                  - img [ref=e131]
+                  - generic [ref=e134]:
+                    - paragraph [ref=e135]: Abdul Rohim checked in at 13.35.16
+                    - generic [ref=e136]:
+                      - paragraph [ref=e137]: about 1 month ago
+                      - generic [ref=e138]: completed
+                - generic [ref=e139]:
+                  - img [ref=e141]
+                  - generic [ref=e144]:
+                    - paragraph [ref=e145]: Rohim Khan checked in at 08.30.00
+                    - generic [ref=e146]:
+                      - paragraph [ref=e147]: about 2 months ago
+                      - generic [ref=e148]: completed
+                - generic [ref=e149]:
+                  - img [ref=e151]
+                  - generic [ref=e154]:
+                    - paragraph [ref=e155]: Rohim Khan checked out at 17.00.00
+                    - generic [ref=e156]:
+                      - paragraph [ref=e157]: about 2 months ago
+                      - generic [ref=e158]: completed
+                - generic [ref=e159]:
+                  - img [ref=e161]
+                  - generic [ref=e164]:
+                    - paragraph [ref=e165]: Rohim Khan checked in at 09.00.00
+                    - generic [ref=e166]:
+                      - paragraph [ref=e167]: about 2 months ago
+                      - generic [ref=e168]: completed
+                - generic [ref=e169]:
+                  - img [ref=e171]
+                  - generic [ref=e174]:
+                    - paragraph [ref=e175]: Rohim Khan checked out at 17.30.00
+                    - generic [ref=e176]:
+                      - paragraph [ref=e177]: about 2 months ago
+                      - generic [ref=e178]: completed
+                - generic [ref=e179]:
+                  - img [ref=e181]
+                  - generic [ref=e184]:
+                    - paragraph [ref=e185]: Rohim Ahmed checked in at 08.30.00
+                    - generic [ref=e186]:
+                      - paragraph [ref=e187]: about 2 months ago
+                      - generic [ref=e188]: completed
+                - generic [ref=e189]:
+                  - img [ref=e191]
+                  - generic [ref=e194]:
+                    - paragraph [ref=e195]: Rohim Ahmed checked out at 17.00.00
+                    - generic [ref=e196]:
+                      - paragraph [ref=e197]: about 2 months ago
+                      - generic [ref=e198]: completed
+                - generic [ref=e199]:
+                  - img [ref=e201]
+                  - generic [ref=e204]:
+                    - paragraph [ref=e205]: Task "Update company website" started by Employee User Edit
+                    - generic [ref=e206]:
+                      - paragraph [ref=e207]: about 2 months ago
+                      - generic [ref=e208]: in_progress
+            - generic [ref=e209]:
+              - generic [ref=e211]:
+                - img [ref=e212]
+                - generic [ref=e215]: Quick Actions
+              - generic [ref=e217]:
+                - generic [ref=e218]:
+                  - generic [ref=e219]:
+                    - generic [ref=e220]:
+                      - generic [ref=e221]: Check In/Out
+                      - generic [ref=e222]: Record your attendance
+                    - generic [ref=e223]: Not Started
+                  - generic [ref=e224]:
+                    - button "Check In" [ref=e225]:
+                      - img
+                      - text: Check In
+                    - button "Check In First" [disabled]:
+                      - img
+                      - text: Check In First
+                - generic [ref=e226]:
+                  - button "View Tasks Check your assigned tasks" [ref=e227]:
+                    - generic [ref=e228]:
+                      - generic [ref=e229]:
+                        - img
+                        - generic [ref=e230]:
+                          - generic [ref=e231]: View Tasks
+                          - generic [ref=e232]: Check your assigned tasks
+                      - img
+                  - button "Generate Report Create attendance reports" [ref=e233]:
+                    - generic [ref=e234]:
+                      - generic [ref=e235]:
+                        - img
+                        - generic [ref=e236]:
+                          - generic [ref=e237]: Generate Report
+                          - generic [ref=e238]: Create attendance reports
+                      - img
+                  - button "Attendance History View your attendance records" [ref=e239]:
+                    - generic [ref=e240]:
+                      - generic [ref=e241]:
+                        - img
+                        - generic [ref=e242]:
+                          - generic [ref=e243]: Attendance History
+                          - generic [ref=e244]: View your attendance records
+                      - img
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e250] [cursor=pointer]:
+    - img [ref=e251]
+  - alert [ref=e254]
+```

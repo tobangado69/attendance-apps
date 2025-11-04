@@ -1,0 +1,427 @@
+---
+alwaysApply: true
+description: DRY (Don't Repeat Yourself) principles and code reusability guidelines
+---
+
+# DRY Principles & Code Reusability
+
+## 🎯 Core DRY Principles
+
+### Extract Common Patterns
+- Create reusable utility functions
+- Build composable components
+- Use custom hooks for shared logic
+- Implement generic types and interfaces
+
+### Avoid Code Duplication
+- Refactor repeated code into utilities
+- Use component composition over inheritance
+- Create shared constants and configurations
+- Implement proper abstraction layers
+
+## 🔧 Utility Functions
+
+### Date/Time Utilities
+```typescript
+// ✅ Good: Centralized date utilities
+// lib/utils/date.ts
+export const formatDate = (date: Date): string => {
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  }).format(date)
+}
+
+export const formatTime = (date: Date): string => {
+  return new Intl.DateTimeFormat('en-US', {
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(date)
+}
+
+export const calculateHours = (start: Date, end: Date): number => {
+  return (end.getTime() - start.getTime()) / (1000 * 60 * 60)
+}
+```
+
+### API Utilities
+```typescript
+// ✅ Good: Reusable API functions
+// lib/utils/api.ts
+export const apiCall = async <T>(
+  endpoint: string,
+  options?: RequestInit
+): Promise<T> => {
+  const response = await fetch(`/api${endpoint}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers
+    },
+    ...options
+  })
+  
+  if (!response.ok) {
+    throw new Error(`API Error: ${response.statusText}`)
+  }
+  
+  return response.json()
+}
+
+export const apiGet = <T>(endpoint: string) => apiCall<T>(endpoint)
+export const apiPost = <T>(endpoint: string, data: unknown) => 
+  apiCall<T>(endpoint, { method: 'POST', body: JSON.stringify(data) })
+```
+
+## 🧩 Reusable Components
+
+### Generic Data Table
+```tsx
+// ✅ Good: Reusable data table component
+// components/ui/data-table.tsx
+interface DataTableProps<T> {
+  data: T[]
+  columns: Column<T>[]
+  onEdit?: (item: T) => void
+  onDelete?: (item: T) => void
+}
+
+export function DataTable<T>({ data, columns, onEdit, onDelete }: DataTableProps<T>) {
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          {columns.map((column) => (
+            <TableHead key={column.key}>{column.label}</TableHead>
+          ))}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {data.map((item, index) => (
+          <TableRow key={index}>
+            {columns.map((column) => (
+              <TableCell key={column.key}>
+                {column.render ? column.render(item) : item[column.key]}
+              </TableCell>
+            ))}
+            {(onEdit || onDelete) && (
+              <TableCell>
+                <DropdownMenu>
+                  {onEdit && <DropdownMenuItem onClick={() => onEdit(item)}>Edit</DropdownMenuItem>}
+                  {onDelete && <DropdownMenuItem onClick={() => onDelete(item)}>Delete</DropdownMenuItem>}
+                </DropdownMenu>
+              </TableCell>
+            )}
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  )
+}
+```
+
+### Form Components
+```tsx
+// ✅ Good: Reusable form components
+// components/forms/form-field.tsx
+interface FormFieldProps {
+  label: string
+  error?: string
+  children: React.ReactNode
+}
+
+export function FormField({ label, error, children }: FormFieldProps) {
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      {children}
+      {error && <p className="text-sm text-red-600">{error}</p>}
+    </div>
+  )
+}
+
+// Usage
+<FormField label="Name" error={errors.name}>
+  <Input {...register('name')} />
+</FormField>
+```
+
+## 🎣 Custom Hooks
+
+### Data Fetching Hooks
+```typescript
+// ✅ Good: Reusable data fetching hook
+// hooks/use-api.ts
+export function useApi<T>(endpoint: string, options?: RequestInit) {
+  const [data, setData] = useState<T | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true)
+        const result = await apiCall<T>(endpoint, options)
+        setData(result)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [endpoint, JSON.stringify(options)])
+
+  return { data, loading, error, refetch: () => fetchData() }
+}
+```
+
+### Form Hooks
+```typescript
+// ✅ Good: Reusable form hook
+// hooks/use-form.ts
+export function useForm<T>(initialValues: T, validationSchema?: any) {
+  const [values, setValues] = useState<T>(initialValues)
+  const [errors, setErrors] = useState<Partial<Record<keyof T, string>>>({})
+
+  const setValue = (field: keyof T, value: any) => {
+    setValues(prev => ({ ...prev, [field]: value }))
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: undefined }))
+    }
+  }
+
+  const validate = () => {
+    if (!validationSchema) return true
+    
+    try {
+      validationSchema.parse(values)
+      setErrors({})
+      return true
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const newErrors: Partial<Record<keyof T, string>> = {}
+        err.errors.forEach((error) => {
+          if (error.path[0]) {
+            newErrors[error.path[0] as keyof T] = error.message
+          }
+        })
+        setErrors(newErrors)
+      }
+      return false
+    }
+  }
+
+  return { values, errors, setValue, validate, reset: () => setValues(initialValues) }
+}
+```
+
+## 🏗️ Component Composition
+
+### Layout Components
+```tsx
+// ✅ Good: Composable layout components
+// components/layout/page-header.tsx
+interface PageHeaderProps {
+  title: string
+  description?: string
+  actions?: React.ReactNode
+}
+
+export function PageHeader({ title, description, actions }: PageHeaderProps) {
+  return (
+    <div className="flex items-center justify-between">
+      <div>
+        <h1 className="text-3xl font-bold">{title}</h1>
+        {description && <p className="text-muted-foreground">{description}</p>}
+      </div>
+      {actions && <div className="flex items-center space-x-2">{actions}</div>}
+    </div>
+  )
+}
+
+// Usage
+<PageHeader 
+  title="Employees" 
+  description="Manage your team members"
+  actions={<Button>Add Employee</Button>}
+/>
+```
+
+### Card Components
+```tsx
+// ✅ Good: Flexible card component
+// components/ui/stats-card.tsx
+interface StatsCardProps {
+  title: string
+  value: string | number
+  description?: string
+  icon?: React.ComponentType<{ className?: string }>
+  trend?: {
+    value: number
+    isPositive: boolean
+  }
+}
+
+export function StatsCard({ title, value, description, icon: Icon, trend }: StatsCardProps) {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{value}</div>
+        {description && <p className="text-xs text-muted-foreground">{description}</p>}
+        {trend && (
+          <div className={`text-xs ${trend.isPositive ? 'text-green-600' : 'text-red-600'}`}>
+            {trend.isPositive ? '+' : ''}{trend.value}% from last month
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+```
+
+## 📊 Constants & Configuration
+
+### API Endpoints
+```typescript
+// ✅ Good: Centralized API configuration
+// lib/constants/api.ts
+export const API_ENDPOINTS = {
+  EMPLOYEES: '/employees',
+  ATTENDANCE: '/attendance',
+  TASKS: '/tasks',
+  REPORTS: '/reports'
+} as const
+
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
+```
+
+### Application Constants
+```typescript
+// ✅ Good: Centralized constants
+// lib/constants/app.ts
+export const ROLES = {
+  ADMIN: 'ADMIN',
+  MANAGER: 'MANAGER',
+  EMPLOYEE: 'EMPLOYEE'
+} as const
+
+export const TASK_STATUS = {
+  PENDING: 'PENDING',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export const TASK_PRIORITY = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+  URGENT: 'URGENT'
+} as const
+```
+
+## 🔄 Generic Types & Interfaces
+
+### API Response Types
+```typescript
+// ✅ Good: Generic API response types
+// lib/types/api.ts
+export interface ApiResponse<T> {
+  data: T
+  message?: string
+  success: boolean
+}
+
+export interface PaginatedResponse<T> {
+  data: T[]
+  meta: {
+    total: number
+    page: number
+    limit: number
+    totalPages: number
+  }
+}
+
+export interface ApiError {
+  message: string
+  code?: string
+  details?: Record<string, any>
+}
+```
+
+### Form Types
+```typescript
+// ✅ Good: Generic form types
+// lib/types/forms.ts
+export interface BaseFormData {
+  id?: string
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+export interface EmployeeFormData extends BaseFormData {
+  name: string
+  email: string
+  department: string
+  position: string
+  salary: number
+}
+
+export interface TaskFormData extends BaseFormData {
+  title: string
+  description: string
+  assigneeId: string
+  priority: string
+  dueDate: Date
+}
+```
+
+## 🧪 Testing Utilities
+
+### Test Helpers
+```typescript
+// ✅ Good: Reusable test utilities
+// lib/test-utils.tsx
+import { render, RenderOptions } from '@testing-library/react'
+import { SessionProvider } from 'next-auth/react'
+
+const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <SessionProvider session={mockSession}>
+      {children}
+    </SessionProvider>
+  )
+}
+
+const customRender = (ui: React.ReactElement, options?: RenderOptions) =>
+  render(ui, { wrapper: AllTheProviders, ...options })
+
+export * from '@testing-library/react'
+export { customRender as render }
+```
+
+## 📝 Best Practices Summary
+
+### Do's
+- ✅ Extract common logic into custom hooks
+- ✅ Create reusable utility functions
+- ✅ Use generic types for flexibility
+- ✅ Build composable components
+- ✅ Centralize constants and configurations
+- ✅ Implement proper error handling
+- ✅ Use TypeScript for type safety
+
+### Don'ts
+- ❌ Copy-paste code without refactoring
+- ❌ Create components that are too specific
+- ❌ Hardcode values that might change
+- ❌ Ignore type safety
+- ❌ Create deep component hierarchies
+- ❌ Mix business logic with UI components
+- ❌ Forget to handle edge cases

@@ -1,0 +1,504 @@
+---
+globs: app/dashboard/**,components/dashboard/**,lib/types.ts,prisma/schema.prisma
+description: Employee dashboard specific patterns and business logic guidelines
+---
+
+# Employee Dashboard - Business Logic & Patterns
+
+## 🏢 Domain-Specific Rules
+
+### Employee Management
+- Always validate employee data before database operations
+- Use proper role-based access control for employee operations
+- Implement soft delete for employee records
+- Maintain audit trail for employee changes
+
+### Attendance Tracking
+- Calculate total hours automatically on check-out
+- Validate check-in/check-out times for business rules
+- Handle edge cases (overtime, breaks, late arrivals)
+- Generate attendance reports with proper date ranges
+
+### Task Management
+- Assign tasks only to active employees
+- Update task status with proper state transitions
+- Calculate task completion rates accurately
+- Implement proper task priority handling
+
+## 🔐 Authentication & Authorization
+
+### Role-Based Access Control
+```typescript
+// ✅ Good: Role-based component rendering
+interface RoleGuardProps {
+  allowedRoles: string[]
+  children: React.ReactNode
+  fallback?: React.ReactNode
+}
+
+export function RoleGuard({ allowedRoles, children, fallback }: RoleGuardProps) {
+  const { data: session } = useSession()
+  
+  if (!session?.user?.role || !allowedRoles.includes(session.user.role)) {
+    return fallback || null
+  }
+  
+  return <>{children}</>
+}
+
+// Usage
+<RoleGuard allowedRoles={['ADMIN', 'MANAGER']}>
+  <EmployeeManagementPanel />
+</RoleGuard>
+```
+
+### Permission Checks
+```typescript
+// ✅ Good: Permission-based utilities
+export const hasPermission = (userRole: string, action: string): boolean => {
+  const permissions = {
+    ADMIN: ['read', 'write', 'delete', 'manage'],
+    MANAGER: ['read', 'write', 'manage_team'],
+    EMPLOYEE: ['read', 'update_own']
+  }
+  
+  return permissions[userRole]?.includes(action) || false
+}
+```
+
+## 📊 Data Validation Patterns
+
+### Employee Validation
+```typescript
+// ✅ Good: Employee data validation
+export const validateEmployee = (data: Partial<Employee>): ValidationResult => {
+  const errors: Record<string, string> = {}
+  
+  if (!data.name || data.name.trim().length < 2) {
+    errors.name = 'Name must be at least 2 characters'
+  }
+  
+  if (!data.email || !isValidEmail(data.email)) {
+    errors.email = 'Please enter a valid email address'
+  }
+  
+  if (data.salary && data.salary < 0) {
+    errors.salary = 'Salary must be a positive number'
+  }
+  
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors
+  }
+}
+```
+
+### Attendance Validation
+```typescript
+// ✅ Good: Attendance business rules
+export const validateAttendance = (checkIn: Date, checkOut?: Date): ValidationResult => {
+  const errors: Record<string, string> = {}
+  const now = new Date()
+  
+  // Check if check-in is in the future
+  if (checkIn > now) {
+    errors.checkIn = 'Check-in time cannot be in the future'
+  }
+  
+  // Check if check-out is before check-in
+  if (checkOut && checkOut <= checkIn) {
+    errors.checkOut = 'Check-out time must be after check-in time'
+  }
+  
+  // Check if check-out is in the future
+  if (checkOut && checkOut > now) {
+    errors.checkOut = 'Check-out time cannot be in the future'
+  }
+  
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors
+  }
+}
+```
+
+## 🎯 Business Logic Patterns
+
+### Attendance Calculations
+```typescript
+// ✅ Good: Attendance calculation utilities
+export const calculateAttendanceStats = (attendanceRecords: Attendance[]) => {
+  const totalDays = attendanceRecords.length
+  const presentDays = attendanceRecords.filter(record => record.checkIn).length
+  const totalHours = attendanceRecords.reduce((sum, record) => 
+    sum + (record.totalHours || 0), 0
+  )
+  
+  return {
+    totalDays,
+    presentDays,
+    absentDays: totalDays - presentDays,
+    attendanceRate: totalDays > 0 ? (presentDays / totalDays) * 100 : 0,
+    totalHours,
+    averageHoursPerDay: totalDays > 0 ? totalHours / totalDays : 0
+  }
+}
+```
+
+### Task Management Logic
+```typescript
+// ✅ Good: Task status transitions
+export const getValidTaskStatusTransitions = (currentStatus: TaskStatus): TaskStatus[] => {
+  const transitions: Record<TaskStatus, TaskStatus[]> = {
+    PENDING: ['IN_PROGRESS', 'CANCELLED'],
+    IN_PROGRESS: ['COMPLETED', 'CANCELLED'],
+    COMPLETED: [], // No transitions from completed
+    CANCELLED: [] // No transitions from cancelled
+  }
+  
+  return transitions[currentStatus] || []
+}
+
+export const canTransitionTask = (from: TaskStatus, to: TaskStatus): boolean => {
+  return getValidTaskStatusTransitions(from).includes(to)
+}
+```
+
+## 📈 Reporting Patterns
+
+### Date Range Handling
+```typescript
+// ✅ Good: Date range utilities
+export const getDateRange = (period: 'today' | 'week' | 'month' | 'year') => {
+  const now = new Date()
+  const start = new Date(now)
+  
+  switch (period) {
+    case 'today':
+      start.setHours(0, 0, 0, 0)
+      return { start, end: now }
+    case 'week':
+      start.setDate(now.getDate() - 7)
+      return { start, end: now }
+    case 'month':
+      start.setMonth(now.getMonth() - 1)
+      return { start, end: now }
+    case 'year':
+      start.setFullYear(now.getFullYear() - 1)
+      return { start, end: now }
+  }
+}
+```
+
+### Report Generation
+```typescript
+// ✅ Good: Report data aggregation
+export const generateAttendanceReport = async (
+  startDate: Date,
+  endDate: Date,
+  departmentId?: string
+) => {
+  const whereClause = {
+    date: {
+      gte: startDate,
+      lte: endDate
+    },
+    ...(departmentId && {
+      employee: {
+        department: departmentId
+      }
+    })
+  }
+  
+  const attendance = await prisma.attendance.findMany({
+    where: whereClause,
+    include: {
+      employee: {
+        include: {
+          user: true
+        }
+      }
+    }
+  })
+  
+  return aggregateAttendanceData(attendance)
+}
+```
+
+## 🎨 UI Component Patterns
+
+### Employee Card Component
+```tsx
+// ✅ Good: Employee card with proper data handling
+interface EmployeeCardProps {
+  employee: Employee
+  onEdit?: (employee: Employee) => void
+  onDelete?: (employee: Employee) => void
+  showActions?: boolean
+}
+
+export function EmployeeCard({ 
+  employee, 
+  onEdit, 
+  onDelete, 
+  showActions = true 
+}: EmployeeCardProps) {
+  const { data: session } = useSession()
+  const canEdit = hasPermission(session?.user?.role || '', 'write')
+  
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>{employee.user.name}</CardTitle>
+            <p className="text-sm text-muted-foreground">{employee.position}</p>
+          </div>
+          <Badge variant="outline">{employee.department}</Badge>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2">
+          <p className="text-sm">{employee.user.email}</p>
+          <p className="text-sm">Employee ID: {employee.employeeId}</p>
+          {employee.salary && (
+            <p className="text-sm">Salary: ${employee.salary.toLocaleString()}</p>
+          )}
+        </div>
+        {showActions && canEdit && (
+          <div className="flex space-x-2 mt-4">
+            {onEdit && (
+              <Button variant="outline" size="sm" onClick={() => onEdit(employee)}>
+                Edit
+              </Button>
+            )}
+            {onDelete && (
+              <Button variant="destructive" size="sm" onClick={() => onDelete(employee)}>
+                Delete
+              </Button>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+```
+
+### Attendance Status Component
+```tsx
+// ✅ Good: Attendance status with proper calculations
+interface AttendanceStatusProps {
+  attendance: Attendance
+  showDetails?: boolean
+}
+
+export function AttendanceStatus({ attendance, showDetails = false }: AttendanceStatusProps) {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'present': return 'bg-green-100 text-green-800'
+      case 'late': return 'bg-yellow-100 text-yellow-800'
+      case 'absent': return 'bg-red-100 text-red-800'
+      default: return 'bg-gray-100 text-gray-800'
+    }
+  }
+  
+  const formatTime = (date: Date) => {
+    return new Intl.DateTimeFormat('en-US', {
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(date)
+  }
+  
+  return (
+    <div className="flex items-center space-x-2">
+      <Badge className={getStatusColor(attendance.status)}>
+        {attendance.status}
+      </Badge>
+      {showDetails && attendance.checkIn && (
+        <span className="text-sm text-muted-foreground">
+          {formatTime(attendance.checkIn)}
+          {attendance.checkOut && ` - ${formatTime(attendance.checkOut)}`}
+        </span>
+      )}
+      {attendance.totalHours && (
+        <span className="text-sm font-medium">
+          {attendance.totalHours.toFixed(1)}h
+        </span>
+      )}
+    </div>
+  )
+}
+```
+
+## 🔄 State Management Patterns
+
+### Dashboard State
+```typescript
+// ✅ Good: Dashboard state management
+interface DashboardState {
+  stats: DashboardStats
+  recentActivity: Activity[]
+  loading: boolean
+  error: string | null
+}
+
+export function useDashboardState() {
+  const [state, setState] = useState<DashboardState>({
+    stats: {
+      totalEmployees: 0,
+      presentToday: 0,
+      pendingTasks: 0,
+      completedTasks: 0,
+      attendanceRate: 0
+    },
+    recentActivity: [],
+    loading: true,
+    error: null
+  })
+  
+  const fetchData = useCallback(async () => {
+    try {
+      setState(prev => ({ ...prev, loading: true, error: null }))
+      
+      const [statsResponse, activityResponse] = await Promise.all([
+        fetch('/api/dashboard/stats'),
+        fetch('/api/dashboard/activity')
+      ])
+      
+      const [stats, activity] = await Promise.all([
+        statsResponse.json(),
+        activityResponse.json()
+      ])
+      
+      setState(prev => ({
+        ...prev,
+        stats,
+        recentActivity: activity,
+        loading: false
+      }))
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        loading: false,
+        error: error instanceof Error ? error.message : 'An error occurred'
+      }))
+    }
+  }, [])
+  
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
+  
+  return { ...state, refetch: fetchData }
+}
+```
+
+## 📝 Error Handling Patterns
+
+### API Error Handling
+```typescript
+// ✅ Good: Centralized error handling
+export const handleApiError = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message
+  }
+  
+  if (typeof error === 'string') {
+    return error
+  }
+  
+  return 'An unexpected error occurred'
+}
+
+export const withErrorHandling = <T extends any[], R>(
+  fn: (...args: T) => Promise<R>
+) => {
+  return async (...args: T): Promise<{ data: R | null; error: string | null }> => {
+    try {
+      const data = await fn(...args)
+      return { data, error: null }
+    } catch (error) {
+      return { data: null, error: handleApiError(error) }
+    }
+  }
+}
+```
+
+## 🎯 Performance Optimization
+
+### Data Fetching Optimization
+```typescript
+// ✅ Good: Optimized data fetching
+export const useEmployees = (filters?: EmployeeFilters) => {
+  const [employees, setEmployees] = useState<Employee[]>([])
+  const [loading, setLoading] = useState(true)
+  
+  const fetchEmployees = useCallback(async () => {
+    try {
+      setLoading(true)
+      const queryParams = new URLSearchParams()
+      
+      if (filters?.department) queryParams.set('department', filters.department)
+      if (filters?.search) queryParams.set('search', filters.search)
+      if (filters?.page) queryParams.set('page', filters.page.toString())
+      
+      const response = await fetch(`/api/employees?${queryParams}`)
+      const data = await response.json()
+      
+      setEmployees(data)
+    } catch (error) {
+      console.error('Error fetching employees:', error)
+    } finally {
+      setLoading(false)
+    }
+  }, [filters])
+  
+  useEffect(() => {
+    fetchEmployees()
+  }, [fetchEmployees])
+  
+  return { employees, loading, refetch: fetchEmployees }
+}
+```
+
+## 🧪 Testing Patterns
+
+### Component Testing
+```typescript
+// ✅ Good: Component testing with proper mocks
+describe('EmployeeCard', () => {
+  const mockEmployee: Employee = {
+    id: '1',
+    userId: '1',
+    employeeId: 'EMP001',
+    department: 'Engineering',
+    position: 'Developer',
+    salary: 75000,
+    isActive: true,
+    user: {
+      id: '1',
+      name: 'John Doe',
+      email: 'john@example.com',
+      role: 'EMPLOYEE'
+    }
+  }
+  
+  it('renders employee information correctly', () => {
+    render(<EmployeeCard employee={mockEmployee} />)
+    
+    expect(screen.getByText('John Doe')).toBeInTheDocument()
+    expect(screen.getByText('Developer')).toBeInTheDocument()
+    expect(screen.getByText('Engineering')).toBeInTheDocument()
+  })
+  
+  it('shows edit button for users with write permission', () => {
+    const mockSession = { user: { role: 'ADMIN' } }
+    useSession.mockReturnValue({ data: mockSession })
+    
+    render(<EmployeeCard employee={mockEmployee} onEdit={jest.fn()} />)
+    
+    expect(screen.getByText('Edit')).toBeInTheDocument()
+  })
+})
+```

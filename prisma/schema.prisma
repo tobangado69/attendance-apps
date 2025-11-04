@@ -1,0 +1,228 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  EMPLOYEE
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+  LAYOFF
+  TERMINATED
+  ON_LEAVE
+  SUSPENDED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String?
+  image     String? // Profile image URL
+  role      Role     @default(EMPLOYEE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  employee           Employee?
+  assignedTasks      Task[]         @relation("TaskAssignee")
+  createdTasks       Task[]         @relation("TaskCreator")
+  attendance         Attendance[]
+  notifications      Notification[]
+  taskNotes          TaskNote[]
+  managedDepartments Department[]   @relation("DepartmentManager")
+
+  @@map("users")
+}
+
+model Employee {
+  id           String         @id @default(cuid())
+  userId       String         @unique
+  employeeId   String         @unique // Employee ID number
+  departmentId String? // Foreign key to Department
+  managerId    String? // Foreign key to Employee (self-reference)
+  position     String?
+  hireDate     DateTime?
+  salary       Float?
+  status       EmployeeStatus @default(ACTIVE)
+  isActive     Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  // Relations
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  department    Department?  @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  manager       Employee?    @relation("EmployeeManager", fields: [managerId], references: [id], onDelete: SetNull)
+  directReports Employee[]   @relation("EmployeeManager")
+  attendance    Attendance[]
+  tasks         Task[]       @relation("EmployeeTasks")
+
+  // Performance indexes
+  @@index([departmentId])
+  @@index([managerId])
+  @@index([status])
+  @@index([isActive])
+  @@index([departmentId, isActive])
+  @@map("employees")
+}
+
+model Attendance {
+  id         String    @id @default(cuid())
+  userId     String
+  employeeId String?
+  checkIn    DateTime?
+  checkOut   DateTime?
+  date       DateTime  @default(now())
+  totalHours Float? // Calculated field
+  status     String    @default("present") // present, absent, late, half-day
+  notes      String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  employee Employee? @relation(fields: [employeeId], references: [id], onDelete: SetNull)
+
+  // Performance indexes for common query patterns
+  @@index([userId, date]) // Composite index for user's attendance queries
+  @@index([date]) // Index for date range queries
+  @@index([userId, date, status]) // Composite index for filtered queries
+  @@index([employeeId, date]) // Index for employee attendance queries
+  @@index([status]) // Index for status filtering
+  @@map("attendance")
+}
+
+model Task {
+  id          String       @id @default(cuid())
+  title       String
+  description String?
+  status      TaskStatus   @default(PENDING)
+  priority    TaskPriority @default(MEDIUM)
+  dueDate     DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Relations
+  assigneeId String?
+  creatorId  String
+  employeeId String?
+
+  assignee User?      @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  creator  User       @relation("TaskCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  employee Employee?  @relation("EmployeeTasks", fields: [employeeId], references: [id], onDelete: SetNull)
+  notes    TaskNote[]
+
+  // Performance indexes for common query patterns
+  @@index([assigneeId])
+  @@index([creatorId])
+  @@index([status])
+  @@index([priority])
+  @@index([dueDate])
+  @@index([assigneeId, status]) // Composite for assigned tasks by status
+  @@index([status, priority]) // Composite for filtering by status and priority
+  @@index([dueDate, status]) // Composite for overdue tasks
+  @@map("tasks")
+}
+
+model TaskNote {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  taskId String
+  userId String
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Performance indexes
+  @@index([taskId]) // Index for task notes queries
+  @@index([userId]) // Index for user's notes
+  @@index([taskId, createdAt]) // Composite for task notes sorted by date
+  @@map("task_notes")
+}
+
+model Department {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  managerId   String?
+  budget      Float?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  manager   User?      @relation("DepartmentManager", fields: [managerId], references: [id], onDelete: SetNull)
+  employees Employee[]
+
+  @@map("departments")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      String   @default("info") // info, success, warning, error
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Performance indexes
+  @@index([userId, isRead]) // Composite for user's unread notifications
+  @@index([userId, createdAt]) // Composite for user's notifications sorted by date
+  @@index([isRead]) // Index for read status filtering
+  @@map("notifications")
+}
+
+model CompanySettings {
+  id                      String   @id @default(cuid())
+  companyName             String   @default("Employee Dashboard")
+  companyAddress          String?
+  companyPhone            String?
+  companyEmail            String?
+  workingHoursStart       String   @default("08:00") // HH:MM format
+  workingHoursEnd         String   @default("17:00") // HH:MM format
+  lateArrivalGraceMinutes Int      @default(2) // Grace period in minutes
+  overtimeThresholdHours  Float    @default(8.0) // Hours after which overtime kicks in
+  workingDaysPerWeek      Int      @default(5) // Monday to Friday
+  timezone                String   @default("UTC")
+  dateFormat              String   @default("MM/dd/yyyy")
+  currency                String   @default("USD")
+  isActive                Boolean  @default(true)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  @@map("company_settings")
+}

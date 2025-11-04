@@ -1,0 +1,123 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Employee Dashboard" [level=1] [ref=e5]
+      - navigation [ref=e6]:
+        - link "Dashboard" [ref=e7] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e8]
+          - text: Dashboard
+        - link "Profile" [ref=e13] [cursor=pointer]:
+          - /url: /dashboard/profile
+          - img [ref=e14]
+          - text: Profile
+        - link "Attendance" [ref=e17] [cursor=pointer]:
+          - /url: /dashboard/attendance
+          - img [ref=e18]
+          - text: Attendance
+        - link "Tasks" [ref=e21] [cursor=pointer]:
+          - /url: /dashboard/tasks
+          - img [ref=e22]
+          - text: Tasks
+      - button "Sign out" [ref=e26]:
+        - img
+        - text: Sign out
+    - generic [ref=e27]:
+      - banner [ref=e28]:
+        - generic [ref=e29]:
+          - generic [ref=e31]:
+            - img [ref=e32]
+            - textbox "Search employees, tasks..." [ref=e35]
+          - generic [ref=e36]:
+            - button [ref=e38]:
+              - img
+            - generic [ref=e39]:
+              - generic [ref=e40]:
+                - paragraph [ref=e41]: Employee User Edit
+                - paragraph [ref=e42]: EMPLOYEE
+              - generic [ref=e44]: E
+      - main [ref=e45]:
+        - generic [ref=e46]:
+          - generic [ref=e47]:
+            - heading "Dashboard" [level=1] [ref=e48]
+            - paragraph [ref=e49]: Welcome back! Here's what's happening today.
+          - generic [ref=e50]:
+            - generic [ref=e51]:
+              - generic [ref=e52]:
+                - generic [ref=e53]: Total Employees
+                - img [ref=e54]
+              - generic [ref=e59]:
+                - generic [ref=e60]: "0"
+                - paragraph [ref=e61]: Active employees
+            - generic [ref=e62]:
+              - generic [ref=e63]:
+                - generic [ref=e64]: Present Today
+                - img [ref=e65]
+              - generic [ref=e68]:
+                - generic [ref=e69]: "0"
+                - paragraph [ref=e70]: Checked in today
+            - generic [ref=e71]:
+              - generic [ref=e72]:
+                - generic [ref=e73]: Pending Tasks
+                - img [ref=e74]
+              - generic [ref=e77]:
+                - generic [ref=e78]: "0"
+                - paragraph [ref=e79]: Tasks to complete
+            - generic [ref=e80]:
+              - generic [ref=e81]:
+                - generic [ref=e82]: Attendance Rate
+                - img [ref=e83]
+              - generic [ref=e86]:
+                - generic [ref=e87]: 0%
+                - paragraph [ref=e88]: This month
+          - generic [ref=e90]:
+            - generic [ref=e92]:
+              - img [ref=e93]
+              - generic [ref=e96]: Quick Actions
+            - generic [ref=e98]:
+              - generic [ref=e99]:
+                - generic [ref=e100]:
+                  - generic [ref=e101]:
+                    - generic [ref=e102]: Check In/Out
+                    - generic [ref=e103]: Record your attendance
+                  - generic [ref=e104]: Not Started
+                - generic [ref=e105]:
+                  - button "Check In" [ref=e106]:
+                    - img
+                    - text: Check In
+                  - button "Check In First" [disabled]:
+                    - img
+                    - text: Check In First
+              - generic [ref=e107]:
+                - button "View Tasks Check your assigned tasks" [ref=e108]:
+                  - generic [ref=e109]:
+                    - generic [ref=e110]:
+                      - img
+                      - generic [ref=e111]:
+                        - generic [ref=e112]: View Tasks
+                        - generic [ref=e113]: Check your assigned tasks
+                    - img
+                - button "Generate Report Create attendance reports" [ref=e114]:
+                  - generic [ref=e115]:
+                    - generic [ref=e116]:
+                      - img
+                      - generic [ref=e117]:
+                        - generic [ref=e118]: Generate Report
+                        - generic [ref=e119]: Create attendance reports
+                    - img
+                - button "Attendance History View your attendance records" [ref=e120]:
+                  - generic [ref=e121]:
+                    - generic [ref=e122]:
+                      - img
+                      - generic [ref=e123]:
+                        - generic [ref=e124]: Attendance History
+                        - generic [ref=e125]: View your attendance records
+                    - img
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e131] [cursor=pointer]:
+    - img [ref=e132]
+  - alert [ref=e135]
+```

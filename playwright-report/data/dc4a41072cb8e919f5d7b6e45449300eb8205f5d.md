@@ -1,0 +1,137 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Employee Dashboard" [level=1] [ref=e5]
+      - navigation [ref=e6]:
+        - link "Dashboard" [ref=e7] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e8]
+          - text: Dashboard
+        - link "Profile" [ref=e13] [cursor=pointer]:
+          - /url: /dashboard/profile
+          - img [ref=e14]
+          - text: Profile
+        - link "Employees" [ref=e17] [cursor=pointer]:
+          - /url: /dashboard/employees
+          - img [ref=e18]
+          - text: Employees
+        - link "Attendance" [ref=e23] [cursor=pointer]:
+          - /url: /dashboard/attendance
+          - img [ref=e24]
+          - text: Attendance
+        - link "Tasks" [ref=e27] [cursor=pointer]:
+          - /url: /dashboard/tasks
+          - img [ref=e28]
+          - text: Tasks
+        - link "Reports" [ref=e31] [cursor=pointer]:
+          - /url: /dashboard/reports
+          - img [ref=e32]
+          - text: Reports
+        - link "Settings" [ref=e34] [cursor=pointer]:
+          - /url: /dashboard/settings
+          - img [ref=e35]
+          - text: Settings
+      - button "Sign out" [ref=e39]:
+        - img
+        - text: Sign out
+    - generic [ref=e40]:
+      - banner [ref=e41]:
+        - generic [ref=e42]:
+          - generic [ref=e44]:
+            - img [ref=e45]
+            - textbox "Search employees, tasks..." [ref=e48]
+          - generic [ref=e49]:
+            - button [ref=e51]:
+              - img
+            - generic [ref=e52]:
+              - generic [ref=e53]:
+                - paragraph [ref=e54]: Abdul Rohim
+                - paragraph [ref=e55]: ADMIN
+              - generic [ref=e57]: A
+      - main [ref=e58]:
+        - generic [ref=e59]:
+          - generic [ref=e60]:
+            - heading "Dashboard" [level=1] [ref=e61]
+            - paragraph [ref=e62]: Welcome back! Here's what's happening today.
+          - generic [ref=e63]:
+            - generic [ref=e64]:
+              - generic [ref=e65]:
+                - generic [ref=e66]: Total Employees
+                - img [ref=e67]
+              - generic [ref=e72]:
+                - generic [ref=e73]: "0"
+                - paragraph [ref=e74]: Active employees
+            - generic [ref=e75]:
+              - generic [ref=e76]:
+                - generic [ref=e77]: Present Today
+                - img [ref=e78]
+              - generic [ref=e81]:
+                - generic [ref=e82]: "0"
+                - paragraph [ref=e83]: Checked in today
+            - generic [ref=e84]:
+              - generic [ref=e85]:
+                - generic [ref=e86]: Pending Tasks
+                - img [ref=e87]
+              - generic [ref=e90]:
+                - generic [ref=e91]: "0"
+                - paragraph [ref=e92]: Tasks to complete
+            - generic [ref=e93]:
+              - generic [ref=e94]:
+                - generic [ref=e95]: Attendance Rate
+                - img [ref=e96]
+              - generic [ref=e99]:
+                - generic [ref=e100]: 0%
+                - paragraph [ref=e101]: This month
+          - generic [ref=e102]:
+            - generic [ref=e105]: Recent Activity
+            - generic [ref=e106]:
+              - generic [ref=e108]:
+                - img [ref=e109]
+                - generic [ref=e112]: Quick Actions
+              - generic [ref=e114]:
+                - generic [ref=e115]:
+                  - generic [ref=e116]:
+                    - generic [ref=e117]:
+                      - generic [ref=e118]: Check In/Out
+                      - generic [ref=e119]: Record your attendance
+                    - generic [ref=e120]: Not Started
+                  - generic [ref=e121]:
+                    - button "Check In" [ref=e122]:
+                      - img
+                      - text: Check In
+                    - button "Check In First" [disabled]:
+                      - img
+                      - text: Check In First
+                - generic [ref=e123]:
+                  - button "View Tasks Check your assigned tasks" [ref=e124]:
+                    - generic [ref=e125]:
+                      - generic [ref=e126]:
+                        - img
+                        - generic [ref=e127]:
+                          - generic [ref=e128]: View Tasks
+                          - generic [ref=e129]: Check your assigned tasks
+                      - img
+                  - button "Generate Report Create attendance reports" [ref=e130]:
+                    - generic [ref=e131]:
+                      - generic [ref=e132]:
+                        - img
+                        - generic [ref=e133]:
+                          - generic [ref=e134]: Generate Report
+                          - generic [ref=e135]: Create attendance reports
+                      - img
+                  - button "Attendance History View your attendance records" [ref=e136]:
+                    - generic [ref=e137]:
+                      - generic [ref=e138]:
+                        - img
+                        - generic [ref=e139]:
+                          - generic [ref=e140]: Attendance History
+                          - generic [ref=e141]: View your attendance records
+                      - img
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e147] [cursor=pointer]:
+    - img [ref=e148]
+  - alert [ref=e151]
+```

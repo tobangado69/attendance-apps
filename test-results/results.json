@@ -1,0 +1,1636 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\Administrator\\Dashboard\\playwright.config.ts",
+    "rootDir": "C:/Users/Administrator/Dashboard/tests/playwright",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 8
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        null
+      ],
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "C:/Users/Administrator/Dashboard/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 8
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/Administrator/Dashboard/tests/playwright",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/Administrator/Dashboard/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 8
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "C:/Users/Administrator/Dashboard/tests/playwright",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/Administrator/Dashboard/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 8
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "C:/Users/Administrator/Dashboard/tests/playwright",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/Administrator/Dashboard/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 8
+        },
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "C:/Users/Administrator/Dashboard/tests/playwright",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/Administrator/Dashboard/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 8
+        },
+        "id": "Mobile Safari",
+        "name": "Mobile Safari",
+        "testDir": "C:/Users/Administrator/Dashboard/tests/playwright",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 8,
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://localhost:3000",
+      "reuseExistingServer": true,
+      "timeout": 120000,
+      "stdout": "ignore",
+      "stderr": "pipe"
+    }
+  },
+  "suites": [
+    {
+      "title": "attendance.spec.ts",
+      "file": "attendance.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Attendance Management",
+          "file": "attendance.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should display check-in button",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 18734,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n    at loginAs (C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts:36:10)\n    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\attendance.spec.ts:6:5",
+                        "location": {
+                          "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                          "column": 10,
+                          "line": 36
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mhelpers\\auth.ts:36\n\n\u001b[0m \u001b[90m 34 |\u001b[39m   \u001b[90m// This ensures we don't miss the navigation event\u001b[39m\n \u001b[90m 35 |\u001b[39m   \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 36 |\u001b[39m     page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 37 |\u001b[39m     page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 38 |\u001b[39m   ])\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m   \u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                            "column": 10,
+                            "line": 36
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\auth.ts:36\n\n\u001b[0m \u001b[90m 34 |\u001b[39m   \u001b[90m// This ensures we don't miss the navigation event\u001b[39m\n \u001b[90m 35 |\u001b[39m   \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 36 |\u001b[39m     page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 37 |\u001b[39m     page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 38 |\u001b[39m   ])\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m   \u001b[0m\n\u001b[2m    at loginAs (C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts:36:10)\u001b[22m\n\u001b[2m    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\attendance.spec.ts:6:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-04T06:28:57.628Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\attendance-Attendance-Mana-0ec60-uld-display-check-in-button-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\attendance-Attendance-Mana-0ec60-uld-display-check-in-button-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\attendance-Attendance-Mana-0ec60-uld-display-check-in-button-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\attendance-Attendance-Mana-0ec60-uld-display-check-in-button-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                        "column": 10,
+                        "line": 36
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "3b9a56e6ecc460e88dcd-b69e13590877794e0504",
+              "file": "attendance.spec.ts",
+              "line": 11,
+              "column": 7
+            },
+            {
+              "title": "should check in successfully",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 17137,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n    at loginAs (C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts:36:10)\n    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\attendance.spec.ts:6:5",
+                        "location": {
+                          "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                          "column": 10,
+                          "line": 36
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mhelpers\\auth.ts:36\n\n\u001b[0m \u001b[90m 34 |\u001b[39m   \u001b[90m// This ensures we don't miss the navigation event\u001b[39m\n \u001b[90m 35 |\u001b[39m   \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 36 |\u001b[39m     page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 37 |\u001b[39m     page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 38 |\u001b[39m   ])\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m   \u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                            "column": 10,
+                            "line": 36
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\auth.ts:36\n\n\u001b[0m \u001b[90m 34 |\u001b[39m   \u001b[90m// This ensures we don't miss the navigation event\u001b[39m\n \u001b[90m 35 |\u001b[39m   \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 36 |\u001b[39m     page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 37 |\u001b[39m     page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 38 |\u001b[39m   ])\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m   \u001b[0m\n\u001b[2m    at loginAs (C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts:36:10)\u001b[22m\n\u001b[2m    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\attendance.spec.ts:6:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-04T06:28:57.629Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\attendance-Attendance-Mana-51853-hould-check-in-successfully-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\attendance-Attendance-Mana-51853-hould-check-in-successfully-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\attendance-Attendance-Mana-51853-hould-check-in-successfully-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\attendance-Attendance-Mana-51853-hould-check-in-successfully-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                        "column": 10,
+                        "line": 36
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "3b9a56e6ecc460e88dcd-14f822724c55e75571e5",
+              "file": "attendance.spec.ts",
+              "line": 15,
+              "column": 7
+            },
+            {
+              "title": "should display attendance records",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 18821,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n    at loginAs (C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts:36:10)\n    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\attendance.spec.ts:6:5",
+                        "location": {
+                          "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                          "column": 10,
+                          "line": 36
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mhelpers\\auth.ts:36\n\n\u001b[0m \u001b[90m 34 |\u001b[39m   \u001b[90m// This ensures we don't miss the navigation event\u001b[39m\n \u001b[90m 35 |\u001b[39m   \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 36 |\u001b[39m     page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 37 |\u001b[39m     page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 38 |\u001b[39m   ])\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m   \u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                            "column": 10,
+                            "line": 36
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\auth.ts:36\n\n\u001b[0m \u001b[90m 34 |\u001b[39m   \u001b[90m// This ensures we don't miss the navigation event\u001b[39m\n \u001b[90m 35 |\u001b[39m   \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 36 |\u001b[39m     page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 37 |\u001b[39m     page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 38 |\u001b[39m   ])\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m   \u001b[0m\n\u001b[2m    at loginAs (C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts:36:10)\u001b[22m\n\u001b[2m    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\attendance.spec.ts:6:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-04T06:28:57.634Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\attendance-Attendance-Mana-59c5f--display-attendance-records-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\attendance-Attendance-Mana-59c5f--display-attendance-records-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\attendance-Attendance-Mana-59c5f--display-attendance-records-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\attendance-Attendance-Mana-59c5f--display-attendance-records-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                        "column": 10,
+                        "line": 36
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "3b9a56e6ecc460e88dcd-8958957929384bd9d2ed",
+              "file": "attendance.spec.ts",
+              "line": 28,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "auth.spec.ts",
+      "file": "auth.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Authentication Flow",
+          "file": "auth.spec.ts",
+          "line": 18,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should display login form",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 3550,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-04T06:28:57.639Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\auth-Authentication-Flow-should-display-login-form-chromium\\trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-81f9feef39dc0b61f143",
+              "file": "auth.spec.ts",
+              "line": 23,
+              "column": 7
+            },
+            {
+              "title": "should login as admin successfully",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "failed",
+                      "duration": 18699,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\auth.spec.ts:36:12",
+                        "location": {
+                          "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\auth.spec.ts",
+                          "column": 12,
+                          "line": 36
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 34 |\u001b[39m     \u001b[90m// Click and wait for navigation\u001b[39m\n \u001b[90m 35 |\u001b[39m     \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 36 |\u001b[39m       page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 37 |\u001b[39m       page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 38 |\u001b[39m     ])\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m     \u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\auth.spec.ts",
+                            "column": 12,
+                            "line": 36
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n\n\u001b[0m \u001b[90m 34 |\u001b[39m     \u001b[90m// Click and wait for navigation\u001b[39m\n \u001b[90m 35 |\u001b[39m     \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 36 |\u001b[39m       page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 37 |\u001b[39m       page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 38 |\u001b[39m     ])\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m     \u001b[0m\n\u001b[2m    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\auth.spec.ts:36:12\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-04T06:28:57.673Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\auth-Authentication-Flow-should-login-as-admin-successfully-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\auth-Authentication-Flow-should-login-as-admin-successfully-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\auth-Authentication-Flow-should-login-as-admin-successfully-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\auth-Authentication-Flow-should-login-as-admin-successfully-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\auth.spec.ts",
+                        "column": 12,
+                        "line": 36
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-3ccbf9c77ea02eb0749e",
+              "file": "auth.spec.ts",
+              "line": 30,
+              "column": 7
+            },
+            {
+              "title": "should login as manager successfully",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 5,
+                      "status": "failed",
+                      "duration": 18596,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\auth.spec.ts:51:12",
+                        "location": {
+                          "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\auth.spec.ts",
+                          "column": 12,
+                          "line": 51
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 49 |\u001b[39m     \u001b[90m// Click and wait for navigation\u001b[39m\n \u001b[90m 50 |\u001b[39m     \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 51 |\u001b[39m       page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 52 |\u001b[39m       page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 53 |\u001b[39m     ])\u001b[33m;\u001b[39m\n \u001b[90m 54 |\u001b[39m     \u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\auth.spec.ts",
+                            "column": 12,
+                            "line": 51
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n\n\u001b[0m \u001b[90m 49 |\u001b[39m     \u001b[90m// Click and wait for navigation\u001b[39m\n \u001b[90m 50 |\u001b[39m     \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 51 |\u001b[39m       page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 52 |\u001b[39m       page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 53 |\u001b[39m     ])\u001b[33m;\u001b[39m\n \u001b[90m 54 |\u001b[39m     \u001b[0m\n\u001b[2m    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\auth.spec.ts:51:12\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-04T06:28:57.672Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\auth-Authentication-Flow-s-a6220-gin-as-manager-successfully-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\auth-Authentication-Flow-s-a6220-gin-as-manager-successfully-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\auth-Authentication-Flow-s-a6220-gin-as-manager-successfully-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\auth-Authentication-Flow-s-a6220-gin-as-manager-successfully-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\auth.spec.ts",
+                        "column": 12,
+                        "line": 51
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-ecf5d30cc593b8c63233",
+              "file": "auth.spec.ts",
+              "line": 45,
+              "column": 7
+            },
+            {
+              "title": "should login as employee successfully",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 6,
+                      "status": "failed",
+                      "duration": 18399,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\auth.spec.ts:67:12",
+                        "location": {
+                          "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\auth.spec.ts",
+                          "column": 12,
+                          "line": 67
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 65 |\u001b[39m     \u001b[90m// Click and wait for navigation\u001b[39m\n \u001b[90m 66 |\u001b[39m     \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 67 |\u001b[39m       page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 68 |\u001b[39m       page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 69 |\u001b[39m     ])\u001b[33m;\u001b[39m\n \u001b[90m 70 |\u001b[39m     \u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\auth.spec.ts",
+                            "column": 12,
+                            "line": 67
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n\n\u001b[0m \u001b[90m 65 |\u001b[39m     \u001b[90m// Click and wait for navigation\u001b[39m\n \u001b[90m 66 |\u001b[39m     \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 67 |\u001b[39m       page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 68 |\u001b[39m       page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 69 |\u001b[39m     ])\u001b[33m;\u001b[39m\n \u001b[90m 70 |\u001b[39m     \u001b[0m\n\u001b[2m    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\auth.spec.ts:67:12\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-04T06:28:57.653Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\auth-Authentication-Flow-s-570e5-in-as-employee-successfully-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\auth-Authentication-Flow-s-570e5-in-as-employee-successfully-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\auth-Authentication-Flow-s-570e5-in-as-employee-successfully-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\auth-Authentication-Flow-s-570e5-in-as-employee-successfully-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\auth.spec.ts",
+                        "column": 12,
+                        "line": 67
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-02c7120a747ef0c7d715",
+              "file": "auth.spec.ts",
+              "line": 61,
+              "column": 7
+            },
+            {
+              "title": "should show error for invalid credentials",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 7,
+                      "status": "failed",
+                      "duration": 8735,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=/Invalid email or password/i')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=/Invalid email or password/i')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=/Invalid email or password/i')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=/Invalid email or password/i')\u001b[22m\n\n    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\auth.spec.ts:83:69",
+                        "location": {
+                          "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\auth.spec.ts",
+                          "column": 69,
+                          "line": 83
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 81 |\u001b[39m     \n \u001b[90m 82 |\u001b[39m     \u001b[90m// Wait for error message\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 83 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=/Invalid email or password/i'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 84 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[32m'/auth/signin'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 85 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 86 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\auth.spec.ts",
+                            "column": 69,
+                            "line": 83
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=/Invalid email or password/i')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=/Invalid email or password/i')\u001b[22m\n\n\n\u001b[0m \u001b[90m 81 |\u001b[39m     \n \u001b[90m 82 |\u001b[39m     \u001b[90m// Wait for error message\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 83 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=/Invalid email or password/i'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 84 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[32m'/auth/signin'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 85 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 86 |\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\auth.spec.ts:83:69\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-04T06:28:57.681Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\auth-Authentication-Flow-s-c1b41-ror-for-invalid-credentials-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\auth-Authentication-Flow-s-c1b41-ror-for-invalid-credentials-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\auth-Authentication-Flow-s-c1b41-ror-for-invalid-credentials-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\auth-Authentication-Flow-s-c1b41-ror-for-invalid-credentials-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\auth.spec.ts",
+                        "column": 69,
+                        "line": 83
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-05954164880eaca3a0f9",
+              "file": "auth.spec.ts",
+              "line": 77,
+              "column": 7
+            },
+            {
+              "title": "should logout successfully",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 17988,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\auth.spec.ts:93:12",
+                        "location": {
+                          "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\auth.spec.ts",
+                          "column": 12,
+                          "line": 93
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 91 |\u001b[39m     \n \u001b[90m 92 |\u001b[39m     \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 93 |\u001b[39m       page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 94 |\u001b[39m       page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 95 |\u001b[39m     ])\u001b[33m;\u001b[39m\n \u001b[90m 96 |\u001b[39m     \u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\auth.spec.ts",
+                            "column": 12,
+                            "line": 93
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n\n\u001b[0m \u001b[90m 91 |\u001b[39m     \n \u001b[90m 92 |\u001b[39m     \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 93 |\u001b[39m       page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 94 |\u001b[39m       page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 95 |\u001b[39m     ])\u001b[33m;\u001b[39m\n \u001b[90m 96 |\u001b[39m     \u001b[0m\n\u001b[2m    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\auth.spec.ts:93:12\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-04T06:29:01.690Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\auth-Authentication-Flow-should-logout-successfully-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\auth-Authentication-Flow-should-logout-successfully-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\auth-Authentication-Flow-should-logout-successfully-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\auth-Authentication-Flow-should-logout-successfully-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\auth.spec.ts",
+                        "column": 12,
+                        "line": 93
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-c0ce6ccc7b7e02794edb",
+              "file": "auth.spec.ts",
+              "line": 87,
+              "column": 7
+            },
+            {
+              "title": "should validate required fields",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 7,
+                      "status": "passed",
+                      "duration": 13988,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-04T06:29:09.008Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\auth-Authentication-Flow-should-validate-required-fields-chromium\\trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-759f8e5240c1f2280972",
+              "file": "auth.spec.ts",
+              "line": 107,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "dashboard.spec.ts",
+      "file": "dashboard.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Dashboard",
+          "file": "dashboard.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should display dashboard stats",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 20888,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n    at loginAs (C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts:36:10)\n    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\dashboard.spec.ts:6:5",
+                        "location": {
+                          "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                          "column": 10,
+                          "line": 36
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mhelpers\\auth.ts:36\n\n\u001b[0m \u001b[90m 34 |\u001b[39m   \u001b[90m// This ensures we don't miss the navigation event\u001b[39m\n \u001b[90m 35 |\u001b[39m   \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 36 |\u001b[39m     page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 37 |\u001b[39m     page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 38 |\u001b[39m   ])\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m   \u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                            "column": 10,
+                            "line": 36
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\auth.ts:36\n\n\u001b[0m \u001b[90m 34 |\u001b[39m   \u001b[90m// This ensures we don't miss the navigation event\u001b[39m\n \u001b[90m 35 |\u001b[39m   \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 36 |\u001b[39m     page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 37 |\u001b[39m     page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 38 |\u001b[39m   ])\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m   \u001b[0m\n\u001b[2m    at loginAs (C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts:36:10)\u001b[22m\n\u001b[2m    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\dashboard.spec.ts:6:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-04T06:29:17.155Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\dashboard-Dashboard-should-display-dashboard-stats-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\dashboard-Dashboard-should-display-dashboard-stats-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\dashboard-Dashboard-should-display-dashboard-stats-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\dashboard-Dashboard-should-display-dashboard-stats-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                        "column": 10,
+                        "line": 36
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "90cda532ab82d274b30b-c596dd1be90057fb047d",
+              "file": "dashboard.spec.ts",
+              "line": 9,
+              "column": 7
+            },
+            {
+              "title": "should navigate to attendance page",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 6,
+                      "status": "failed",
+                      "duration": 20049,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n    at loginAs (C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts:36:10)\n    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\dashboard.spec.ts:6:5",
+                        "location": {
+                          "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                          "column": 10,
+                          "line": 36
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mhelpers\\auth.ts:36\n\n\u001b[0m \u001b[90m 34 |\u001b[39m   \u001b[90m// This ensures we don't miss the navigation event\u001b[39m\n \u001b[90m 35 |\u001b[39m   \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 36 |\u001b[39m     page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 37 |\u001b[39m     page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 38 |\u001b[39m   ])\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m   \u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                            "column": 10,
+                            "line": 36
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\auth.ts:36\n\n\u001b[0m \u001b[90m 34 |\u001b[39m   \u001b[90m// This ensures we don't miss the navigation event\u001b[39m\n \u001b[90m 35 |\u001b[39m   \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 36 |\u001b[39m     page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 37 |\u001b[39m     page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 38 |\u001b[39m   ])\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m   \u001b[0m\n\u001b[2m    at loginAs (C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts:36:10)\u001b[22m\n\u001b[2m    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\dashboard.spec.ts:6:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-04T06:29:18.123Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\dashboard-Dashboard-should-navigate-to-attendance-page-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\dashboard-Dashboard-should-navigate-to-attendance-page-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\dashboard-Dashboard-should-navigate-to-attendance-page-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\dashboard-Dashboard-should-navigate-to-attendance-page-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                        "column": 10,
+                        "line": 36
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "90cda532ab82d274b30b-ec7ad802ca7742de2402",
+              "file": "dashboard.spec.ts",
+              "line": 16,
+              "column": 7
+            },
+            {
+              "title": "should navigate to tasks page",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 11,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 20008,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n    at loginAs (C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts:36:10)\n    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\dashboard.spec.ts:6:5",
+                        "location": {
+                          "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                          "column": 10,
+                          "line": 36
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mhelpers\\auth.ts:36\n\n\u001b[0m \u001b[90m 34 |\u001b[39m   \u001b[90m// This ensures we don't miss the navigation event\u001b[39m\n \u001b[90m 35 |\u001b[39m   \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 36 |\u001b[39m     page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 37 |\u001b[39m     page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 38 |\u001b[39m   ])\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m   \u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                            "column": 10,
+                            "line": 36
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\auth.ts:36\n\n\u001b[0m \u001b[90m 34 |\u001b[39m   \u001b[90m// This ensures we don't miss the navigation event\u001b[39m\n \u001b[90m 35 |\u001b[39m   \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 36 |\u001b[39m     page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 37 |\u001b[39m     page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 38 |\u001b[39m   ])\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m   \u001b[0m\n\u001b[2m    at loginAs (C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts:36:10)\u001b[22m\n\u001b[2m    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\dashboard.spec.ts:6:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-04T06:29:18.228Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\dashboard-Dashboard-should-navigate-to-tasks-page-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\dashboard-Dashboard-should-navigate-to-tasks-page-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\dashboard-Dashboard-should-navigate-to-tasks-page-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\dashboard-Dashboard-should-navigate-to-tasks-page-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                        "column": 10,
+                        "line": 36
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "90cda532ab82d274b30b-5257740ef23918de47d5",
+              "file": "dashboard.spec.ts",
+              "line": 22,
+              "column": 7
+            },
+            {
+              "title": "should navigate to employees page",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 4,
+                      "status": "failed",
+                      "duration": 19887,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n    at loginAs (C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts:36:10)\n    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\dashboard.spec.ts:6:5",
+                        "location": {
+                          "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                          "column": 10,
+                          "line": 36
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mhelpers\\auth.ts:36\n\n\u001b[0m \u001b[90m 34 |\u001b[39m   \u001b[90m// This ensures we don't miss the navigation event\u001b[39m\n \u001b[90m 35 |\u001b[39m   \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 36 |\u001b[39m     page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 37 |\u001b[39m     page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 38 |\u001b[39m   ])\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m   \u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                            "column": 10,
+                            "line": 36
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\auth.ts:36\n\n\u001b[0m \u001b[90m 34 |\u001b[39m   \u001b[90m// This ensures we don't miss the navigation event\u001b[39m\n \u001b[90m 35 |\u001b[39m   \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 36 |\u001b[39m     page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 37 |\u001b[39m     page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 38 |\u001b[39m   ])\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m   \u001b[0m\n\u001b[2m    at loginAs (C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts:36:10)\u001b[22m\n\u001b[2m    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\dashboard.spec.ts:6:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-04T06:29:18.236Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\dashboard-Dashboard-should-navigate-to-employees-page-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\dashboard-Dashboard-should-navigate-to-employees-page-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\dashboard-Dashboard-should-navigate-to-employees-page-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\dashboard-Dashboard-should-navigate-to-employees-page-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                        "column": 10,
+                        "line": 36
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "90cda532ab82d274b30b-6ea58ac094c4bd56e766",
+              "file": "dashboard.spec.ts",
+              "line": 28,
+              "column": 7
+            },
+            {
+              "title": "should navigate to settings page",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 13,
+                      "parallelIndex": 5,
+                      "status": "failed",
+                      "duration": 19847,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n    at loginAs (C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts:36:10)\n    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\dashboard.spec.ts:6:5",
+                        "location": {
+                          "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                          "column": 10,
+                          "line": 36
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mhelpers\\auth.ts:36\n\n\u001b[0m \u001b[90m 34 |\u001b[39m   \u001b[90m// This ensures we don't miss the navigation event\u001b[39m\n \u001b[90m 35 |\u001b[39m   \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 36 |\u001b[39m     page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 37 |\u001b[39m     page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 38 |\u001b[39m   ])\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m   \u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                            "column": 10,
+                            "line": 36
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\auth.ts:36\n\n\u001b[0m \u001b[90m 34 |\u001b[39m   \u001b[90m// This ensures we don't miss the navigation event\u001b[39m\n \u001b[90m 35 |\u001b[39m   \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 36 |\u001b[39m     page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 37 |\u001b[39m     page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 38 |\u001b[39m   ])\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m   \u001b[0m\n\u001b[2m    at loginAs (C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts:36:10)\u001b[22m\n\u001b[2m    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\dashboard.spec.ts:6:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-04T06:29:18.236Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\dashboard-Dashboard-should-navigate-to-settings-page-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\dashboard-Dashboard-should-navigate-to-settings-page-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\dashboard-Dashboard-should-navigate-to-settings-page-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\dashboard-Dashboard-should-navigate-to-settings-page-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                        "column": 10,
+                        "line": 36
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "90cda532ab82d274b30b-64f21b04555ccd98ffc7",
+              "file": "dashboard.spec.ts",
+              "line": 34,
+              "column": 7
+            },
+            {
+              "title": "should navigate to reports page",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 19888,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n    at loginAs (C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts:36:10)\n    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\dashboard.spec.ts:6:5",
+                        "location": {
+                          "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                          "column": 10,
+                          "line": 36
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mhelpers\\auth.ts:36\n\n\u001b[0m \u001b[90m 34 |\u001b[39m   \u001b[90m// This ensures we don't miss the navigation event\u001b[39m\n \u001b[90m 35 |\u001b[39m   \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 36 |\u001b[39m     page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 37 |\u001b[39m     page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 38 |\u001b[39m   ])\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m   \u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                            "column": 10,
+                            "line": 36
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/dashboard\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\auth.ts:36\n\n\u001b[0m \u001b[90m 34 |\u001b[39m   \u001b[90m// This ensures we don't miss the navigation event\u001b[39m\n \u001b[90m 35 |\u001b[39m   \u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall([\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 36 |\u001b[39m     page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m,\u001b[39m\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 37 |\u001b[39m     page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sign in\")'\u001b[39m)\u001b[33m,\u001b[39m\n \u001b[90m 38 |\u001b[39m   ])\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m   \u001b[0m\n\u001b[2m    at loginAs (C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts:36:10)\u001b[22m\n\u001b[2m    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\dashboard.spec.ts:6:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-04T06:29:18.284Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\dashboard-Dashboard-should-navigate-to-reports-page-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\dashboard-Dashboard-should-navigate-to-reports-page-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\dashboard-Dashboard-should-navigate-to-reports-page-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\dashboard-Dashboard-should-navigate-to-reports-page-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\helpers\\auth.ts",
+                        "column": 10,
+                        "line": 36
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "90cda532ab82d274b30b-d26b5eca45f262624f91",
+              "file": "dashboard.spec.ts",
+              "line": 40,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "rbac.spec.ts",
+      "file": "rbac.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Role-Based Access Control (RBAC)",
+          "file": "rbac.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "admin should have access to all pages",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 15,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 25879,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Employees')\nExpected: visible\nError: strict mode violation: locator('text=Employees') resolved to 3 elements:\n    1) <a href=\"/dashboard/employees\" class=\"group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors text-gray-300 hover:bg-gray-700 hover:text-white\">…</a> aka getByRole('link', { name: 'Employees' })\n    2) <div data-slot=\"card-title\" class=\"text-sm font-medium\">Total Employees</div> aka getByText('Total Employees')\n    3) <p class=\"text-xs text-muted-foreground\">Active employees</p> aka getByText('Active employees')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Employees')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Employees')\nExpected: visible\nError: strict mode violation: locator('text=Employees') resolved to 3 elements:\n    1) <a href=\"/dashboard/employees\" class=\"group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors text-gray-300 hover:bg-gray-700 hover:text-white\">…</a> aka getByRole('link', { name: 'Employees' })\n    2) <div data-slot=\"card-title\" class=\"text-sm font-medium\">Total Employees</div> aka getByText('Total Employees')\n    3) <p class=\"text-xs text-muted-foreground\">Active employees</p> aka getByText('Active employees')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Employees')\u001b[22m\n\n    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\rbac.spec.ts:10:50",
+                        "location": {
+                          "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\rbac.spec.ts",
+                          "column": 50,
+                          "line": 10
+                        },
+                        "snippet": "\u001b[0m \u001b[90m  8 |\u001b[39m     \u001b[90m// Admin should see all navigation items\u001b[39m\n \u001b[90m  9 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Settings'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 10 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Employees'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 11 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Reports'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 12 |\u001b[39m     \n \u001b[90m 13 |\u001b[39m     \u001b[90m// Admin should access settings\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\rbac.spec.ts",
+                            "column": 50,
+                            "line": 10
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Employees')\nExpected: visible\nError: strict mode violation: locator('text=Employees') resolved to 3 elements:\n    1) <a href=\"/dashboard/employees\" class=\"group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors text-gray-300 hover:bg-gray-700 hover:text-white\">…</a> aka getByRole('link', { name: 'Employees' })\n    2) <div data-slot=\"card-title\" class=\"text-sm font-medium\">Total Employees</div> aka getByText('Total Employees')\n    3) <p class=\"text-xs text-muted-foreground\">Active employees</p> aka getByText('Active employees')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Employees')\u001b[22m\n\n\n\u001b[0m \u001b[90m  8 |\u001b[39m     \u001b[90m// Admin should see all navigation items\u001b[39m\n \u001b[90m  9 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Settings'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 10 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Employees'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 11 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Reports'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 12 |\u001b[39m     \n \u001b[90m 13 |\u001b[39m     \u001b[90m// Admin should access settings\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\rbac.spec.ts:10:50\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-04T06:29:20.759Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\rbac-Role-Based-Access-Con-8cce2-ld-have-access-to-all-pages-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\rbac-Role-Based-Access-Con-8cce2-ld-have-access-to-all-pages-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\rbac-Role-Based-Access-Con-8cce2-ld-have-access-to-all-pages-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\rbac-Role-Based-Access-Con-8cce2-ld-have-access-to-all-pages-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\rbac.spec.ts",
+                        "column": 50,
+                        "line": 10
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "f2d4bd4479eae63a7f57-df2c6515745363f18836",
+              "file": "rbac.spec.ts",
+              "line": 5,
+              "column": 7
+            },
+            {
+              "title": "manager should NOT see Settings but should see Employees",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 7,
+                      "status": "failed",
+                      "duration": 28300,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('text=Settings')\nExpected: not visible\nReceived: visible\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"not toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Settings')\u001b[22m\n\u001b[2m    9 × locator resolved to <a href=\"/dashboard/settings\" class=\"group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors text-gray-300 hover:bg-gray-700 hover:text-white\">…</a>\u001b[22m\n\u001b[2m      - unexpected value \"visible\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('text=Settings')\nExpected: not visible\nReceived: visible\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"not toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Settings')\u001b[22m\n\u001b[2m    9 × locator resolved to <a href=\"/dashboard/settings\" class=\"group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors text-gray-300 hover:bg-gray-700 hover:text-white\">…</a>\u001b[22m\n\u001b[2m      - unexpected value \"visible\"\u001b[22m\n\n    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\rbac.spec.ts:22:53",
+                        "location": {
+                          "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\rbac.spec.ts",
+                          "column": 53,
+                          "line": 22
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 20 |\u001b[39m     \n \u001b[90m 21 |\u001b[39m     \u001b[90m// Manager should NOT see Settings\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 22 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Settings'\u001b[39m))\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 23 |\u001b[39m     \n \u001b[90m 24 |\u001b[39m     \u001b[90m// Manager should see Employees\u001b[39m\n \u001b[90m 25 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Employees'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\rbac.spec.ts",
+                            "column": 53,
+                            "line": 22
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('text=Settings')\nExpected: not visible\nReceived: visible\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"not toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Settings')\u001b[22m\n\u001b[2m    9 × locator resolved to <a href=\"/dashboard/settings\" class=\"group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors text-gray-300 hover:bg-gray-700 hover:text-white\">…</a>\u001b[22m\n\u001b[2m      - unexpected value \"visible\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 20 |\u001b[39m     \n \u001b[90m 21 |\u001b[39m     \u001b[90m// Manager should NOT see Settings\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 22 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Settings'\u001b[39m))\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 23 |\u001b[39m     \n \u001b[90m 24 |\u001b[39m     \u001b[90m// Manager should see Employees\u001b[39m\n \u001b[90m 25 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Employees'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\rbac.spec.ts:22:53\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-04T06:29:23.354Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\rbac-Role-Based-Access-Con-9d18a-gs-but-should-see-Employees-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\rbac-Role-Based-Access-Con-9d18a-gs-but-should-see-Employees-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\rbac-Role-Based-Access-Con-9d18a-gs-but-should-see-Employees-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\rbac-Role-Based-Access-Con-9d18a-gs-but-should-see-Employees-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\rbac.spec.ts",
+                        "column": 53,
+                        "line": 22
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "f2d4bd4479eae63a7f57-c1249fde3ddd20838b86",
+              "file": "rbac.spec.ts",
+              "line": 18,
+              "column": 7
+            },
+            {
+              "title": "employee should NOT see Settings or Employees",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 16,
+                      "parallelIndex": 4,
+                      "status": "failed",
+                      "duration": 13473,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Employees')\nExpected: not visible\nError: strict mode violation: locator('text=Employees') resolved to 2 elements:\n    1) <div data-slot=\"card-title\" class=\"text-sm font-medium\">Total Employees</div> aka getByText('Total Employees')\n    2) <p class=\"text-xs text-muted-foreground\">Active employees</p> aka getByText('Active employees')\n\nCall log:\n\u001b[2m  - Expect \"not toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Employees')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Employees')\nExpected: not visible\nError: strict mode violation: locator('text=Employees') resolved to 2 elements:\n    1) <div data-slot=\"card-title\" class=\"text-sm font-medium\">Total Employees</div> aka getByText('Total Employees')\n    2) <p class=\"text-xs text-muted-foreground\">Active employees</p> aka getByText('Active employees')\n\nCall log:\n\u001b[2m  - Expect \"not toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Employees')\u001b[22m\n\n    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\rbac.spec.ts:37:54",
+                        "location": {
+                          "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\rbac.spec.ts",
+                          "column": 54,
+                          "line": 37
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 35 |\u001b[39m     \u001b[90m// Employee should NOT see Settings or Employees\u001b[39m\n \u001b[90m 36 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Settings'\u001b[39m))\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Employees'\u001b[39m))\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m     \n \u001b[90m 39 |\u001b[39m     \u001b[90m// Try to access settings directly (should redirect or show error)\u001b[39m\n \u001b[90m 40 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/dashboard/settings'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\rbac.spec.ts",
+                            "column": 54,
+                            "line": 37
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Employees')\nExpected: not visible\nError: strict mode violation: locator('text=Employees') resolved to 2 elements:\n    1) <div data-slot=\"card-title\" class=\"text-sm font-medium\">Total Employees</div> aka getByText('Total Employees')\n    2) <p class=\"text-xs text-muted-foreground\">Active employees</p> aka getByText('Active employees')\n\nCall log:\n\u001b[2m  - Expect \"not toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Employees')\u001b[22m\n\n\n\u001b[0m \u001b[90m 35 |\u001b[39m     \u001b[90m// Employee should NOT see Settings or Employees\u001b[39m\n \u001b[90m 36 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Settings'\u001b[39m))\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Employees'\u001b[39m))\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m     \n \u001b[90m 39 |\u001b[39m     \u001b[90m// Try to access settings directly (should redirect or show error)\u001b[39m\n \u001b[90m 40 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/dashboard/settings'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\rbac.spec.ts:37:54\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-04T06:29:39.629Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\rbac-Role-Based-Access-Con-97cd4-T-see-Settings-or-Employees-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\rbac-Role-Based-Access-Con-97cd4-T-see-Settings-or-Employees-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\rbac-Role-Based-Access-Con-97cd4-T-see-Settings-or-Employees-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Administrator\\Dashboard\\test-results\\rbac-Role-Based-Access-Con-97cd4-T-see-Settings-or-Employees-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Administrator\\Dashboard\\tests\\playwright\\rbac.spec.ts",
+                        "column": 54,
+                        "line": 37
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "f2d4bd4479eae63a7f57-02341112855ef4f19954",
+              "file": "rbac.spec.ts",
+              "line": 32,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-11-04T06:28:56.221Z",
+    "duration": 57346.032999999996,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 17,
+    "flaky": 0
+  }
+}
