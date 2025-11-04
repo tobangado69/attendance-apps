@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import bcrypt from 'bcryptjs'
 import { createNotification, NotificationTemplates, getManagersAndAdmins } from '@/lib/notifications'
 import { AppError } from '@/lib/error-handler'
 import { employeeSchema } from '@/lib/validations'
@@ -11,7 +10,11 @@ import {
   formatErrorResponse,
   withAdminManagerGuard 
 } from '@/lib/api/api-utils'
-import { logger, logError } from '@/lib/utils/logger'
+import { logError } from '@/lib/utils/logger'
+import {
+  checkExistingRecords,
+  createEmployeeWithUser,
+} from '@/lib/services/employee-service'
 
 export async function GET(request: NextRequest) {
   try {
