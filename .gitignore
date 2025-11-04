@@ -56,3 +56,25 @@ Thumbs.db
 # Test coverage
 coverage/
 .nyc_output/
+
+# Documentation (keep only README.md)
+# Internal development docs
+BUILD_FIXES_SUMMARY.md
+BUILD_ISSUES.md
+PERFORMANCE_OPTIMIZATION.md
+PROGRESS_REPORT.md
+TODO.md
+REALTIME_NOTIFICATIONS.md
+SQLITE_GUIDE.md
+TESTING_SETUP.md
+
+# Internal specs and SDD system
+specs/
+.sdd/**/*.md
+
+# Cursor commands (internal tooling)
+.cursor/commands/*.md
+
+# Test reports and results
+playwright-report/
+test-results/
