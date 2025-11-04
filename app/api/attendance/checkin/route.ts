@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { createNotification, NotificationTemplates, getManagersAndAdmins } from '@/lib/notifications'
 import { broadcastNotification } from '@/lib/notifications/real-time'
 import { getCompanySettings, calculateLateMinutes, isLateArrival } from '@/lib/settings'
+import { logError } from '@/lib/utils/logger'
 
 export async function POST(request: NextRequest) {
   try {
@@ -50,8 +51,6 @@ export async function POST(request: NextRequest) {
       where: { userId: session.user.id }
     })
 
-    console.log('Employee found:', employee);
-
     // For admin users, allow check-in even without employee record
     if (!employee && session.user.role !== 'ADMIN') {
       return NextResponse.json(
@@ -71,7 +70,6 @@ export async function POST(request: NextRequest) {
       }
 
       // Check if employee status allows attendance
-      console.log('Employee status:', employee.status, 'Type:', typeof employee.status);
       if (employee.status && employee.status !== 'ACTIVE') {
         return NextResponse.json(
           { error: `Your account status is ${employee.status}. You cannot check in at this time.` },
@@ -154,7 +152,7 @@ export async function POST(request: NextRequest) {
         })
       }
     } catch (notificationError) {
-      console.error('Error sending check-in notifications:', notificationError)
+      logError(notificationError, { context: 'POST /api/attendance/checkin - notifications', userId: session.user.id })
       // Don't fail the check-in if notifications fail
     }
 
@@ -181,7 +179,7 @@ export async function POST(request: NextRequest) {
         }
       });
     } catch (notificationError) {
-      console.error('Error sending real-time notification:', notificationError);
+      logError(notificationError, { context: 'POST /api/attendance/checkin - real-time', userId: session.user.id });
     }
 
     return NextResponse.json({
@@ -190,7 +188,7 @@ export async function POST(request: NextRequest) {
       message: 'Successfully checked in'
     })
   } catch (error) {
-    console.error('Check-in error:', error)
+    logError(error, { context: 'POST /api/attendance/checkin' })
     return NextResponse.json(
       { error: 'Failed to check in' },
       { status: 500 }

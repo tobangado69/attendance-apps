@@ -59,7 +59,7 @@ export async function GET() {
       completedTasks
     })
   } catch (error) {
-    console.error('Error fetching task stats:', error)
+    logError(error, { context: 'GET /api/tasks/stats' })
     return NextResponse.json(
       { error: 'Failed to fetch task statistics' },
       { status: 500 }

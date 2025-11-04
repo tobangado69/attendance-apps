@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { logError } from '@/lib/utils/logger'
 
 // GET /api/tasks/[id]/notes - Get all notes for a task
 export async function GET(
@@ -62,7 +63,7 @@ export async function GET(
 
     return NextResponse.json({ data: notes })
   } catch (error) {
-    console.error('Task notes fetch error:', error)
+    logError(error, { context: 'GET /api/tasks/[id]/notes', taskId: id })
     return NextResponse.json(
       { error: 'Failed to fetch task notes' },
       { status: 500 }
@@ -148,7 +149,7 @@ export async function POST(
       message: 'Note added successfully'
     })
   } catch (error) {
-    console.error('Task note creation error:', error)
+    logError(error, { context: 'POST /api/tasks/[id]/notes', taskId: id })
     return NextResponse.json(
       { error: 'Failed to add note' },
       { status: 500 }

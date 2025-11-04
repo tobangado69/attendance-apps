@@ -7,6 +7,8 @@ import {
   withAdminGuard 
 } from '@/lib/api/api-utils'
 import { z } from 'zod'
+import { departmentSchema } from '@/lib/validations'
+import { logError } from '@/lib/utils/logger'
 
 // Validation schema for department
 const departmentSchema = z.object({
@@ -60,7 +62,7 @@ export async function GET(request: NextRequest) {
 
     return formatApiResponse(departmentsWithCount)
   } catch (error) {
-    console.error('Error fetching departments:', error)
+    logError(error, { context: 'GET /api/settings/departments' })
     return formatErrorResponse('Failed to fetch departments', 500)
   }
 }

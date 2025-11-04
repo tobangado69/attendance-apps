@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { createNotification, NotificationTemplates, getManagersAndAdmins } from '@/lib/notifications'
 import { broadcastNotification } from '@/lib/notifications/real-time'
 import { getCompanySettings, calculateOvertimeHours } from '@/lib/settings'
+import { logError } from '@/lib/utils/logger'
 
 export async function POST(request: NextRequest) {
   try {
@@ -50,8 +51,6 @@ export async function POST(request: NextRequest) {
       where: { userId: session.user.id }
     })
 
-    console.log('Employee found (checkout):', employee);
-
     // For admin users, allow check-out even without employee record
     if (!employee && session.user.role !== 'ADMIN') {
       return NextResponse.json(
@@ -71,7 +70,6 @@ export async function POST(request: NextRequest) {
       }
 
       // Check if employee status allows attendance
-      console.log('Employee status (checkout):', employee.status, 'Type:', typeof employee.status);
       if (employee.status && employee.status !== 'ACTIVE') {
         return NextResponse.json(
           { error: `Your account status is ${employee.status}. You cannot check out at this time.` },
@@ -165,7 +163,7 @@ export async function POST(request: NextRequest) {
         })
       }
     } catch (notificationError) {
-      console.error('Error sending check-out notifications:', notificationError)
+      logError(notificationError, { context: 'POST /api/attendance/checkout - notifications', userId: session.user.id })
       // Don't fail the check-out if notifications fail
     }
 
@@ -194,7 +192,7 @@ export async function POST(request: NextRequest) {
         }
       });
     } catch (notificationError) {
-      console.error('Error sending real-time notification:', notificationError);
+      logError(notificationError, { context: 'POST /api/attendance/checkout - real-time', userId: session.user.id });
     }
 
     return NextResponse.json({
@@ -206,7 +204,7 @@ export async function POST(request: NextRequest) {
       totalHours: updatedAttendance.totalHours
     })
   } catch (error) {
-    console.error('Check-out error:', error)
+    logError(error, { context: 'POST /api/attendance/checkout' })
     return NextResponse.json(
       { error: 'Failed to check out' },
       { status: 500 }

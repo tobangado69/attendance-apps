@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { employeeUpdateSchema } from '@/lib/validations'
 import { formatErrorResponse } from '@/lib/api/api-utils'
 import bcrypt from 'bcryptjs'
+import { logError } from '@/lib/utils/logger'
 
 export async function GET(
   request: NextRequest,
@@ -73,7 +74,7 @@ export async function GET(
 
     return NextResponse.json({ data: employee })
   } catch (error) {
-    console.error('Employee fetch error:', error)
+    logError(error, { context: 'GET /api/employees/[id]', employeeId: id })
     return NextResponse.json(
       { error: 'Failed to fetch employee' },
       { status: 500 }
@@ -245,7 +246,7 @@ export async function PUT(
       message: 'Employee updated successfully'
     })
   } catch (error) {
-    console.error('Employee update error:', error)
+    logError(error, { context: 'PUT /api/employees/[id]', employeeId: id })
     return NextResponse.json(
       { error: 'Failed to update employee' },
       { status: 500 }
@@ -298,7 +299,7 @@ export async function DELETE(
       message: 'Employee deactivated successfully'
     })
   } catch (error) {
-    console.error('Employee delete error:', error)
+    logError(error, { context: 'DELETE /api/employees/[id]', employeeId: id })
     return NextResponse.json(
       { error: 'Failed to delete employee' },
       { status: 500 }

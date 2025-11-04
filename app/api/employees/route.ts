@@ -11,6 +11,7 @@ import {
   formatErrorResponse,
   withAdminManagerGuard 
 } from '@/lib/api/api-utils'
+import { logger, logError } from '@/lib/utils/logger'
 
 export async function GET(request: NextRequest) {
   try {
@@ -96,24 +97,13 @@ export async function GET(request: NextRequest) {
       prisma.employee.count({ where })
     ])
 
-    console.log('Employees API - Found employees:', employees.length)
-    console.log('Employees API - Current user ID:', user.id)
-    console.log('Employees API - User role:', user.role)
-    console.log('Employees API - Employees data:', employees.map(emp => ({
-      id: emp.id,
-      userId: emp.user.id,
-      name: emp.user.name,
-      isActive: emp.isActive,
-      status: emp.status
-    })))
-
     return formatApiResponse(employees, {
       total,
       page: pagination.page,
       limit: pagination.limit
     })
   } catch (error) {
-    console.error('Employees fetch error:', error)
+    logError(error, { context: 'GET /api/employees' })
     return formatErrorResponse('Failed to fetch employees', 500)
   }
 }
@@ -236,13 +226,13 @@ export const POST = withAdminManagerGuard(async (context, request: NextRequest) 
         type: 'success'
       })
     } catch (notificationError) {
-      console.error('Error sending employee creation notifications:', notificationError)
+      logError(notificationError, { context: 'POST /api/employees - notifications', employeeId: result.employee.id })
       // Don't fail the employee creation if notifications fail
     }
 
     return formatApiResponse(result, undefined, 'Employee created successfully')
   } catch (error) {
-    console.error('Employee creation error:', error)
+    logError(error, { context: 'POST /api/employees' })
     
     if (error instanceof AppError) {
       return formatErrorResponse(error.message, error.status || 500, {

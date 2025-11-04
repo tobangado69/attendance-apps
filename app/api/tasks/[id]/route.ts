@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { createNotification, NotificationTemplates, getManagersAndAdmins } from '@/lib/notifications'
 import { broadcastNotification } from '@/lib/notifications/real-time'
+import { logError } from '@/lib/utils/logger'
 
 export async function GET(
   request: NextRequest,
@@ -58,7 +59,7 @@ export async function GET(
 
     return NextResponse.json({ data: task })
   } catch (error) {
-    console.error('Task fetch error:', error)
+    logError(error, { context: 'GET /api/tasks/[id]', taskId: id })
     return NextResponse.json(
       { error: 'Failed to fetch task' },
       { status: 500 }
@@ -244,7 +245,7 @@ export async function PUT(
       message: 'Task updated successfully'
     })
   } catch (error) {
-    console.error('Task update error:', error)
+    logError(error, { context: 'PUT /api/tasks/[id]', taskId: id })
     return NextResponse.json(
       { error: 'Failed to update task' },
       { status: 500 }
@@ -296,7 +297,7 @@ export async function DELETE(
       message: 'Task deleted successfully'
     })
   } catch (error) {
-    console.error('Task delete error:', error)
+    logError(error, { context: 'DELETE /api/tasks/[id]', taskId: id })
     return NextResponse.json(
       { error: 'Failed to delete task' },
       { status: 500 }

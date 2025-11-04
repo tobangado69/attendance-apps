@@ -74,7 +74,7 @@ export async function GET(
 
     return formatErrorResponse('Department not found', 404)
   } catch (error) {
-    console.error('Error fetching department:', error)
+    logError(error, { context: 'GET /api/settings/departments/[id]', departmentId: id })
     return formatErrorResponse('Failed to fetch department', 500)
   }
 }
@@ -166,7 +166,7 @@ export const PUT = withAdminGuard(async (context, request: NextRequest, { params
 
     return formatApiResponse(departmentWithCount, undefined, 'Department updated successfully')
   } catch (error) {
-    console.error('Error updating department:', error)
+    logError(error, { context: 'PUT /api/settings/departments/[id]', departmentId: id })
     
     // Handle Prisma errors specifically
     if (error instanceof Error) {
@@ -219,7 +219,7 @@ export const DELETE = withAdminGuard(async (context, request: NextRequest, { par
 
     return formatApiResponse(null, undefined, 'Department deleted successfully')
   } catch (error) {
-    console.error('Error deleting department:', error)
+    logError(error, { context: 'DELETE /api/settings/departments/[id]', departmentId: id })
     return formatErrorResponse('Failed to delete department', 500)
   }
 })

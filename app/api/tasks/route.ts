@@ -128,7 +128,7 @@ export async function GET(request: NextRequest) {
       limit: pagination.limit
     })
   } catch (error) {
-    console.error('Tasks fetch error:', error)
+    logError(error, { context: 'GET /api/tasks' })
     return formatErrorResponse('Failed to fetch tasks', 500)
   }
 }
@@ -261,13 +261,13 @@ export async function POST(request: NextRequest) {
         }, ['ADMIN', 'MANAGER'])
       }
     } catch (notificationError) {
-      console.error('Error sending task notifications:', notificationError)
+      logError(notificationError, { context: 'POST /api/tasks - notifications' })
       // Don't fail the task creation if notifications fail
     }
 
     return formatApiResponse(task, undefined, 'Task created successfully')
   } catch (error) {
-    console.error('Task creation error:', error)
+    logError(error, { context: 'POST /api/tasks' })
     return formatErrorResponse('Failed to create task', 500)
   }
 }

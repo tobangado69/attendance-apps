@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { logger } from '@/lib/utils/logger'
 
 // This is a placeholder for WebSocket handling
 // In a real implementation, you would use a WebSocket library like 'ws' or 'socket.io'
@@ -32,7 +33,7 @@ export async function POST(request: NextRequest) {
     // 2. Send it to connected clients via WebSocket/SSE
     // 3. Handle authentication and authorization
 
-    console.log('Real-time notification:', {
+    logger.debug('Real-time notification:', {
       userId,
       type,
       title,

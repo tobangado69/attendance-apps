@@ -8,6 +8,7 @@ import {
   formatErrorResponse,
   validateRole
 } from '@/lib/api/api-utils'
+import { logError } from '@/lib/utils/logger'
 
 export async function GET(request: NextRequest) {
   try {
@@ -138,19 +139,6 @@ export async function GET(request: NextRequest) {
       prisma.attendance.count({ where })
     ])
 
-    console.log('Attendance API - Query results:', {
-      attendanceCount: attendance.length,
-      totalCount: total,
-      attendanceRecords: attendance.map(record => ({
-        id: record.id,
-        userId: record.userId,
-        date: record.date,
-        checkIn: record.checkIn,
-        checkOut: record.checkOut,
-        status: record.status
-      }))
-    });
-
     // Get unique departments for filter dropdown
     const departments = await prisma.department.findMany({
       select: {
@@ -174,7 +162,7 @@ export async function GET(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Attendance fetch error:', error)
+    logError(error, { context: 'GET /api/attendance' })
     return formatErrorResponse('Failed to fetch attendance records', 500)
   }
 }
