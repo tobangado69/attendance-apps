@@ -70,18 +70,18 @@ export function parsePaginationParams(request: NextRequest): PaginationParams {
     const url = request.url
     if (!url) {
       logError(new Error('Request URL is undefined'), { context: 'parsePaginationParams', request: String(request) })
-      return { page: 1, limit: 10, skip: 0 }
+      return { page: BusinessRules.PAGINATION.DEFAULT_PAGE, limit: BusinessRules.PAGINATION.DEFAULT_LIMIT, skip: 0 }
     }
     
     const { searchParams } = new URL(url)
-    const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
-    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '10')))
+    const page = Math.max(BusinessRules.PAGINATION.DEFAULT_PAGE, parseInt(searchParams.get('page') || String(BusinessRules.PAGINATION.DEFAULT_PAGE)))
+    const limit = Math.min(BusinessRules.PAGINATION.MAX_LIMIT, Math.max(BusinessRules.PAGINATION.MIN_LIMIT, parseInt(searchParams.get('limit') || String(BusinessRules.PAGINATION.DEFAULT_LIMIT))))
     const skip = (page - 1) * limit
 
     return { page, limit, skip }
   } catch (error) {
     logError(error, { context: 'parsePaginationParams' })
-    return { page: 1, limit: 10, skip: 0 }
+    return { page: BusinessRules.PAGINATION.DEFAULT_PAGE, limit: BusinessRules.PAGINATION.DEFAULT_LIMIT, skip: 0 }
   }
 }
 

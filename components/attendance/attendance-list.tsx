@@ -41,6 +41,7 @@ import {
 import { format } from "date-fns";
 import { useDebounce } from "@/hooks/use-debounce";
 import { exportAttendanceToExcel } from "@/lib/excel-export";
+import { AttendanceStatus } from "@/lib/constants/status";
 
 interface AttendanceRecord {
   id: string;
@@ -202,9 +203,9 @@ export function AttendanceList({ showAll = false }: AttendanceListProps) {
       const dailyData = attendance.map((record) => ({
         date: record.date,
         totalEmployees: 1,
-        presentEmployees: record.status === "present" ? 1 : 0,
-        lateEmployees: record.status === "late" ? 1 : 0,
-        absentEmployees: record.status === "absent" ? 1 : 0,
+        presentEmployees: record.status === AttendanceStatus.PRESENT ? 1 : 0,
+        lateEmployees: record.status === AttendanceStatus.LATE ? 1 : 0,
+        absentEmployees: record.status === AttendanceStatus.ABSENT ? 1 : 0,
         totalHours: record.totalHours || 0,
       }));
 
@@ -218,12 +219,12 @@ export function AttendanceList({ showAll = false }: AttendanceListProps) {
           "",
         position: record.employee?.position || "",
         salary: 0, // Would need to fetch from employee data
-        presentDays: record.status === "present" ? 1 : 0,
+        presentDays: record.status === AttendanceStatus.PRESENT ? 1 : 0,
         totalDays: 1,
-        attendanceRate: record.status === "present" ? 100 : 0,
+        attendanceRate: record.status === AttendanceStatus.PRESENT ? 100 : 0,
         totalHours: record.totalHours || 0,
         avgHours: record.totalHours || 0,
-        lateDays: record.status === "late" ? 1 : 0,
+        lateDays: record.status === AttendanceStatus.LATE ? 1 : 0,
       }));
 
       const departmentData = Object.values(
@@ -241,7 +242,7 @@ export function AttendanceList({ showAll = false }: AttendanceListProps) {
             };
           }
           acc[dept].totalEmployees++;
-          if (record.status === "present") acc[dept].presentEmployees++;
+          if (record.status === AttendanceStatus.PRESENT) acc[dept].presentEmployees++;
           acc[dept].totalHours += record.totalHours || 0;
           return acc;
         }, {} as Record<string, { department: string; totalHours: number }>)
@@ -255,11 +256,11 @@ export function AttendanceList({ showAll = false }: AttendanceListProps) {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "present":
+      case AttendanceStatus.PRESENT:
         return "bg-green-100 text-green-800";
-      case "late":
+      case AttendanceStatus.LATE:
         return "bg-yellow-100 text-yellow-800";
-      case "absent":
+      case AttendanceStatus.ABSENT:
         return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
@@ -510,9 +511,9 @@ export function AttendanceList({ showAll = false }: AttendanceListProps) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All statuses</SelectItem>
-                  <SelectItem value="present">Present</SelectItem>
-                  <SelectItem value="late">Late</SelectItem>
-                  <SelectItem value="absent">Absent</SelectItem>
+                  <SelectItem value={AttendanceStatus.PRESENT}>Present</SelectItem>
+                  <SelectItem value={AttendanceStatus.LATE}>Late</SelectItem>
+                  <SelectItem value={AttendanceStatus.ABSENT}>Absent</SelectItem>
                 </SelectContent>
               </Select>
             </div>

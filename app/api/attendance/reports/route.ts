@@ -84,10 +84,10 @@ export async function GET(request: NextRequest) {
 
     // Calculate summary statistics
     const totalRecords = attendanceRecords.length
-    const presentCount = attendanceRecords.filter(record => record.status === 'PRESENT').length
-    const absentCount = attendanceRecords.filter(record => record.status === 'ABSENT').length
-    const lateCount = attendanceRecords.filter(record => record.status === 'LATE').length
-    const earlyLeaveCount = attendanceRecords.filter(record => record.status === 'EARLY_LEAVE').length
+    const presentCount = attendanceRecords.filter(record => record.status === AttendanceStatus.PRESENT).length
+    const absentCount = attendanceRecords.filter(record => record.status === AttendanceStatus.ABSENT).length
+    const lateCount = attendanceRecords.filter(record => record.status === AttendanceStatus.LATE).length
+    const earlyLeaveCount = attendanceRecords.filter(record => record.status === AttendanceStatus.EARLY_LEAVE).length
 
     // Calculate average hours worked
     const totalHours = attendanceRecords.reduce((sum, record) => {
@@ -105,10 +105,10 @@ export async function GET(request: NextRequest) {
         acc[dept] = { department: dept, total: 0, present: 0, absent: 0, late: 0, earlyLeave: 0 }
       }
       acc[dept].total++
-      if (record.status === 'PRESENT') acc[dept].present++
-      else if (record.status === 'ABSENT') acc[dept].absent++
-      else if (record.status === 'LATE') acc[dept].late++
-      else if (record.status === 'EARLY_LEAVE') acc[dept].earlyLeave++
+      if (record.status === AttendanceStatus.PRESENT) acc[dept].present++
+      else if (record.status === AttendanceStatus.ABSENT) acc[dept].absent++
+      else if (record.status === AttendanceStatus.LATE) acc[dept].late++
+      else if (record.status === AttendanceStatus.EARLY_LEAVE) acc[dept].earlyLeave++
       return acc
     }, {} as Record<string, { department: string; total: number; present: number; absent: number; late: number; earlyLeave: number }>)
 
@@ -119,10 +119,10 @@ export async function GET(request: NextRequest) {
         acc[date] = { date, total: 0, present: 0, absent: 0, late: 0, earlyLeave: 0 }
       }
       acc[date].total++
-      if (record.status === 'PRESENT') acc[date].present++
-      else if (record.status === 'ABSENT') acc[date].absent++
-      else if (record.status === 'LATE') acc[date].late++
-      else if (record.status === 'EARLY_LEAVE') acc[date].earlyLeave++
+      if (record.status === AttendanceStatus.PRESENT) acc[date].present++
+      else if (record.status === AttendanceStatus.ABSENT) acc[date].absent++
+      else if (record.status === AttendanceStatus.LATE) acc[date].late++
+      else if (record.status === AttendanceStatus.EARLY_LEAVE) acc[date].earlyLeave++
       return acc
     }, {} as Record<string, { date: string; total: number; present: number; absent: number; late: number; earlyLeave: number }>)
 
@@ -143,10 +143,10 @@ export async function GET(request: NextRequest) {
       }
       acc[userId].totalDays++
       acc[userId].totalHours += record.totalHours || 0
-      if (record.status === 'PRESENT') acc[userId].presentDays++
-      else if (record.status === 'ABSENT') acc[userId].absentDays++
-      else if (record.status === 'LATE') acc[userId].lateDays++
-      else if (record.status === 'EARLY_LEAVE') acc[userId].earlyLeaveDays++
+      if (record.status === AttendanceStatus.PRESENT) acc[userId].presentDays++
+      else if (record.status === AttendanceStatus.ABSENT) acc[userId].absentDays++
+      else if (record.status === AttendanceStatus.LATE) acc[userId].lateDays++
+      else if (record.status === AttendanceStatus.EARLY_LEAVE) acc[userId].earlyLeaveDays++
       return acc
     }, {} as Record<string, { 
       user: { id: string; name: string; email: string }
