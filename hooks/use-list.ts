@@ -221,7 +221,9 @@ export function usePaginatedList<T>(
       } else {
         const errorMessage = typeof transformedResult.error === 'string' 
           ? transformedResult.error 
-          : transformedResult.error?.message || 'Failed to fetch data';
+          : (transformedResult.error && typeof transformedResult.error === 'object' && 'message' in transformedResult.error && typeof transformedResult.error.message === 'string')
+            ? transformedResult.error.message
+            : 'Failed to fetch data';
         throw new Error(errorMessage);
       }
     } catch (err) {
