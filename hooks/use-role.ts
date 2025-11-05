@@ -14,7 +14,7 @@ export function useRole() {
       id: session.user.id!,
       name: session.user.name,
       email: session.user.email,
-      role: (session.user as any).role as UserRole,
+      role: session.user.role as UserRole,
     };
   }, [session]);
 

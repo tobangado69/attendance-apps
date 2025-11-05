@@ -19,7 +19,40 @@ interface Notification {
   timestamp: Date;
   isRead: boolean;
   userId: string;
-  data?: any;
+  data?: Record<string, unknown>;
+}
+
+interface SSEMessageData {
+  type: string;
+  id?: string;
+  title?: string;
+  message?: string;
+  notificationType?: string;
+  userId?: string;
+  data?: Record<string, unknown>;
+  userName?: string;
+  action?: string;
+  time?: string;
+  taskTitle?: string;
+  [key: string]: unknown;
+}
+
+interface NotificationApiResponse {
+  id: string;
+  title: string;
+  message: string;
+  type?: string;
+  notificationType?: string;
+  timestamp?: string;
+  createdAt?: string;
+  isRead: boolean;
+  userId: string;
+  data?: Record<string, unknown>;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
 }
 
 interface NotificationContextType {
@@ -51,7 +84,7 @@ export function NotificationProvider({
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   const handleNotificationMessage = useCallback(
-    (data: any) => {
+    (data: SSEMessageData) => {
       console.log("Received SSE message:", data);
       console.log("Message type:", data.type);
       console.log("Message data:", JSON.stringify(data, null, 2));
@@ -285,43 +318,43 @@ export function NotificationProvider({
       try {
         const response = await fetch("/api/notifications?limit=20");
         if (response.ok) {
-          const data = await response.json();
-          console.log("Loaded notifications:", data.data);
-          console.log(
-            "Notification read statuses:",
-            data.data?.map((n: any) => ({ id: n.id, isRead: n.isRead }))
-          );
+            const data = await response.json();
+            console.log("Loaded notifications:", data.data);
+            console.log(
+              "Notification read statuses:",
+              data.data?.map((n: NotificationApiResponse) => ({ id: n.id, isRead: n.isRead }))
+            );
 
-          // Ensure all notifications have valid timestamps and exclude user object
-          const validNotifications = (data.data || []).map(
-            (notification: any) => {
-              const { user, ...notificationData } = notification;
-              return {
-                ...notificationData,
-                timestamp: (() => {
-                  try {
-                    const date = new Date(
-                      notification.timestamp ||
-                        notification.createdAt ||
-                        Date.now()
-                    );
-                    return isNaN(date.getTime()) ? new Date() : date;
-                  } catch (error) {
-                    console.warn(
-                      "Invalid timestamp in loaded notification:",
-                      notification.timestamp
-                    );
-                    return new Date();
-                  }
-                })(),
-              };
-            }
-          );
+            // Ensure all notifications have valid timestamps and exclude user object
+            const validNotifications = (data.data || []).map(
+              (notification: NotificationApiResponse): Notification => {
+                const { user, ...notificationData } = notification;
+                return {
+                  ...notificationData,
+                  timestamp: (() => {
+                    try {
+                      const date = new Date(
+                        notification.timestamp ||
+                          notification.createdAt ||
+                          Date.now()
+                      );
+                      return isNaN(date.getTime()) ? new Date() : date;
+                    } catch (error) {
+                      console.warn(
+                        "Invalid timestamp in loaded notification:",
+                        notification.timestamp
+                      );
+                      return new Date();
+                    }
+                  })(),
+                } as Notification;
+              }
+            );
 
-          console.log(
-            "Setting notifications with read statuses:",
-            validNotifications.map((n: any) => ({ id: n.id, isRead: n.isRead }))
-          );
+            console.log(
+              "Setting notifications with read statuses:",
+              validNotifications.map((n: Notification) => ({ id: n.id, isRead: n.isRead }))
+            );
           setNotifications(validNotifications);
         } else {
           console.error(

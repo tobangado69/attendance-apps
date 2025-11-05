@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react';
 
 interface SSEMessage {
   type: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export function useServerSentEvents() {

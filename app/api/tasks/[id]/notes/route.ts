@@ -20,7 +20,8 @@ export async function GET(
     }
 
     const user = session.user;
-    const { id } = await params
+    const resolvedParams = await params;
+    const { id } = resolvedParams;
 
     // Check if task exists and user has access
     const task = await prisma.task.findUnique({
@@ -63,6 +64,8 @@ export async function GET(
 
     return NextResponse.json({ data: notes })
   } catch (error) {
+    const resolvedParams = await params;
+    const { id } = resolvedParams;
     logError(error, { context: 'GET /api/tasks/[id]/notes', taskId: id })
     return NextResponse.json(
       { error: 'Failed to fetch task notes' },
