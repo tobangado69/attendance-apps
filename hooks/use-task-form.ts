@@ -80,22 +80,6 @@ export function useTaskForm({ task, onSuccess }: UseTaskFormOptions): UseTaskFor
   });
   const [employees, setEmployees] = useState<Employee[]>([]);
 
-  // Initialize form data when task changes
-  useEffect(() => {
-    if (task) {
-      setFormData({
-        title: task.title,
-        description: task.description || "",
-        priority: task.priority,
-        dueDate: task.dueDate
-          ? format(new Date(task.dueDate), "yyyy-MM-dd")
-          : "",
-        assigneeId: task.assigneeId || "",
-      });
-    }
-    fetchEmployees();
-  }, [task]);
-
   const fetchEmployees = useCallback(async () => {
     await executeWithErrorHandling(
       async () => {
@@ -116,6 +100,26 @@ export function useTaskForm({ task, onSuccess }: UseTaskFormOptions): UseTaskFor
       }
     );
   }, [executeWithErrorHandling]);
+
+  // Initialize form data when task changes
+  useEffect(() => {
+    if (task) {
+      setFormData({
+        title: task.title,
+        description: task.description || "",
+        priority: task.priority,
+        dueDate: task.dueDate
+          ? format(new Date(task.dueDate), "yyyy-MM-dd")
+          : "",
+        assigneeId: task.assigneeId || "",
+      });
+    }
+  }, [task]);
+
+  // Fetch employees on mount
+  useEffect(() => {
+    fetchEmployees();
+  }, [fetchEmployees]);
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
