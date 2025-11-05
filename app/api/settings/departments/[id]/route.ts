@@ -1,32 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { 
-  buildApiContext, 
-  formatApiResponse, 
-  formatErrorResponse,
-  withAdminGuard 
-} from '@/lib/api/api-utils'
-import { z } from 'zod'
-
-// Validation schema for department update
-const departmentUpdateSchema = z.object({
-  name: z.string().min(1, 'Department name is required').max(100, 'Department name too long').optional(),
-  description: z.string().optional(),
-  budget: z.number().min(0, 'Budget cannot be negative').optional(),
-  managerId: z.string().optional(),
-})
-
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { 
   formatApiResponse, 
   formatErrorResponse,
   withAdminGuard,
   ApiContext
 } from '@/lib/api/api-utils'
 import { departmentUpdateSchema } from '@/lib/validations'
-import { logError } from '@/lib/utils/logger'
-import { handleGetById, handleUpdate, handleDelete, validateRequestBody } from '@/lib/api/crud-handlers'
+import { handleGetById, handleUpdate, handleDelete } from '@/lib/api/crud-handlers'
 
 // Helper function to check duplicate department names (case-insensitive for SQLite)
 async function checkDuplicateDepartmentName(
