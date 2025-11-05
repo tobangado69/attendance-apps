@@ -5,7 +5,10 @@ import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock, CheckCircle, XCircle } from "lucide-react";
-import { toast } from "sonner";
+import { showSuccessToast, showErrorToast } from "@/lib/error-handler";
+import { logError } from "@/lib/utils/logger";
+import { EmployeeStatus } from "@/lib/constants/status";
+import { useErrorHandler } from "@/hooks/use-error-handler";
 
 interface AttendanceStatus {
   isCheckedIn: boolean;
@@ -23,6 +26,7 @@ interface EmployeeStatus {
 
 export function CheckInOut() {
   const { data: session } = useSession();
+  const { executeWithErrorHandling, isLoading } = useErrorHandler();
   const [attendanceStatus, setAttendanceStatus] = useState<AttendanceStatus>({
     isCheckedIn: false,
     isCheckedOut: false,
@@ -30,7 +34,6 @@ export function CheckInOut() {
   const [employeeStatus, setEmployeeStatus] = useState<EmployeeStatus | null>(
     null
   );
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (session?.user?.id) {
@@ -40,55 +43,41 @@ export function CheckInOut() {
   }, [session?.user?.id]);
 
   const checkEmployeeStatus = async () => {
-    try {
-      const response = await fetch("/api/employees/me");
-      if (response.ok) {
+    await executeWithErrorHandling(
+      async () => {
+        const response = await fetch("/api/employees/me");
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch employee data: ${response.status}`);
+        }
+
         const data = await response.json();
-        console.log("Current user employee data:", data.data);
 
         if (data.success && data.data) {
-          const status = {
+          setEmployeeStatus({
             isActive: data.data.isActive,
             status: data.data.status || EmployeeStatus.ACTIVE,
-          };
-          console.log("Setting employee status:", status);
-          setEmployeeStatus(status);
+          });
         } else {
-          console.log("No employee data received");
           // Fallback: Set default status
-          const fallbackStatus = {
+          setEmployeeStatus({
             isActive: true,
-            status: "ACTIVE",
-          };
-          console.log("Setting fallback employee status:", fallbackStatus);
-          setEmployeeStatus(fallbackStatus);
+            status: EmployeeStatus.ACTIVE,
+          });
         }
-      } else {
-        console.error("Failed to fetch employee data:", response.status);
-        // Set fallback status on API error
-        const fallbackStatus = {
-          isActive: true,
-          status: "ACTIVE",
-        };
-        console.log(
-          "Setting fallback employee status due to API error:",
-          fallbackStatus
-        );
-        setEmployeeStatus(fallbackStatus);
+      },
+      {
+        context: "CheckInOut - checkEmployeeStatus",
+        showToast: false, // Don't show toast for this background check
+        onError: () => {
+          // Set fallback status on error to prevent buttons from being disabled
+          setEmployeeStatus({
+            isActive: true,
+            status: EmployeeStatus.ACTIVE,
+          });
+        },
       }
-    } catch (error) {
-      console.error("Error checking employee status:", error);
-      // Set fallback status on error to prevent buttons from being disabled
-      const fallbackStatus = {
-        isActive: true,
-        status: "ACTIVE",
-      };
-      console.log(
-        "Setting fallback employee status due to error:",
-        fallbackStatus
-      );
-      setEmployeeStatus(fallbackStatus);
-    }
+    );
   };
 
   const fetchTodayAttendance = async () => {
@@ -135,80 +124,86 @@ export function CheckInOut() {
         });
       }
     } catch (error) {
-      console.error("Error fetching attendance:", error);
+      logError(error, { context: "CheckInOut - fetchTodayAttendance" });
     }
   };
 
   const handleCheckIn = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch("/api/attendance/checkin", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ notes: "" }),
-      });
+    await executeWithErrorHandling(
+      async () => {
+        const response = await fetch("/api/attendance/checkin", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ notes: "" }),
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (data.success) {
-        toast.success("Successfully checked in!");
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || "Failed to check in");
+        }
+
+        showSuccessToast("Successfully checked in!");
         // Refresh attendance status to get the latest data
         await fetchTodayAttendance();
-      } else {
-        toast.error(data.error || "Failed to check in");
+      },
+      {
+        context: "Check In",
+        errorMessage: "Failed to check in",
       }
-    } catch (error) {
-      toast.error("Failed to check in");
-    } finally {
-      setLoading(false);
-    }
+    );
   };
 
   const handleCheckOut = async () => {
     // Additional validation: Check if user has checked in first
     if (!attendanceStatus.isCheckedIn) {
-      toast.error("You must check in first before checking out");
+      showErrorToast(new Error("You must check in first before checking out"), {
+        context: "Check Out",
+      });
       return;
     }
 
     if (attendanceStatus.isCheckedOut) {
-      toast.error("You have already checked out today");
+      showErrorToast(new Error("You have already checked out today"), {
+        context: "Check Out",
+      });
       return;
     }
 
-    setLoading(true);
-    try {
-      const response = await fetch("/api/attendance/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ notes: "" }),
-      });
+    await executeWithErrorHandling(
+      async () => {
+        const response = await fetch("/api/attendance/checkout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ notes: "" }),
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (data.success) {
-        toast.success(`${data.message}! Total hours: ${data.totalHours}h`);
+        if (!response.ok || !data.success) {
+          throw new Error(
+            data.error ||
+              (response.status === 400
+                ? "Cannot check out - no check-in record found for today"
+                : "Failed to check out")
+          );
+        }
+
+        showSuccessToast(
+          `${data.message}! Total hours: ${data.totalHours}h`
+        );
         // Refresh attendance status to get the latest data
         await fetchTodayAttendance();
-      } else {
-        if (response.status === 400) {
-          toast.error(
-            data.error ||
-              "Cannot check out - no check-in record found for today"
-          );
-        } else {
-          toast.error(data.error || "Failed to check out");
-        }
+      },
+      {
+        context: "Check Out",
+        errorMessage: "Failed to check out",
       }
-    } catch (error) {
-      toast.error("Failed to check out");
-    } finally {
-      setLoading(false);
-    }
+    );
   };
 
   const getStatusColor = () => {
@@ -269,43 +264,27 @@ export function CheckInOut() {
           {!attendanceStatus.isCheckedIn && (
             <Button
               onClick={handleCheckIn}
-              disabled={(() => {
-                const isDisabled =
-                  loading ||
-                  !employeeStatus?.isActive ||
-                  (employeeStatus?.status &&
-                    employeeStatus.status !== "ACTIVE");
-                console.log("Check In button disabled:", isDisabled, {
-                  loading,
-                  isActive: employeeStatus?.isActive,
-                  status: employeeStatus?.status,
-                  employeeStatus,
-                });
-                return Boolean(isDisabled);
-              })()}
+              disabled={Boolean(
+                isLoading ||
+                !employeeStatus?.isActive ||
+                (employeeStatus?.status &&
+                  employeeStatus.status !== EmployeeStatus.ACTIVE)
+              )}
               className="flex-1"
             >
-              {loading ? "Checking In..." : "Check In"}
+              {isLoading ? "Checking In..." : "Check In"}
             </Button>
           )}
 
           {attendanceStatus.isCheckedIn && !attendanceStatus.isCheckedOut && (
             <Button
               onClick={handleCheckOut}
-              disabled={(() => {
-                const isDisabled =
-                  loading ||
-                  !employeeStatus?.isActive ||
-                  (employeeStatus?.status &&
-                    employeeStatus.status !== "ACTIVE");
-                console.log("Check Out button disabled:", isDisabled, {
-                  loading,
-                  isActive: employeeStatus?.isActive,
-                  status: employeeStatus?.status,
-                  employeeStatus,
-                });
-                return Boolean(isDisabled);
-              })()}
+              disabled={Boolean(
+                isLoading ||
+                !employeeStatus?.isActive ||
+                (employeeStatus?.status &&
+                  employeeStatus.status !== EmployeeStatus.ACTIVE)
+              )}
               variant="outline"
               className="flex-1"
               title={
@@ -316,7 +295,7 @@ export function CheckInOut() {
                   : "Check out"
               }
             >
-              {loading ? "Checking Out..." : "Check Out"}
+              {isLoading ? "Checking Out..." : "Check Out"}
             </Button>
           )}
 
@@ -335,7 +314,8 @@ export function CheckInOut() {
 
         {employeeStatus &&
           (!employeeStatus.isActive ||
-            (employeeStatus.status && employeeStatus.status !== "ACTIVE")) && (
+            (employeeStatus.status &&
+              employeeStatus.status !== EmployeeStatus.ACTIVE)) && (
             <div className="text-xs text-red-600 bg-red-50 p-2 rounded">
               ⚠️ Your account is{" "}
               {!employeeStatus.isActive

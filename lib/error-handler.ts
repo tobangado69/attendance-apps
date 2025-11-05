@@ -44,9 +44,19 @@ export function handleApiError(error: unknown): ApiError {
   };
 }
 
-export function showErrorToast(error: unknown, context?: string) {
+export interface ShowErrorToastOptions {
+  context?: string;
+  fallbackMessage?: string;
+}
+
+export function showErrorToast(error: unknown, options?: string | ShowErrorToastOptions) {
   const apiError = handleApiError(error);
-  const message = context ? `${context}: ${apiError.message}` : apiError.message;
+  
+  // Support both old signature (string context) and new signature (options object)
+  const context = typeof options === 'string' ? options : options?.context;
+  const fallbackMessage = typeof options === 'object' ? options.fallbackMessage : undefined;
+  
+  const message = fallbackMessage || (context ? `${context}: ${apiError.message}` : apiError.message);
   
   toast.error(message, {
     description: apiError.code ? `Error Code: ${apiError.code}` : undefined,
@@ -119,7 +129,7 @@ export async function apiCall<T>(
     return await handleApiResponse<T>(response);
   } catch (error) {
     if (context) {
-      showErrorToast(error, context);
+      showErrorToast(error, { context });
     }
     throw error;
   }
@@ -150,6 +160,9 @@ export async function apiCallWithRetry<T>(
     }
   }
 
+  if (context) {
+    showErrorToast(lastError!, { context });
+  }
   throw lastError!;
 }
 
@@ -168,7 +181,7 @@ export function handleNetworkError(error: unknown) {
   if (error instanceof TypeError && error.message.includes('fetch')) {
     showErrorToast(new AppError('Network error. Please check your connection.', 'NETWORK_ERROR'));
   } else {
-    showErrorToast(error, 'Network Error');
+    showErrorToast(error, { context: 'Network Error' });
   }
 }
 

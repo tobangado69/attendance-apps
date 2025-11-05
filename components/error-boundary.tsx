@@ -33,7 +33,13 @@ export class ErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("ErrorBoundary caught an error:", error, errorInfo);
+    // Import logger dynamically to avoid SSR issues
+    import('@/lib/utils/logger').then(({ logError }) => {
+      logError(error, { 
+        context: 'ErrorBoundary',
+        componentStack: errorInfo.componentStack 
+      });
+    });
     this.setState({
       error,
       errorInfo,
@@ -97,24 +103,5 @@ export class ErrorBoundary extends React.Component<
   }
 }
 
-// Hook for error handling
-export function useErrorHandler() {
-  const [error, setError] = React.useState<Error | null>(null);
-
-  const resetError = React.useCallback(() => {
-    setError(null);
-  }, []);
-
-  const handleError = React.useCallback((error: Error) => {
-    console.error("Error caught by useErrorHandler:", error);
-    setError(error);
-  }, []);
-
-  React.useEffect(() => {
-    if (error) {
-      throw error;
-    }
-  }, [error]);
-
-  return { handleError, resetError };
-}
+// Re-export useErrorHandler from hooks
+export { useErrorHandler } from '@/hooks/use-error-handler';
