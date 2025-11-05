@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { unstable_cache } from 'next/cache'
+import { revalidateTag } from 'next/cache'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { createNotification, NotificationTemplates, getManagersAndAdmins } from '@/lib/notifications'
 import { broadcastNotification } from '@/lib/notifications/real-time'
 import { logError } from '@/lib/utils/logger'
+import { CACHE_TAGS, CACHE_REVALIDATE } from '@/lib/utils/api-cache'
 
 export async function GET(
   request: NextRequest,
@@ -22,25 +25,38 @@ export async function GET(
 
     const user = session.user;
     const { id } = await params
-    const task = await prisma.task.findUnique({
-      where: { id },
-      include: {
-        assignee: {
-          select: {
-            id: true,
-            name: true,
-            email: true
+    
+    // Use cached function for individual task
+    const getCachedTask = unstable_cache(
+      async () => {
+        return prisma.task.findUnique({
+          where: { id },
+          include: {
+            assignee: {
+              select: {
+                id: true,
+                name: true,
+                email: true
+              }
+            },
+            creator: {
+              select: {
+                id: true,
+                name: true,
+                email: true
+              }
+            }
           }
-        },
-        creator: {
-          select: {
-            id: true,
-            name: true,
-            email: true
-          }
-        }
+        })
+      },
+      [`task_${id}`],
+      {
+        revalidate: CACHE_REVALIDATE.MEDIUM, // 5 minutes - individual task data
+        tags: [CACHE_TAGS.TASKS]
       }
-    })
+    )
+
+    const task = await getCachedTask()
 
     if (!task) {
       return NextResponse.json(
@@ -50,7 +66,7 @@ export async function GET(
     }
 
     // Check if user can view this task
-    if (user.role === 'EMPLOYEE' && task.assigneeId !== user.id) {
+    if (user.role === 'EMPLOYEE' && task.assigneeId !== user.id && task.creatorId !== user.id) {
       return NextResponse.json(
         { error: 'Forbidden' },
         { status: 403 }
@@ -239,6 +255,9 @@ export async function PUT(
       logError(notificationError, { context: 'PUT /api/tasks/[id] - real-time notification', taskId: id });
     }
 
+    // Invalidate tasks cache
+    revalidateTag(CACHE_TAGS.TASKS)
+
     return NextResponse.json({
       success: true,
       data: updatedTask,
@@ -291,6 +310,9 @@ export async function DELETE(
     await prisma.task.delete({
       where: { id }
     })
+
+    // Invalidate tasks cache
+    revalidateTag(CACHE_TAGS.TASKS)
 
     return NextResponse.json({
       success: true,

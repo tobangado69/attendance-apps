@@ -9,6 +9,7 @@ import {
   validateRole
 } from '@/lib/api/api-utils'
 import { logError } from '@/lib/utils/logger'
+import { CACHE_TAGS, CACHE_REVALIDATE } from '@/lib/utils/api-cache'
 
 export async function GET(request: NextRequest) {
   try {
@@ -44,16 +45,6 @@ export async function GET(request: NextRequest) {
     } else if (userId) {
       where.userId = userId
     }
-
-    console.log('Attendance API - Session user:', {
-      id: user.id,
-      role: user.role
-    });
-    console.log('Attendance API - Where clause before date filter:', where);
-
-    // Date range filter is already handled by buildDateRangeWhere utility
-
-    console.log('Attendance API - Final where clause:', where);
 
     // Status filter
     if (status) {
@@ -107,6 +98,8 @@ export async function GET(request: NextRequest) {
         orderBy = { date: 'desc' }
     }
 
+    // Note: Caching removed for attendance list due to complex dynamic filtering
+    // Similar to employees list - caching is not practical with role-based access and dynamic filters
     const [attendance, total] = await Promise.all([
       prisma.attendance.findMany({
         where,
@@ -150,16 +143,11 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    return NextResponse.json({
-      success: true,
-      data: attendance,
-      meta: {
-        total,
-        page: pagination.page,
-        limit: pagination.limit,
-        totalPages: Math.ceil(total / pagination.limit),
-        departments: departments.map(d => d.name)
-      }
+    return formatApiResponse(attendance, {
+      total,
+      page: pagination.page,
+      limit: pagination.limit,
+      departments: departments.map(d => d.name)
     })
   } catch (error) {
     logError(error, { context: 'GET /api/attendance' })

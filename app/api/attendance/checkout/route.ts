@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidateTag } from 'next/cache'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
@@ -7,6 +8,7 @@ import { broadcastNotification } from '@/lib/notifications/real-time'
 import { getCompanySettings, calculateOvertimeHours } from '@/lib/settings'
 import { logError } from '@/lib/utils/logger'
 import { EmployeeStatus } from '@/lib/constants/status'
+import { CACHE_TAGS } from '@/lib/utils/api-cache'
 
 export async function POST(request: NextRequest) {
   try {
@@ -195,6 +197,9 @@ export async function POST(request: NextRequest) {
     } catch (notificationError) {
       logError(notificationError, { context: 'POST /api/attendance/checkout - real-time', userId: session.user.id });
     }
+
+    // Invalidate attendance cache
+    revalidateTag(CACHE_TAGS.ATTENDANCE)
 
     return NextResponse.json({
       success: true,
