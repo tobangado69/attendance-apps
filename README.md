@@ -1,6 +1,6 @@
 # 🏢 Employee Dashboard
 
-A comprehensive employee management system built with Next.js 15, featuring attendance tracking, task management, profile management, and role-based access control.
+A comprehensive employee management system built with Next.js 15, featuring attendance tracking, task management, profile management, performance metrics, task analytics, and role-based access control.
 
 ![Next.js](https://img.shields.io/badge/Next.js-15.5.3-black)
 ![React](https://img.shields.io/badge/React-19.1.0-blue)
@@ -44,6 +44,22 @@ A comprehensive employee management system built with Next.js 15, featuring atte
 ### 📊 Dashboard & Analytics
 - **Real-time statistics** with role-based data
 - **Interactive charts** using Recharts
+  - Attendance trends and patterns
+  - Performance score distributions
+  - Task completion trends
+  - Department comparisons
+- **Performance Metrics Dashboard** (NEW)
+  - Productivity score calculation (40% attendance + 60% task completion)
+  - Efficiency rate tracking
+  - Employee ranking system
+  - Department-level aggregations
+  - Historical performance trends
+- **Task Analytics Dashboard** (NEW)
+  - Task completion velocity
+  - Status distribution charts
+  - Priority analysis
+  - Assignee performance metrics
+  - Department task completion rates
 - **Recent activity feed** with real-time updates
 - **Quick action buttons** for common tasks
 - **Responsive design** for all screen sizes
@@ -56,11 +72,29 @@ A comprehensive employee management system built with Next.js 15, featuring atte
 - **Custom notification templates**
 
 ### 📈 Reports & Export
-- **Attendance reports** with comprehensive analytics
-- **Excel export** functionality for all reports
-- **Department-wise statistics**
-- **Custom date range reports**
-- **Admin-only report access**
+- **Attendance Reports** with comprehensive analytics
+  - Daily attendance trends
+  - Employee attendance summaries
+  - Department-wise statistics
+  - Excel export with multiple sheets
+- **Performance Metrics** (NEW)
+  - Employee productivity scores
+  - Efficiency rates and attendance tracking
+  - Task completion rates
+  - Department performance comparisons
+  - Top performers ranking
+  - Historical performance trends
+  - Excel export with overview, employee performance, department performance, and top performers sheets
+- **Task Analytics** (NEW)
+  - Task completion trends
+  - Status and priority distribution
+  - Completion rates by assignee and department
+  - Average completion time metrics
+  - Overdue tasks tracking
+  - Backlog analysis
+  - Excel export with overview, by assignee, and by department sheets
+- **Custom date range reports** (week, month, year)
+- **Admin & Manager access** to all reports
 
 ### 🎨 User Interface
 - **Modern UI** with shadcn/ui components
@@ -93,6 +127,8 @@ A comprehensive employee management system built with Next.js 15, featuring atte
 ### External Services
 - **Cloudinary** for image storage and optimization
 - **Server-Sent Events** for real-time updates
+- **XLSX** library for Excel file generation
+- **file-saver** for client-side file downloads
 
 ## 📦 Installation
 
@@ -151,10 +187,11 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 ### Core Models
 - **User**: Authentication and profile data
 - **Employee**: Employee-specific information
-- **Attendance**: Check-in/out records
-- **Task**: Task management and assignments
+- **Attendance**: Check-in/out records with status tracking
+- **Task**: Task management and assignments with priority levels
 - **Department**: Organizational structure
 - **Notification**: Real-time notifications
+- **CompanySettings**: System-wide configuration (attendance rules, working hours, etc.)
 
 ### Key Relationships
 - User ↔ Employee (1:1)
@@ -176,9 +213,10 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 - ✅ Manage all employees (view, create, update)
 - ✅ View team attendance and tasks
 - ✅ Assign and track tasks
-- ✅ View team reports
+- ✅ View all reports (Attendance, Performance, Task Analytics)
+- ✅ Export reports to Excel
 - ✅ Access employee management
-- ❌ Cannot access attendance reports
+- ✅ View performance metrics and analytics
 
 ### Employee
 - ✅ View own profile and data
@@ -186,8 +224,9 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 - ✅ View assigned tasks
 - ✅ Update personal information
 - ❌ Cannot access employee management
-- ❌ Cannot access reports
+- ❌ Cannot access reports (Attendance, Performance, Task Analytics)
 - ❌ Cannot manage other users
+- ❌ Cannot export data
 
 ## 📱 API Endpoints
 
@@ -215,8 +254,8 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 ### Attendance
 - `GET /api/attendance` - Get attendance records
 - `POST /api/attendance` - Check in/out
-- `GET /api/attendance/reports` - Get attendance reports (Admin only)
-- `GET /api/attendance/export` - Export attendance data (Admin only)
+- `GET /api/attendance/reports` - Get attendance reports (Admin & Manager)
+- `GET /api/attendance/export` - Export attendance data to Excel (Admin & Manager)
 
 ### Tasks
 - `GET /api/tasks` - List tasks
@@ -225,6 +264,16 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 - `PUT /api/tasks/[id]` - Update task
 - `DELETE /api/tasks/[id]` - Delete task
 - `GET /api/tasks/stats` - Get task statistics
+
+### Reports & Analytics
+- `GET /api/reports/attendance` - Get attendance report data (Admin & Manager)
+- `GET /api/reports/stats` - Get dashboard statistics
+- `GET /api/reports/performance` - Get overall performance metrics (Admin & Manager)
+- `GET /api/reports/performance/employees` - Get detailed employee performance data (Admin & Manager)
+- `GET /api/reports/performance/trends` - Get historical performance trends (Admin & Manager)
+- `GET /api/reports/tasks` - Get task analytics data (Admin & Manager)
+- `GET /api/reports/tasks/metrics` - Get task performance metrics (Admin & Manager)
+- `GET /api/reports/tasks/trends` - Get historical task trends (Admin & Manager)
 
 ### Dashboard
 - `GET /api/dashboard/stats` - Get dashboard statistics
@@ -271,12 +320,17 @@ npx prisma db push
 ├── components/           # React components
 │   ├── ui/               # Reusable UI components
 │   ├── dashboard/        # Dashboard-specific components
+│   ├── reports/          # Reports components
+│   │   ├── performance/  # Performance metrics components
+│   │   └── tasks/        # Task analytics components
 │   └── auth/             # Authentication components
 ├── lib/                  # Utility libraries
 │   ├── api/              # API utilities
 │   ├── auth.ts           # NextAuth configuration
 │   ├── prisma.ts         # Database client
-│   └── validations.ts    # Zod schemas
+│   ├── validations.ts    # Zod schemas
+│   ├── excel-export.ts   # Excel export utilities
+│   └── utils/            # Helper utilities
 ├── prisma/               # Database schema and migrations
 └── types/                # TypeScript type definitions
 ```
