@@ -262,3 +262,259 @@ export function exportToExcel(
   
   saveAs(blob, filename);
 }
+
+// Performance Metrics Export Interfaces
+export interface PerformanceEmployeeData {
+  employeeId: string;
+  name: string;
+  email: string;
+  department: string;
+  productivityScore: number;
+  efficiencyRate: number;
+  attendanceRate: number;
+  taskCompletionRate: number;
+  rank: number;
+}
+
+export interface PerformanceDepartmentData {
+  department: string;
+  totalEmployees: number;
+  avgProductivityScore: number;
+  avgEfficiencyRate: number;
+  avgAttendanceRate: number;
+  avgTaskCompletionRate: number;
+  totalHours: number;
+}
+
+export interface PerformanceSummary {
+  totalEmployees: number;
+  avgProductivityScore: number;
+  avgEfficiencyRate: number;
+  avgAttendanceRate: number;
+  avgTaskCompletionRate: number;
+}
+
+// Export performance metrics to Excel
+export function exportPerformanceToExcel(
+  summary: PerformanceSummary,
+  employeePerformance: PerformanceEmployeeData[],
+  departmentPerformance: PerformanceDepartmentData[],
+  topPerformers: Array<{ employeeId: string; name: string; productivityScore: number; rank: number }>,
+  options: ExcelExportOptions = {}
+) {
+  const workbook = XLSX.utils.book_new();
+  
+  // Overview/Summary Sheet
+  const summarySheet = XLSX.utils.json_to_sheet([
+    { Metric: 'Total Employees', Value: summary.totalEmployees },
+    { Metric: 'Avg Productivity Score (%)', Value: summary.avgProductivityScore },
+    { Metric: 'Avg Efficiency Rate (%)', Value: summary.avgEfficiencyRate },
+    { Metric: 'Avg Attendance Rate (%)', Value: summary.avgAttendanceRate },
+    { Metric: 'Avg Task Completion Rate (%)', Value: summary.avgTaskCompletionRate }
+  ]);
+  
+  summarySheet['!cols'] = [
+    { wch: 30 }, // Metric
+    { wch: 15 }  // Value
+  ];
+  
+  XLSX.utils.book_append_sheet(workbook, summarySheet, 'Overview');
+  
+  // Employee Performance Sheet
+  const employeeSheet = XLSX.utils.json_to_sheet(
+    employeePerformance.map(emp => ({
+      'Rank': emp.rank,
+      'Employee ID': emp.employeeId,
+      'Name': emp.name,
+      'Email': emp.email,
+      'Department': emp.department || 'Unassigned',
+      'Productivity Score (%)': emp.productivityScore,
+      'Efficiency Rate (%)': emp.efficiencyRate,
+      'Attendance Rate (%)': emp.attendanceRate,
+      'Task Completion Rate (%)': emp.taskCompletionRate
+    }))
+  );
+  
+  employeeSheet['!cols'] = [
+    { wch: 8 },  // Rank
+    { wch: 12 }, // Employee ID
+    { wch: 20 }, // Name
+    { wch: 25 }, // Email
+    { wch: 15 }, // Department
+    { wch: 20 }, // Productivity Score
+    { wch: 18 }, // Efficiency Rate
+    { wch: 18 }, // Attendance Rate
+    { wch: 22 }  // Task Completion Rate
+  ];
+  
+  XLSX.utils.book_append_sheet(workbook, employeeSheet, 'Employee Performance');
+  
+  // Department Performance Sheet
+  const departmentSheet = XLSX.utils.json_to_sheet(
+    departmentPerformance.map(dept => ({
+      'Department': dept.department || 'Unassigned',
+      'Total Employees': dept.totalEmployees,
+      'Avg Productivity Score (%)': dept.avgProductivityScore,
+      'Avg Efficiency Rate (%)': dept.avgEfficiencyRate,
+      'Avg Attendance Rate (%)': dept.avgAttendanceRate,
+      'Avg Task Completion Rate (%)': dept.avgTaskCompletionRate,
+      'Total Hours': dept.totalHours
+    }))
+  );
+  
+  departmentSheet['!cols'] = [
+    { wch: 15 }, // Department
+    { wch: 16 }, // Total Employees
+    { wch: 24 }, // Avg Productivity Score
+    { wch: 22 }, // Avg Efficiency Rate
+    { wch: 22 }, // Avg Attendance Rate
+    { wch: 26 }, // Avg Task Completion Rate
+    { wch: 12 }  // Total Hours
+  ];
+  
+  XLSX.utils.book_append_sheet(workbook, departmentSheet, 'Department Performance');
+  
+  // Top Performers Sheet
+  const topPerformersSheet = XLSX.utils.json_to_sheet(
+    topPerformers.map(performer => ({
+      'Rank': performer.rank,
+      'Employee ID': performer.employeeId,
+      'Name': performer.name,
+      'Productivity Score (%)': performer.productivityScore
+    }))
+  );
+  
+  topPerformersSheet['!cols'] = [
+    { wch: 8 },  // Rank
+    { wch: 12 }, // Employee ID
+    { wch: 20 }, // Name
+    { wch: 20 }  // Productivity Score
+  ];
+  
+  XLSX.utils.book_append_sheet(workbook, topPerformersSheet, 'Top Performers');
+  
+  // Export the file
+  const filename = options.filename || `performance-report-${new Date().toISOString().split('T')[0]}.xlsx`;
+  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  
+  saveAs(data, filename);
+}
+
+// Task Analytics Export Interfaces
+export interface TaskSummary {
+  totalTasks: number;
+  completedTasks: number;
+  completionRate: number;
+  inProgressTasks: number;
+  pendingTasks: number;
+  cancelledTasks: number;
+}
+
+export interface TaskMetrics {
+  avgCompletionTime: number;
+  overdueTasks: number;
+  overduePercentage: number;
+  backlogSize: number;
+}
+
+export interface TaskByAssignee {
+  assigneeId: string;
+  assigneeName: string;
+  assigneeEmail: string;
+  totalTasks: number;
+  completedTasks: number;
+  inProgressTasks: number;
+  completionRate: number;
+}
+
+export interface TaskByDepartment {
+  department: string;
+  totalTasks: number;
+  completedTasks: number;
+  completionRate: number;
+  avgCompletionTime: number;
+}
+
+// Export task analytics to Excel
+export function exportTaskAnalyticsToExcel(
+  summary: TaskSummary,
+  metrics: TaskMetrics,
+  byAssignee: TaskByAssignee[],
+  byDepartment: TaskByDepartment[],
+  options: ExcelExportOptions = {}
+) {
+  const workbook = XLSX.utils.book_new();
+  
+  // Overview/Summary Sheet
+  const summarySheet = XLSX.utils.json_to_sheet([
+    { Metric: 'Total Tasks', Value: summary.totalTasks },
+    { Metric: 'Completed Tasks', Value: summary.completedTasks },
+    { Metric: 'Completion Rate (%)', Value: summary.completionRate },
+    { Metric: 'In Progress Tasks', Value: summary.inProgressTasks },
+    { Metric: 'Pending Tasks', Value: summary.pendingTasks },
+    { Metric: 'Cancelled Tasks', Value: summary.cancelledTasks },
+    { Metric: 'Average Completion Time (days)', Value: metrics.avgCompletionTime },
+    { Metric: 'Overdue Tasks', Value: metrics.overdueTasks },
+    { Metric: 'Overdue Percentage (%)', Value: metrics.overduePercentage },
+    { Metric: 'Backlog Size', Value: metrics.backlogSize }
+  ]);
+  
+  summarySheet['!cols'] = [
+    { wch: 35 }, // Metric
+    { wch: 15 }  // Value
+  ];
+  
+  XLSX.utils.book_append_sheet(workbook, summarySheet, 'Overview');
+  
+  // By Assignee Sheet
+  const assigneeSheet = XLSX.utils.json_to_sheet(
+    byAssignee.map(assignee => ({
+      'Assignee Name': assignee.assigneeName,
+      'Email': assignee.assigneeEmail,
+      'Total Tasks': assignee.totalTasks,
+      'Completed Tasks': assignee.completedTasks,
+      'In Progress Tasks': assignee.inProgressTasks,
+      'Completion Rate (%)': assignee.completionRate
+    }))
+  );
+  
+  assigneeSheet['!cols'] = [
+    { wch: 20 }, // Assignee Name
+    { wch: 25 }, // Email
+    { wch: 12 }, // Total Tasks
+    { wch: 16 }, // Completed Tasks
+    { wch: 18 }, // In Progress Tasks
+    { wch: 18 }  // Completion Rate
+  ];
+  
+  XLSX.utils.book_append_sheet(workbook, assigneeSheet, 'By Assignee');
+  
+  // By Department Sheet
+  const departmentSheet = XLSX.utils.json_to_sheet(
+    byDepartment.map(dept => ({
+      'Department': dept.department || 'Unassigned',
+      'Total Tasks': dept.totalTasks,
+      'Completed Tasks': dept.completedTasks,
+      'Completion Rate (%)': dept.completionRate,
+      'Avg Completion Time (days)': dept.avgCompletionTime
+    }))
+  );
+  
+  departmentSheet['!cols'] = [
+    { wch: 15 }, // Department
+    { wch: 12 }, // Total Tasks
+    { wch: 16 }, // Completed Tasks
+    { wch: 18 }, // Completion Rate
+    { wch: 25 }  // Avg Completion Time
+  ];
+  
+  XLSX.utils.book_append_sheet(workbook, departmentSheet, 'By Department');
+  
+  // Export the file
+  const filename = options.filename || `task-report-${new Date().toISOString().split('T')[0]}.xlsx`;
+  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  
+  saveAs(data, filename);
+}

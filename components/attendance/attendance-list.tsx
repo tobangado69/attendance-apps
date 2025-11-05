@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -39,237 +39,62 @@ import {
   ChevronsRight,
 } from "lucide-react";
 import { format } from "date-fns";
-import { useDebounce } from "@/hooks/use-debounce";
-import { exportAttendanceToExcel } from "@/lib/excel-export";
-
-interface AttendanceRecord {
-  id: string;
-  checkIn?: string;
-  checkOut?: string;
-  totalHours?: number;
-  status: string;
-  date: string;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-  };
-  employee?: {
-    employeeId: string;
-    department?: string;
-    position?: string;
-  };
-}
+import { useAttendanceList, SortField } from "@/hooks/use-attendance-list";
+import { AttendanceStatus } from "@/lib/constants/status";
 
 interface AttendanceListProps {
   showAll?: boolean;
 }
 
-type SortField =
-  | "employee"
-  | "date"
-  | "checkIn"
-  | "checkOut"
-  | "totalHours"
-  | "status"
-  | "department";
-type SortOrder = "asc" | "desc";
-
 export function AttendanceList({ showAll = false }: AttendanceListProps) {
-  const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalRecords, setTotalRecords] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
-  const [sortBy, setSortBy] = useState<SortField>("date");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
-  const [departmentFilter, setDepartmentFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [departments, setDepartments] = useState<string[]>([]);
-  const [selectedRecords, setSelectedRecords] = useState<string[]>([]);
-  const [showFilters, setShowFilters] = useState(false);
-  const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
-
-  // Debounce search term
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
-
-  const fetchAttendance = useCallback(async () => {
-    try {
-      setLoading(true);
-      const params = new URLSearchParams({
-        page: currentPage.toString(),
-        limit: pageSize.toString(),
-        sortBy,
-        sortOrder,
-      });
-
-      if (debouncedSearchTerm && debouncedSearchTerm.trim()) {
-        params.set("search", debouncedSearchTerm.trim());
-      }
-      if (dateRange.from) {
-        params.set("startDate", dateRange.from.toISOString());
-      }
-      if (dateRange.to) {
-        params.set("endDate", dateRange.to.toISOString());
-      }
-      if (departmentFilter && departmentFilter !== "all") {
-        params.set("department", departmentFilter);
-      }
-      if (statusFilter && statusFilter !== "all") {
-        params.set("status", statusFilter);
-      }
-
-      const response = await fetch(`/api/attendance?${params}`);
-      const data = await response.json();
-
-      if (data.data) {
-        setAttendance(data.data);
-        setTotalPages(data.meta.totalPages);
-        setTotalRecords(data.meta.total);
-        if (data.meta.departments) {
-          setDepartments(data.meta.departments);
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching attendance:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [
+  const {
+    // Data
+    attendance,
+    departments,
+    loading,
+    
+    // Pagination
     currentPage,
+    totalPages,
+    totalRecords,
     pageSize,
+    
+    // Filters
+    searchTerm,
+    dateRange,
     sortBy,
     sortOrder,
-    debouncedSearchTerm,
-    dateRange,
     departmentFilter,
     statusFilter,
-  ]);
+    
+    // Selection
+    selectedRecords,
+    showFilters,
+    
+    // Actions
+    setSearchTerm,
+    setDateRange,
+    setDepartmentFilter,
+    setStatusFilter,
+    setCurrentPage,
+    setPageSize,
+    setSortBy,
+    setSortOrder,
+    setShowFilters,
+    handleSort,
+    handlePageChange,
+    handlePageSizeChange,
+    clearFilters,
+    handleSelectAll,
+    handleSelectRecord,
+    handleExport,
+    
+    // Utilities
+    getStatusColor,
+    formatTime,
+  } = useAttendanceList({ showAll });
 
-  useEffect(() => {
-    fetchAttendance();
-  }, [fetchAttendance]);
-
-  const handleSort = (field: SortField) => {
-    if (sortBy === field) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-    } else {
-      setSortBy(field);
-      setSortOrder("asc");
-    }
-    setCurrentPage(1);
-  };
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  const handlePageSizeChange = (size: string) => {
-    setPageSize(parseInt(size));
-    setCurrentPage(1);
-  };
-
-  const clearFilters = () => {
-    setSearchTerm("");
-    setDateRange({});
-    setDepartmentFilter("all");
-    setStatusFilter("all");
-    setCurrentPage(1);
-  };
-
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedRecords(attendance.map((record) => record.id));
-    } else {
-      setSelectedRecords([]);
-    }
-  };
-
-  const handleSelectRecord = (recordId: string, checked: boolean) => {
-    if (checked) {
-      setSelectedRecords((prev) => [...prev, recordId]);
-    } else {
-      setSelectedRecords((prev) => prev.filter((id) => id !== recordId));
-    }
-  };
-
-  const handleExport = async () => {
-    try {
-      // Create mock data for export (in real app, you'd fetch all data)
-      const dailyData = attendance.map((record) => ({
-        date: record.date,
-        totalEmployees: 1,
-        presentEmployees: record.status === "present" ? 1 : 0,
-        lateEmployees: record.status === "late" ? 1 : 0,
-        absentEmployees: record.status === "absent" ? 1 : 0,
-        totalHours: record.totalHours || 0,
-      }));
-
-      const employeeData = attendance.map((record) => ({
-        employeeId: record.employee?.employeeId || "",
-        name: record.user.name,
-        email: record.user.email,
-        department:
-          record.employee?.department?.name ||
-          record.employee?.department ||
-          "",
-        position: record.employee?.position || "",
-        salary: 0, // Would need to fetch from employee data
-        presentDays: record.status === "present" ? 1 : 0,
-        totalDays: 1,
-        attendanceRate: record.status === "present" ? 100 : 0,
-        totalHours: record.totalHours || 0,
-        avgHours: record.totalHours || 0,
-        lateDays: record.status === "late" ? 1 : 0,
-      }));
-
-      const departmentData = Object.values(
-        attendance.reduce((acc, record) => {
-          const dept =
-            record.employee?.department?.name ||
-            record.employee?.department ||
-            "Unknown";
-          if (!acc[dept]) {
-            acc[dept] = {
-              department: dept,
-              totalEmployees: 0,
-              presentEmployees: 0,
-              totalHours: 0,
-            };
-          }
-          acc[dept].totalEmployees++;
-          if (record.status === "present") acc[dept].presentEmployees++;
-          acc[dept].totalHours += record.totalHours || 0;
-          return acc;
-        }, {} as Record<string, { department: string; totalHours: number }>)
-      );
-
-      exportAttendanceToExcel(dailyData, employeeData, departmentData);
-    } catch (error) {
-      console.error("Export failed:", error);
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "present":
-        return "bg-green-100 text-green-800";
-      case "late":
-        return "bg-yellow-100 text-yellow-800";
-      case "absent":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const formatTime = (timeString?: string) => {
-    if (!timeString) return "N/A";
-    return new Date(timeString).toLocaleTimeString("en-GB", { hour12: false });
-  };
+  const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
 
   const SortButton = ({
     field,
@@ -510,9 +335,13 @@ export function AttendanceList({ showAll = false }: AttendanceListProps) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All statuses</SelectItem>
-                  <SelectItem value="present">Present</SelectItem>
-                  <SelectItem value="late">Late</SelectItem>
-                  <SelectItem value="absent">Absent</SelectItem>
+                  <SelectItem value={AttendanceStatus.PRESENT}>
+                    Present
+                  </SelectItem>
+                  <SelectItem value={AttendanceStatus.LATE}>Late</SelectItem>
+                  <SelectItem value={AttendanceStatus.ABSENT}>
+                    Absent
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -539,9 +368,9 @@ export function AttendanceList({ showAll = false }: AttendanceListProps) {
                 ({selectedRecords.length} selected)
               </span>
             )}
-            {debouncedSearchTerm && (
+            {searchTerm && (
               <span className="ml-2 text-green-600">
-                (filtered by &quot;{debouncedSearchTerm}&quot;)
+                (filtered by &quot;{searchTerm}&quot;)
               </span>
             )}
           </div>
@@ -657,10 +486,11 @@ export function AttendanceList({ showAll = false }: AttendanceListProps) {
 
             {attendance.length === 0 && (
               <div className="text-center py-8 text-gray-500">
-                {debouncedSearchTerm ? (
+                {searchTerm ? (
                   <div>
                     <p>
-                      No attendance records found for &quot;{debouncedSearchTerm}&quot;
+                      No attendance records found for &quot;
+                      {searchTerm}&quot;
                     </p>
                     <Button
                       variant="outline"

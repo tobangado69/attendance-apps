@@ -36,6 +36,7 @@ import { TaskForm } from "./task-form";
 import { TaskDetails } from "./task-details";
 import { showSuccessToast, showErrorToast } from "@/lib/error-handler";
 import { format, isAfter, isBefore, addDays } from "date-fns";
+import { TaskStatus } from "@/lib/constants/status";
 
 interface Task {
   id: string;
@@ -62,10 +63,10 @@ interface TaskKanbanProps {
 }
 
 const statusColumns = [
-  { id: "PENDING", title: "Pending", color: "bg-gray-100" },
-  { id: "IN_PROGRESS", title: "In Progress", color: "bg-blue-100" },
-  { id: "COMPLETED", title: "Completed", color: "bg-green-100" },
-  { id: "CANCELLED", title: "Cancelled", color: "bg-red-100" },
+  { id: TaskStatus.PENDING, title: "Pending", color: "bg-gray-100" },
+  { id: TaskStatus.IN_PROGRESS, title: "In Progress", color: "bg-blue-100" },
+  { id: TaskStatus.COMPLETED, title: "Completed", color: "bg-green-100" },
+  { id: TaskStatus.CANCELLED, title: "Cancelled", color: "bg-red-100" },
 ];
 
 const priorityColors = {
@@ -464,7 +465,7 @@ export function TaskKanban({ showAll = true }: TaskKanbanProps) {
             id: "",
             title: "",
             description: "",
-            status: "PENDING",
+            status: TaskStatus.PENDING,
             priority: "MEDIUM",
             createdAt: new Date().toISOString(),
             creator: { id: "", name: "", email: "" },

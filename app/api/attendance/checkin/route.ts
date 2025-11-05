@@ -1,20 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidateTag } from 'next/cache'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { createNotification, NotificationTemplates, getManagersAndAdmins } from '@/lib/notifications'
-import { broadcastNotification } from '@/lib/notifications/real-time'
+import { createNotification, NotificationTemplates, getAttendanceNotificationRecipients } from '@/lib/notifications'
 import { getCompanySettings, calculateLateMinutes, isLateArrival } from '@/lib/settings'
+import { logError } from '@/lib/utils/logger'
+import { AttendanceStatus, EmployeeStatus } from '@/lib/constants/status'
+import { CACHE_TAGS } from '@/lib/utils/api-cache'
+import { formatErrorResponse } from '@/lib/api/api-utils'
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return formatErrorResponse('Unauthorized. Please sign in to continue.', 401)
     }
 
     const { notes } = await request.json()
@@ -40,42 +41,45 @@ export async function POST(request: NextRequest) {
     })
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'User account not found' },
-        { status: 404 }
-      )
+      return formatErrorResponse('User account not found. Please contact support.', 404)
     }
 
     const employee = await prisma.employee.findUnique({
       where: { userId: session.user.id }
     })
 
-    console.log('Employee found:', employee);
-
     // For admin users, allow check-in even without employee record
     if (!employee && session.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Employee record not found' },
-        { status: 404 }
-      )
+      return formatErrorResponse('Employee record not found. Please contact HR to set up your employee profile.', 404)
     }
 
     // Only check employee status for non-admin users
     if (employee && session.user.role !== 'ADMIN') {
       // Check if employee is active
       if (!employee.isActive) {
-        return NextResponse.json(
-          { error: 'Your employee account is inactive. Please contact HR for assistance.' },
-          { status: 403 }
+        return formatErrorResponse(
+          'Your employee account is inactive. You cannot check in at this time. Please contact HR for assistance.',
+          403,
+          { code: 'EMPLOYEE_INACTIVE', reason: 'Account is marked as inactive' }
         )
       }
 
       // Check if employee status allows attendance
-      console.log('Employee status:', employee.status, 'Type:', typeof employee.status);
-      if (employee.status && employee.status !== 'ACTIVE') {
-        return NextResponse.json(
-          { error: `Your account status is ${employee.status}. You cannot check in at this time.` },
-          { status: 403 }
+      if (employee.status && employee.status !== EmployeeStatus.ACTIVE) {
+        const statusMessages: Record<string, string> = {
+          [EmployeeStatus.INACTIVE]: 'Your account is inactive. Please contact HR to reactivate your account.',
+          [EmployeeStatus.LAYOFF]: 'Your account is on layoff status. You cannot check in at this time.',
+          [EmployeeStatus.TERMINATED]: 'Your account has been terminated. Please contact HR for assistance.',
+          [EmployeeStatus.ON_LEAVE]: 'You are currently on leave. You cannot check in during leave period.',
+          [EmployeeStatus.SUSPENDED]: 'Your account is suspended. Please contact HR for assistance.'
+        }
+
+        const message = statusMessages[employee.status] || `Your account status is ${employee.status}. You cannot check in at this time.`
+
+        return formatErrorResponse(
+          message,
+          403,
+          { code: 'EMPLOYEE_STATUS_RESTRICTED', status: employee.status }
         )
       }
     }
@@ -94,9 +98,10 @@ export async function POST(request: NextRequest) {
     })
 
     if (existingAttendance?.checkIn) {
-      return NextResponse.json(
-        { error: 'Already checked in today' },
-        { status: 400 }
+      return formatErrorResponse(
+        'You have already checked in today. You can only check in once per day.',
+        400,
+        { code: 'ALREADY_CHECKED_IN' }
       )
     }
 
@@ -110,12 +115,12 @@ export async function POST(request: NextRequest) {
         employeeId: employee?.id,
         checkIn: now,
         date: today,
-        status: isLate ? 'late' : 'present',
+        status: isLate ? AttendanceStatus.LATE : AttendanceStatus.PRESENT,
         notes
       },
       update: {
         checkIn: now,
-        status: isLate ? 'late' : 'present',
+        status: isLate ? AttendanceStatus.LATE : AttendanceStatus.PRESENT,
         notes
       }
     })
@@ -128,23 +133,30 @@ export async function POST(request: NextRequest) {
         hour12: false
       })
       
-      // Notify managers and admins
-      const managersAndAdmins = await getManagersAndAdmins()
-      const notifications = managersAndAdmins.map(user => ({
-        userId: user.id,
-        ...(isLate 
-          ? NotificationTemplates.attendanceLate(session.user.name || 'Unknown', timeString, lateMinutes)
-          : NotificationTemplates.attendanceCheckedIn(session.user.name || 'Unknown', timeString)
-        )
-      }))
+      // Get notification recipients based on role-based access control
+      // Employee: Notify their manager + all admins
+      // Manager: Notify their manager + all admins
+      // Admin: Notify all admins
+      const recipientIds = await getAttendanceNotificationRecipients(
+        session.user.id,
+        session.user.role || 'EMPLOYEE'
+      )
 
-      if (notifications.length > 0) {
+      if (recipientIds.length > 0) {
+        const notifications = recipientIds.map(userId => ({
+          userId,
+          ...(isLate 
+            ? NotificationTemplates.attendanceLate(session.user.name || 'Unknown', timeString, lateMinutes)
+            : NotificationTemplates.attendanceCheckedIn(session.user.name || 'Unknown', timeString)
+          )
+        }))
+
         await prisma.notification.createMany({
           data: notifications
         })
       }
 
-      // Notify the employee if they're late
+      // Notify the employee if they're late (personal notification)
       if (isLate) {
         await createNotification({
           userId: session.user.id,
@@ -154,7 +166,7 @@ export async function POST(request: NextRequest) {
         })
       }
     } catch (notificationError) {
-      console.error('Error sending check-in notifications:', notificationError)
+      logError(notificationError, { context: 'POST /api/attendance/checkin - notifications', userId: session.user.id })
       // Don't fail the check-in if notifications fail
     }
 
@@ -166,8 +178,17 @@ export async function POST(request: NextRequest) {
         hour12: false
       });
 
-      // Broadcast to all connected users
-      broadcastNotification({
+      // Get recipient IDs for real-time broadcast
+      const recipientIds = await getAttendanceNotificationRecipients(
+        session.user.id,
+        session.user.role || 'EMPLOYEE'
+      )
+
+      // Import sendNotificationToUser for targeted real-time notifications
+      const { sendNotificationToUser } = await import('@/lib/notifications/real-time')
+
+      // Send real-time notification only to authorized recipients
+      const notificationData = {
         title: 'Employee Checked In',
         message: `${session.user.name} checked in at ${timeString}${isLate ? ` (${lateMinutes} minutes late)` : ''}`,
         type: isLate ? 'warning' : 'info',
@@ -179,10 +200,18 @@ export async function POST(request: NextRequest) {
           isLate,
           lateMinutes
         }
-      });
+      }
+
+      // Send to each recipient individually
+      for (const recipientId of recipientIds) {
+        sendNotificationToUser(recipientId, notificationData)
+      }
     } catch (notificationError) {
-      console.error('Error sending real-time notification:', notificationError);
+      logError(notificationError, { context: 'POST /api/attendance/checkin - real-time', userId: session.user.id });
     }
+
+    // Invalidate attendance cache
+    revalidateTag(CACHE_TAGS.ATTENDANCE)
 
     return NextResponse.json({
       success: true,
@@ -190,10 +219,10 @@ export async function POST(request: NextRequest) {
       message: 'Successfully checked in'
     })
   } catch (error) {
-    console.error('Check-in error:', error)
-    return NextResponse.json(
-      { error: 'Failed to check in' },
-      { status: 500 }
+    logError(error, { context: 'POST /api/attendance/checkin' })
+    return formatErrorResponse(
+      'An unexpected error occurred while processing your check-in. Please try again or contact support if the problem persists.',
+      500
     )
   }
 }

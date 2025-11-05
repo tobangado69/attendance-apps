@@ -36,10 +36,16 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { exportAttendanceToExcel } from "@/lib/excel-export";
+import { exportAttendanceToExcel, exportPerformanceToExcel, exportTaskAnalyticsToExcel } from "@/lib/excel-export";
 import { showSuccessToast, showErrorToast } from "@/lib/error-handler";
 import { PageGuard } from "@/components/auth/page-guard";
 import { Role } from "@prisma/client";
+import { PerformanceOverviewCards } from "@/components/reports/performance/performance-overview-cards";
+import { PerformanceCharts } from "@/components/reports/performance/performance-charts";
+import { EmployeePerformanceTable } from "@/components/reports/performance/employee-performance-table";
+import { TaskOverviewCards } from "@/components/reports/tasks/task-overview-cards";
+import { TaskCharts } from "@/components/reports/tasks/task-charts";
+import { TaskPerformanceTable } from "@/components/reports/tasks/task-performance-table";
 
 interface ReportStats {
   attendanceRate: number;
@@ -159,8 +165,8 @@ function ReportsPageContent() {
         attendanceData.dailyData,
         attendanceData.employeeData.map((emp) => ({
           ...emp,
-          position: "", // Add missing properties
-          salary: 0,
+          position: emp.position || "N/A", // Use position from API, fallback to "N/A"
+          salary: emp.salary || 0,
         })),
         attendanceData.departmentData,
         {
@@ -174,6 +180,67 @@ function ReportsPageContent() {
     } catch (error) {
       console.error("Export error:", error);
       showErrorToast("Failed to export Excel file");
+    }
+  };
+
+  const handleExportPerformanceToExcel = async () => {
+    try {
+      const response = await fetch(`/api/reports/performance?period=${period}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch performance data");
+      }
+
+      const data = await response.json();
+
+      exportPerformanceToExcel(
+        data.summary,
+        data.employeePerformance || [],
+        data.departmentPerformance || [],
+        data.topPerformers || [],
+        {
+          filename: `performance-report-${period}-${
+            new Date().toISOString().split("T")[0]
+          }.xlsx`,
+        }
+      );
+
+      showSuccessToast("Performance data exported successfully!");
+    } catch (error) {
+      console.error("Export error:", error);
+      showErrorToast("Failed to export performance data");
+    }
+  };
+
+  const handleExportTaskAnalyticsToExcel = async () => {
+    try {
+      const [tasksResponse, metricsResponse] = await Promise.all([
+        fetch(`/api/reports/tasks?period=${period}`),
+        fetch(`/api/reports/tasks/metrics?period=${period}`),
+      ]);
+
+      if (!tasksResponse.ok || !metricsResponse.ok) {
+        throw new Error("Failed to fetch task data");
+      }
+
+      const tasksData = await tasksResponse.json();
+      const metricsData = await metricsResponse.json();
+
+      exportTaskAnalyticsToExcel(
+        tasksData.summary,
+        metricsData.metrics,
+        tasksData.byAssignee || [],
+        tasksData.byDepartment || [],
+        {
+          filename: `task-report-${period}-${
+            new Date().toISOString().split("T")[0]
+          }.xlsx`,
+        }
+      );
+
+      showSuccessToast("Task analytics exported successfully!");
+    } catch (error) {
+      console.error("Export error:", error);
+      showErrorToast("Failed to export task analytics");
     }
   };
 
@@ -414,29 +481,27 @@ function ReportsPageContent() {
         </TabsContent>
 
         <TabsContent value="performance" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Performance Metrics</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64 flex items-center justify-center text-muted-foreground">
-                Performance charts will be displayed here
-              </div>
-            </CardContent>
-          </Card>
+          <div className="flex justify-end">
+            <Button onClick={handleExportPerformanceToExcel}>
+              <Download className="h-4 w-4 mr-2" />
+              Export Performance Data
+            </Button>
+          </div>
+          <PerformanceOverviewCards period={period} />
+          <PerformanceCharts period={period} />
+          <EmployeePerformanceTable period={period} />
         </TabsContent>
 
         <TabsContent value="tasks" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Task Analytics</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64 flex items-center justify-center text-muted-foreground">
-                Task charts will be displayed here
-              </div>
-            </CardContent>
-          </Card>
+          <div className="flex justify-end">
+            <Button onClick={handleExportTaskAnalyticsToExcel}>
+              <Download className="h-4 w-4 mr-2" />
+              Export Task Data
+            </Button>
+          </div>
+          <TaskOverviewCards period={period} />
+          <TaskCharts period={period} />
+          <TaskPerformanceTable period={period} />
         </TabsContent>
       </Tabs>
     </div>

@@ -56,6 +56,7 @@ import { apiClient } from "@/lib/utils/api-client";
 import { useDebounce } from "@/hooks/use-debounce";
 import { VirtualList } from "@/components/ui/virtual-list";
 import { Pagination, usePagination } from "@/components/ui/pagination";
+import { TaskStatus } from "@/lib/constants/status";
 
 interface Task {
   id: string;
@@ -680,7 +681,7 @@ const EnhancedTaskList = memo(function EnhancedTaskList({
             id: "",
             title: "",
             description: "",
-            status: "PENDING",
+            status: TaskStatus.PENDING,
             priority: "MEDIUM",
             createdAt: new Date().toISOString(),
             creator: { id: "", name: "", email: "" },

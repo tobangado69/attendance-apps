@@ -5,16 +5,16 @@ import {
   formatApiResponse, 
   formatErrorResponse
 } from '@/lib/api/api-utils'
+import { logError } from '@/lib/utils/logger'
+import { unstable_cache } from 'next/cache'
+import { CACHE_TAGS, CACHE_REVALIDATE } from '@/lib/utils/api-cache'
 
-export async function GET(request: NextRequest) {
-  try {
-    const apiContext = await buildApiContext(request)
-    if (apiContext instanceof NextResponse) {
-      return apiContext
-    }
-
-    const { user } = apiContext
-
+/**
+ * Cached function to fetch organization structure
+ * Organization structure changes infrequently, so we can cache for longer
+ */
+const getCachedOrganizationData = unstable_cache(
+  async () => {
     // Get all employees with their department and manager information
     const employees = await prisma.employee.findMany({
       where: {
@@ -99,9 +99,27 @@ export async function GET(request: NextRequest) {
     
     organizationData.totalDepartments = organizationData.departments.length
 
+    return organizationData
+  },
+  ['employee-organization'],
+  {
+    revalidate: CACHE_REVALIDATE.LONG, // 30 minutes - organization changes infrequently
+    tags: [CACHE_TAGS.EMPLOYEES]
+  }
+)
+
+export async function GET(request: NextRequest) {
+  try {
+    const apiContext = await buildApiContext(request)
+    if (apiContext instanceof NextResponse) {
+      return apiContext
+    }
+
+    const organizationData = await getCachedOrganizationData()
+
     return formatApiResponse(organizationData)
   } catch (error) {
-    console.error('Error fetching organization data:', error)
+    logError(error, { context: 'GET /api/employees/organization' })
     return formatErrorResponse('Failed to fetch organization data', 500)
   }
 }

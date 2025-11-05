@@ -29,6 +29,9 @@ export const employeeSchema = z.object({
   status: z.nativeEnum(EmployeeStatus).default('ACTIVE'),
   hireDate: z.string().optional(),
   manager: z.string().optional(),
+  phone: z.string().max(20, 'Phone number must be less than 20 characters').optional(),
+  address: z.string().max(500, 'Address must be less than 500 characters').optional(),
+  bio: z.string().max(1000, 'Bio must be less than 1000 characters').optional(),
 })
 
 export const employeeUpdateSchema = employeeSchema.partial().omit({ password: true })
@@ -66,7 +69,11 @@ export const checkOutSchema = z.object({
 export const departmentSchema = z.object({
   name: z.string().min(1, 'Department name is required').max(50, 'Department name must be less than 50 characters'),
   description: z.string().max(200, 'Description must be less than 200 characters').optional(),
+  budget: z.number().min(0, 'Budget cannot be negative').optional(),
+  managerId: z.string().optional(),
 })
+
+export const departmentUpdateSchema = departmentSchema.partial()
 
 // Notification validation schemas
 export const notificationSchema = z.object({

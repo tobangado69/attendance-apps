@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import bcrypt from 'bcryptjs'
 import { createNotification, NotificationTemplates, getManagersAndAdmins } from '@/lib/notifications'
 import { AppError } from '@/lib/error-handler'
 import { employeeSchema } from '@/lib/validations'
@@ -11,6 +10,13 @@ import {
   formatErrorResponse,
   withAdminManagerGuard 
 } from '@/lib/api/api-utils'
+import { logError } from '@/lib/utils/logger'
+import {
+  checkExistingRecords,
+  createEmployeeWithUser,
+} from '@/lib/services/employee-service'
+import { revalidateTag } from 'next/cache'
+import { CACHE_TAGS } from '@/lib/utils/api-cache'
 
 export async function GET(request: NextRequest) {
   try {
@@ -45,7 +51,9 @@ export async function GET(request: NextRequest) {
     }
     // Admin and Manager can see all employees (no additional filtering needed)
 
-    // Execute query
+    // Execute query with optimized select
+    // Note: Not caching filtered queries as cache keys would need to include all filter parameters
+    // Cache invalidation is handled on create/update/delete operations
     const [employees, total] = await Promise.all([
       prisma.employee.findMany({
         where,
@@ -85,6 +93,9 @@ export async function GET(request: NextRequest) {
               name: true,
               email: true,
               role: true,
+              phone: true,
+              address: true,
+              bio: true,
               createdAt: true
             }
           }
@@ -96,24 +107,13 @@ export async function GET(request: NextRequest) {
       prisma.employee.count({ where })
     ])
 
-    console.log('Employees API - Found employees:', employees.length)
-    console.log('Employees API - Current user ID:', user.id)
-    console.log('Employees API - User role:', user.role)
-    console.log('Employees API - Employees data:', employees.map(emp => ({
-      id: emp.id,
-      userId: emp.user.id,
-      name: emp.user.name,
-      isActive: emp.isActive,
-      status: emp.status
-    })))
-
     return formatApiResponse(employees, {
       total,
       page: pagination.page,
       limit: pagination.limit
     })
   } catch (error) {
-    console.error('Employees fetch error:', error)
+    logError(error, { context: 'GET /api/employees' })
     return formatErrorResponse('Failed to fetch employees', 500)
   }
 }
@@ -133,89 +133,41 @@ export const POST = withAdminManagerGuard(async (context, request: NextRequest) 
       })
     }
 
-    const { name, email, password, role, employeeId, department, position, salary, status, manager } = validation.data
+    const { name, email, password, role, employeeId, department, position, salary, status, manager, phone, address, bio } = validation.data
 
     // Check for existing records
-    const [existingUser, existingEmployee] = await Promise.all([
-      prisma.user.findUnique({ where: { email } }),
-      prisma.employee.findUnique({ where: { employeeId } })
-    ])
-
-    if (existingUser) {
+    const existing = await checkExistingRecords(email, employeeId)
+    if (existing.existingUser) {
       return formatErrorResponse('Email already exists', 400)
     }
-
-    if (existingEmployee) {
+    if (existing.existingEmployee) {
       return formatErrorResponse('Employee ID already exists', 400)
     }
 
     // Create user and employee in transaction
-    const result = await prisma.$transaction(async (tx) => {
-      const user = await tx.user.create({
-        data: {
-          name,
-          email,
-          password: password ? await bcrypt.hash(password, 12) : null,
-          role: role || 'EMPLOYEE'
-        } as { name: string; email: string; password: string | null; role: string }
+    let result
+    try {
+      result = await createEmployeeWithUser(prisma, {
+        name,
+        email,
+        password,
+        role: role || 'EMPLOYEE',
+        employeeId,
+        department,
+        position,
+        salary,
+        manager,
+        phone,
+        address,
+        bio,
       })
-
-      // Handle department - convert name to ID if needed
-      let departmentId = null
-      if (department) {
-        // Check if department is already an ID (cuid format)
-        if (department.startsWith('cmf')) {
-          departmentId = department
-        } else {
-          // It's a department name, find the ID
-          const dept = await tx.department.findFirst({
-            where: { name: department }
-          })
-          if (dept) {
-            departmentId = dept.id
-          } else {
-            return formatErrorResponse(`Department '${department}' not found`, 400)
-          }
-        }
+    } catch (createError) {
+      const errorMessage = createError instanceof Error ? createError.message : 'Failed to create employee'
+      if (errorMessage.includes('Department') || errorMessage.includes('Manager')) {
+        return formatErrorResponse(errorMessage, 400)
       }
-
-      // Handle manager - convert user ID to employee ID if provided
-      let managerId = null
-      if (manager && manager !== 'no-manager') {
-        // Manager could be either a user ID or employee ID
-        // First try to find by user ID (most common case from form)
-        let managerEmployee = await tx.employee.findFirst({
-          where: { userId: manager }
-        })
-        
-        // If not found by user ID, try as employee ID
-        if (!managerEmployee && manager.startsWith('cmf')) {
-          managerEmployee = await tx.employee.findUnique({
-            where: { id: manager }
-          })
-        }
-        
-        if (managerEmployee) {
-          managerId = managerEmployee.id
-        } else {
-          return formatErrorResponse(`Manager with ID '${manager}' not found`, 400)
-        }
-      }
-
-      const employee = await tx.employee.create({
-        data: {
-          userId: user.id,
-          employeeId,
-          departmentId,
-          managerId,
-          position,
-          salary: salary ? parseFloat(salary.toString()) : null,
-          isActive: true
-        } as { userId: string; employeeId: string; departmentId: string | null; managerId: string | null; position: string | null; salary: number | null; isActive: boolean }
-      })
-
-      return { user, employee }
-    })
+      throw createError
+    }
 
     // Send notifications
     try {
@@ -236,13 +188,16 @@ export const POST = withAdminManagerGuard(async (context, request: NextRequest) 
         type: 'success'
       })
     } catch (notificationError) {
-      console.error('Error sending employee creation notifications:', notificationError)
+      logError(notificationError, { context: 'POST /api/employees - notifications', employeeId: result.employee.id })
       // Don't fail the employee creation if notifications fail
     }
 
+    // Invalidate employee cache when new employee is created
+    revalidateTag(CACHE_TAGS.EMPLOYEES)
+
     return formatApiResponse(result, undefined, 'Employee created successfully')
   } catch (error) {
-    console.error('Employee creation error:', error)
+    logError(error, { context: 'POST /api/employees' })
     
     if (error instanceof AppError) {
       return formatErrorResponse(error.message, error.status || 500, {

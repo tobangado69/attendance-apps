@@ -45,6 +45,9 @@ model User {
   name      String
   password  String?
   image     String? // Profile image URL
+  phone     String? // Phone number
+  address   String? // Address
+  bio       String? // Bio/About me
   role      Role     @default(EMPLOYEE)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

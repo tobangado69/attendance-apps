@@ -16,7 +16,10 @@ import {
   FileText,
   ArrowRight,
 } from "lucide-react";
-import { toast } from "sonner";
+import { showSuccessToast, showErrorToast } from "@/lib/error-handler";
+import { logError } from "@/lib/utils/logger";
+import { EmployeeStatus } from "@/lib/constants/status";
+import { useErrorHandler } from "@/hooks/use-error-handler";
 import { RoleGuard } from "@/components/auth/role-guard";
 
 interface QuickActionsProps {
@@ -26,6 +29,7 @@ interface QuickActionsProps {
 export function QuickActions({ className }: QuickActionsProps) {
   const router = useRouter();
   const { data: session } = useSession();
+  const { executeWithErrorHandling, isLoading } = useErrorHandler();
   const [isCheckingIn, setIsCheckingIn] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [attendanceStatus, setAttendanceStatus] = useState<{
@@ -48,46 +52,41 @@ export function QuickActions({ className }: QuickActionsProps) {
 
   // Check employee status
   const checkEmployeeStatus = async () => {
-    try {
-      const response = await fetch("/api/employees/me");
-      if (response.ok) {
+    await executeWithErrorHandling(
+      async () => {
+        const response = await fetch("/api/employees/me");
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch employee data: ${response.status}`);
+        }
+
         const data = await response.json();
-        console.log("Quick Actions - Current user employee data:", data.data);
 
         if (data.success && data.data) {
-          const status = {
+          setEmployeeStatus({
             isActive: data.data.isActive,
-            status: data.data.status || "ACTIVE",
-          };
-          console.log("Quick Actions - Setting employee status:", status);
-          setEmployeeStatus(status);
+            status: data.data.status || EmployeeStatus.ACTIVE,
+          });
         } else {
-          console.log("Quick Actions - No employee data received");
           // Set default status for users without employee record
           setEmployeeStatus({
             isActive: true,
-            status: "ACTIVE",
+            status: EmployeeStatus.ACTIVE,
           });
         }
-      } else {
-        console.error(
-          "Quick Actions - Failed to fetch employee data:",
-          response.status
-        );
-        // Set default status on API error
-        setEmployeeStatus({
-          isActive: true,
-          status: "ACTIVE",
-        });
+      },
+      {
+        context: "QuickActions - checkEmployeeStatus",
+        showToast: false, // Don't show toast for this background check
+        onError: () => {
+          // Set default status on error
+          setEmployeeStatus({
+            isActive: true,
+            status: EmployeeStatus.ACTIVE,
+          });
+        },
       }
-    } catch (error) {
-      console.error("Quick Actions - Error checking employee status:", error);
-      // Set default status on error
-      setEmployeeStatus({
-        isActive: true,
-        status: "ACTIVE",
-      });
-    }
+    );
   };
 
   // Check for day changes and reset attendance status
@@ -114,25 +113,18 @@ export function QuickActions({ className }: QuickActionsProps) {
       const endOfDay = new Date(today);
       endOfDay.setHours(23, 59, 59, 999);
 
-      console.log("Fetching attendance for date range:", {
-        startOfDay: startOfDay.toISOString(),
-        endOfDay: endOfDay.toISOString(),
-      });
-
       const response = await fetch(
         `/api/attendance?startDate=${startOfDay.toISOString()}&endDate=${endOfDay.toISOString()}`
       );
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Attendance API response:", data);
 
         // The API automatically filters by userId for non-admin users
         const todayAttendance = data.data?.[0]; // Get the first (and should be only) record for today
-        console.log("Today's attendance record:", todayAttendance);
 
         if (todayAttendance) {
-          const newStatus = {
+          setAttendanceStatus({
             hasCheckedIn: !!todayAttendance.checkIn,
             hasCheckedOut: !!todayAttendance.checkOut,
             checkInTime: todayAttendance.checkIn
@@ -146,27 +138,18 @@ export function QuickActions({ className }: QuickActionsProps) {
                 })
               : undefined,
             currentDate: today.toISOString().split("T")[0],
-          };
-          console.log("Setting attendance status:", newStatus);
-          setAttendanceStatus(newStatus);
+          });
         } else {
           // No attendance record for today, reset status
-          console.log("No attendance record found for today, resetting status");
           setAttendanceStatus({
             hasCheckedIn: false,
             hasCheckedOut: false,
             currentDate: today.toISOString().split("T")[0],
           });
         }
-      } else {
-        console.error(
-          "Failed to fetch attendance:",
-          response.status,
-          response.statusText
-        );
       }
     } catch (error) {
-      console.error("Error checking attendance status:", error);
+      logError(error, { context: "QuickActions - checkAttendanceStatus" });
     }
   };
 
@@ -189,25 +172,39 @@ export function QuickActions({ className }: QuickActionsProps) {
 
   const handleCheckIn = async () => {
     if (!session?.user?.id) {
-      toast.error("Please log in to check in");
+      showErrorToast(new Error("Please log in to check in"), {
+        context: "Check In",
+      });
       return;
     }
 
     setIsCheckingIn(true);
-    try {
-      const response = await fetch("/api/attendance/checkin", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          notes: "Checked in via Quick Actions",
-        }),
-      });
+    await executeWithErrorHandling(
+      async () => {
+        const response = await fetch("/api/attendance/checkin", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            notes: "Checked in via Quick Actions",
+          }),
+        });
 
-      if (response.ok) {
         const data = await response.json();
-        toast.success("Checked in successfully!");
+
+        if (!response.ok || !data.success) {
+          // Create AppError with proper code and details from API response
+          const { AppError } = await import("@/lib/error-handler");
+          throw new AppError(
+            data.error || "Failed to check in",
+            data.code || "UNKNOWN_ERROR",
+            data.statusCode || response.status,
+            data.details
+          );
+        }
+
+        showSuccessToast("Checked in successfully!");
         setAttendanceStatus((prev) => ({
           ...prev,
           hasCheckedIn: true,
@@ -217,50 +214,68 @@ export function QuickActions({ className }: QuickActionsProps) {
               })
             : undefined,
         }));
-      } else {
-        const error = await response.json();
-        toast.error(error.error || "Failed to check in");
+      },
+      {
+        context: "Check In",
+        errorMessage: "Failed to check in",
       }
-    } catch (error) {
-      console.error("Check-in error:", error);
-      toast.error("Failed to check in");
-    } finally {
-      setIsCheckingIn(false);
-    }
+    );
+    setIsCheckingIn(false);
   };
 
   const handleCheckOut = async () => {
     if (!session?.user?.id) {
-      toast.error("Please log in to check out");
+      showErrorToast(new Error("Please log in to check out"), {
+        context: "Check Out",
+      });
       return;
     }
 
     // Additional validation: Check if user has checked in first
     if (!attendanceStatus.hasCheckedIn) {
-      toast.error("You must check in first before checking out");
+      showErrorToast(new Error("You must check in first before checking out"), {
+        context: "Check Out",
+      });
       return;
     }
 
     if (attendanceStatus.hasCheckedOut) {
-      toast.error("You have already checked out today");
+      showErrorToast(new Error("You have already checked out today"), {
+        context: "Check Out",
+      });
       return;
     }
 
     setIsCheckingOut(true);
-    try {
-      const response = await fetch("/api/attendance/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          notes: "Checked out via Quick Actions",
-        }),
-      });
+    await executeWithErrorHandling(
+      async () => {
+        const response = await fetch("/api/attendance/checkout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            notes: "Checked out via Quick Actions",
+          }),
+        });
 
-      if (response.ok) {
         const data = await response.json();
-        toast.success(data.message || "Checked out successfully!");
+
+        if (!response.ok || !data.success) {
+          // Create AppError with proper code and details from API response
+          const { AppError } = await import("@/lib/error-handler");
+          throw new AppError(
+            data.error ||
+              (response.status === 400
+                ? "Cannot check out - no check-in record found for today"
+                : "Failed to check out"),
+            data.code || "UNKNOWN_ERROR",
+            data.statusCode || response.status,
+            data.details
+          );
+        }
+
+        showSuccessToast(data.message || "Checked out successfully!");
         setAttendanceStatus((prev) => ({
           ...prev,
           hasCheckedOut: true,
@@ -270,23 +285,13 @@ export function QuickActions({ className }: QuickActionsProps) {
               })
             : undefined,
         }));
-      } else {
-        const error = await response.json();
-        if (response.status === 400) {
-          toast.error(
-            error.error ||
-              "Cannot check out - no check-in record found for today"
-          );
-        } else {
-          toast.error(error.error || "Failed to check out");
-        }
+      },
+      {
+        context: "Check Out",
+        errorMessage: "Failed to check out",
       }
-    } catch (error) {
-      console.error("Check-out error:", error);
-      toast.error("Failed to check out");
-    } finally {
-      setIsCheckingOut(false);
-    }
+    );
+    setIsCheckingOut(false);
   };
 
   const handleViewTasks = () => {
@@ -298,13 +303,6 @@ export function QuickActions({ className }: QuickActionsProps) {
   };
 
   const getAttendanceStatusBadge = () => {
-    console.log(
-      "Badge render - hasCheckedIn:",
-      attendanceStatus.hasCheckedIn,
-      "hasCheckedOut:",
-      attendanceStatus.hasCheckedOut
-    );
-
     if (attendanceStatus.hasCheckedOut) {
       return (
         <Badge variant="secondary" className="bg-green-100 text-green-800">

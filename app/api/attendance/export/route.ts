@@ -5,6 +5,7 @@ import {
   formatErrorResponse,
   validateRole
 } from '@/lib/api/api-utils'
+import { logError } from '@/lib/utils/logger'
 import * as XLSX from 'xlsx'
 
 export async function GET(request: NextRequest) {
@@ -136,7 +137,7 @@ export async function GET(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Attendance export error:', error)
+    logError(error, { context: 'GET /api/attendance/export' })
     return formatErrorResponse('Failed to export attendance data', 500)
   }
 }

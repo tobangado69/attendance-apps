@@ -1,4 +1,5 @@
 import { v2 as cloudinary } from 'cloudinary';
+import { logError } from '@/lib/utils/logger'
 
 // Configure Cloudinary using CLOUDINARY_URL
 if (process.env.CLOUDINARY_URL) {
@@ -54,7 +55,7 @@ export const uploadImageToCloudinary = async (file: File, folder: string = 'empl
 
     return result;
   } catch (error) {
-    console.error('Error uploading to Cloudinary:', error);
+    logError(error, { context: 'uploadImageToCloudinary', folder });
     throw new Error('Failed to upload image to Cloudinary');
   }
 };
@@ -65,7 +66,7 @@ export const deleteImageFromCloudinary = async (publicId: string) => {
     const result = await cloudinary.uploader.destroy(publicId);
     return result;
   } catch (error) {
-    console.error('Error deleting from Cloudinary:', error);
+    logError(error, { context: 'deleteImageFromCloudinary', publicId });
     throw new Error('Failed to delete image from Cloudinary');
   }
 };

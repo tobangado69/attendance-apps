@@ -6,6 +6,7 @@ import {
   formatApiResponse,
   formatErrorResponse
 } from '@/lib/api/api-utils'
+import { logError } from '@/lib/utils/logger'
 
 export async function GET(request: NextRequest) {
   try {
@@ -27,6 +28,9 @@ export async function GET(request: NextRequest) {
             email: true,
             role: true,
             image: true,
+            phone: true,
+            address: true,
+            bio: true,
             createdAt: true
           }
         }
@@ -39,7 +43,7 @@ export async function GET(request: NextRequest) {
 
     return formatApiResponse(employee)
   } catch (error) {
-    console.error('Error fetching employee profile:', error)
+    logError('Error fetching employee profile', error)
     return formatErrorResponse('Failed to fetch profile', 500)
   }
 }
@@ -78,8 +82,9 @@ export async function PUT(request: NextRequest) {
       data: {
         name,
         email,
-        // Note: phone, address, bio would need to be added to the User schema
-        // For now, we'll just update name and email
+        phone: phone || null,
+        address: address || null,
+        bio: bio || null,
       },
       select: {
         id: true,
@@ -87,6 +92,9 @@ export async function PUT(request: NextRequest) {
         email: true,
         role: true,
         image: true,
+        phone: true,
+        address: true,
+        bio: true,
         createdAt: true
       }
     })
@@ -102,6 +110,9 @@ export async function PUT(request: NextRequest) {
             email: true,
             role: true,
             image: true,
+            phone: true,
+            address: true,
+            bio: true,
             createdAt: true
           }
         }
@@ -110,7 +121,7 @@ export async function PUT(request: NextRequest) {
 
     return formatApiResponse(employee, undefined, 'Profile updated successfully')
   } catch (error) {
-    console.error('Error updating employee profile:', error)
+    logError('Error updating employee profile', error)
     return formatErrorResponse('Failed to update profile', 500)
   }
 }

@@ -5,6 +5,7 @@ import { SessionProviderWrapper } from "@/components/providers/session-provider"
 import { ErrorBoundary } from "@/components/error-boundary";
 import { Toaster } from "@/components/ui/sonner";
 import { NotificationProvider } from "@/contexts/notification-context";
+import { ErrorDialogProvider } from "@/contexts/error-dialog-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,10 +34,12 @@ export default function RootLayout({
       >
         <ErrorBoundary>
           <SessionProviderWrapper>
-            <NotificationProvider>
-              {children}
-              <Toaster />
-            </NotificationProvider>
+            <ErrorDialogProvider>
+              <NotificationProvider>
+                {children}
+                <Toaster />
+              </NotificationProvider>
+            </ErrorDialogProvider>
           </SessionProviderWrapper>
         </ErrorBoundary>
       </body>

@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import { EmployeeList } from "@/components/employees/employee-list";
 import { EmployeeTree } from "@/components/employees/employee-tree";
 import { OrganizationChart } from "@/components/employees/organization-chart";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { StatsCard } from "@/components/ui/stats-card";
+import { PageHeader } from "@/components/layout/page-header";
+import { PageLayout } from "@/components/layout/page-layout";
 import {
   Users,
   UserPlus,
@@ -16,6 +18,7 @@ import {
 } from "lucide-react";
 import { PageGuard } from "@/components/auth/page-guard";
 import { Role } from "@prisma/client";
+import { logError } from "@/lib/utils/logger";
 
 interface EmployeeStats {
   totalEmployees: number;
@@ -40,69 +43,54 @@ function EmployeesPageContent() {
   const fetchEmployeeStats = async () => {
     try {
       const response = await fetch("/api/employees/stats");
-      const data = await response.json();
-      setStats(data);
+      const result = await response.json();
+      
+      if (result.success && result.data) {
+        setStats(result.data);
+      } else {
+        logError(new Error('Failed to fetch employee stats'), { 
+          context: "EmployeesPage - fetchEmployeeStats",
+          response: result 
+        });
+      }
     } catch (error) {
-      console.error("Error fetching employee stats:", error);
+      logError(error, { context: "EmployeesPage - fetchEmployeeStats" });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="space-y-6 w-full max-w-full overflow-hidden">
-      <div className="w-full">
-        <h1 className="text-3xl font-bold text-gray-900 break-words">Employees</h1>
-        <p className="text-gray-600 break-words">
-          Manage your team members and their information
-        </p>
-      </div>
+    <PageLayout className="w-full max-w-full overflow-hidden">
+      <PageHeader
+        title="Employees"
+        description="Manage your team members and their information"
+      />
 
       <div className="grid gap-4 md:grid-cols-3 w-full">
-        <Card className="w-full overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium break-words pr-2">
-              Total Employees
-            </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {loading ? "..." : stats.totalEmployees}
-            </div>
-            <p className="text-xs text-muted-foreground break-words">Active team members</p>
-          </CardContent>
-        </Card>
+        <StatsCard
+          title="Total Employees"
+          value={stats.totalEmployees}
+          description="Active team members"
+          icon={Users}
+          loading={loading}
+        />
 
-        <Card className="w-full overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium break-words pr-2">Departments</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {loading ? "..." : stats.totalDepartments}
-            </div>
-            <p className="text-xs text-muted-foreground break-words line-clamp-2">
-              {loading ? "..." : stats.departmentNames || "No departments"}
-            </p>
-          </CardContent>
-        </Card>
+        <StatsCard
+          title="Departments"
+          value={stats.totalDepartments}
+          description={stats.departmentNames || "No departments"}
+          icon={BarChart3}
+          loading={loading}
+        />
 
-        <Card className="w-full overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium break-words pr-2">
-              New This Month
-            </CardTitle>
-            <UserPlus className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {loading ? "..." : stats.newThisMonth}
-            </div>
-            <p className="text-xs text-muted-foreground break-words">Recently hired</p>
-          </CardContent>
-        </Card>
+        <StatsCard
+          title="New This Month"
+          value={stats.newThisMonth}
+          description="Recently hired"
+          icon={UserPlus}
+          loading={loading}
+        />
       </div>
 
       <Tabs defaultValue="list" className="space-y-4 w-full">
@@ -133,7 +121,7 @@ function EmployeesPageContent() {
           <OrganizationChart />
         </TabsContent>
       </Tabs>
-    </div>
+    </PageLayout>
   );
 }
 

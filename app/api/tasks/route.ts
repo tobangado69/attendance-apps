@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidateTag } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { createNotification, NotificationTemplates, getManagersAndAdmins } from '@/lib/notifications'
 import { broadcastNotification, sendNotificationToUser, broadcastNotificationToRoles } from '@/lib/notifications/real-time'
@@ -10,6 +11,9 @@ import {
   formatErrorResponse,
   validateRole
 } from '@/lib/api/api-utils'
+import { logError } from '@/lib/utils/logger'
+import { TaskStatus } from '@/lib/constants/status'
+import { CACHE_TAGS, CACHE_REVALIDATE } from '@/lib/utils/api-cache'
 
 export async function GET(request: NextRequest) {
   try {
@@ -79,7 +83,7 @@ export async function GET(request: NextRequest) {
         lt: new Date(),
         not: null
       }
-      where.status = { not: 'COMPLETED' }
+      where.status = { not: TaskStatus.COMPLETED }
     }
 
     // Unassigned filter
@@ -96,6 +100,8 @@ export async function GET(request: NextRequest) {
       ]
     }
 
+    // Note: Caching removed for tasks list due to complex dynamic filtering
+    // Similar to employees list - caching is not practical with role-based access and dynamic filters
     const [tasks, total] = await Promise.all([
       prisma.task.findMany({
         where,
@@ -128,7 +134,7 @@ export async function GET(request: NextRequest) {
       limit: pagination.limit
     })
   } catch (error) {
-    console.error('Tasks fetch error:', error)
+    logError(error, { context: 'GET /api/tasks' })
     return formatErrorResponse('Failed to fetch tasks', 500)
   }
 }
@@ -261,13 +267,16 @@ export async function POST(request: NextRequest) {
         }, ['ADMIN', 'MANAGER'])
       }
     } catch (notificationError) {
-      console.error('Error sending task notifications:', notificationError)
+      logError(notificationError, { context: 'POST /api/tasks - notifications' })
       // Don't fail the task creation if notifications fail
     }
 
+    // Invalidate tasks cache
+    revalidateTag(CACHE_TAGS.TASKS)
+
     return formatApiResponse(task, undefined, 'Task created successfully')
   } catch (error) {
-    console.error('Task creation error:', error)
+    logError(error, { context: 'POST /api/tasks' })
     return formatErrorResponse('Failed to create task', 500)
   }
 }

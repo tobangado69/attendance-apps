@@ -6,15 +6,8 @@ import {
   formatErrorResponse,
   withAdminGuard 
 } from '@/lib/api/api-utils'
-import { z } from 'zod'
-
-// Validation schema for department
-const departmentSchema = z.object({
-  name: z.string().min(1, 'Department name is required').max(100, 'Department name too long'),
-  description: z.string().optional(),
-  budget: z.number().min(0, 'Budget cannot be negative').optional(),
-  managerId: z.string().optional(),
-})
+import { departmentSchema } from '@/lib/validations'
+import { logError } from '@/lib/utils/logger'
 
 export async function GET(request: NextRequest) {
   try {
@@ -60,7 +53,7 @@ export async function GET(request: NextRequest) {
 
     return formatApiResponse(departmentsWithCount)
   } catch (error) {
-    console.error('Error fetching departments:', error)
+    logError(error, { context: 'GET /api/settings/departments' })
     return formatErrorResponse('Failed to fetch departments', 500)
   }
 }
@@ -144,7 +137,7 @@ export const POST = withAdminGuard(async (context, request: NextRequest) => {
 
     return formatApiResponse(departmentWithCount, undefined, 'Department created successfully')
   } catch (error) {
-    console.error('Error creating department:', error)
+    logError(error, { context: 'POST /api/settings/departments' })
     
     // Handle Prisma errors specifically
     if (error instanceof Error) {

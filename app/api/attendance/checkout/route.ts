@@ -1,20 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidateTag } from 'next/cache'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { createNotification, NotificationTemplates, getManagersAndAdmins } from '@/lib/notifications'
-import { broadcastNotification } from '@/lib/notifications/real-time'
+import { createNotification, NotificationTemplates, getAttendanceNotificationRecipients } from '@/lib/notifications'
 import { getCompanySettings, calculateOvertimeHours } from '@/lib/settings'
+import { logError } from '@/lib/utils/logger'
+import { EmployeeStatus } from '@/lib/constants/status'
+import { CACHE_TAGS } from '@/lib/utils/api-cache'
+import { formatErrorResponse } from '@/lib/api/api-utils'
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return formatErrorResponse('Unauthorized. Please sign in to continue.', 401)
     }
 
     const { notes } = await request.json()
@@ -40,42 +41,45 @@ export async function POST(request: NextRequest) {
     })
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'User account not found' },
-        { status: 404 }
-      )
+      return formatErrorResponse('User account not found. Please contact support.', 404)
     }
 
     const employee = await prisma.employee.findUnique({
       where: { userId: session.user.id }
     })
 
-    console.log('Employee found (checkout):', employee);
-
     // For admin users, allow check-out even without employee record
     if (!employee && session.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Employee record not found' },
-        { status: 404 }
-      )
+      return formatErrorResponse('Employee record not found. Please contact HR to set up your employee profile.', 404)
     }
 
     // Only check employee status for non-admin users
     if (employee && session.user.role !== 'ADMIN') {
       // Check if employee is active
       if (!employee.isActive) {
-        return NextResponse.json(
-          { error: 'Your employee account is inactive. Please contact HR for assistance.' },
-          { status: 403 }
+        return formatErrorResponse(
+          'Your employee account is inactive. You cannot check out at this time. Please contact HR for assistance.',
+          403,
+          { code: 'EMPLOYEE_INACTIVE', reason: 'Account is marked as inactive' }
         )
       }
 
       // Check if employee status allows attendance
-      console.log('Employee status (checkout):', employee.status, 'Type:', typeof employee.status);
-      if (employee.status && employee.status !== 'ACTIVE') {
-        return NextResponse.json(
-          { error: `Your account status is ${employee.status}. You cannot check out at this time.` },
-          { status: 403 }
+      if (employee.status && employee.status !== EmployeeStatus.ACTIVE) {
+        const statusMessages: Record<string, string> = {
+          [EmployeeStatus.INACTIVE]: 'Your account is inactive. Please contact HR to reactivate your account.',
+          [EmployeeStatus.LAYOFF]: 'Your account is on layoff status. You cannot check out at this time.',
+          [EmployeeStatus.TERMINATED]: 'Your account has been terminated. Please contact HR for assistance.',
+          [EmployeeStatus.ON_LEAVE]: 'You are currently on leave. You cannot check out during leave period.',
+          [EmployeeStatus.SUSPENDED]: 'Your account is suspended. Please contact HR for assistance.'
+        }
+
+        const message = statusMessages[employee.status] || `Your account status is ${employee.status}. You cannot check out at this time.`
+
+        return formatErrorResponse(
+          message,
+          403,
+          { code: 'EMPLOYEE_STATUS_RESTRICTED', status: employee.status }
         )
       }
     }
@@ -97,16 +101,18 @@ export async function POST(request: NextRequest) {
     })
 
     if (!attendance) {
-      return NextResponse.json(
-        { error: 'No check-in record found for today' },
-        { status: 400 }
+      return formatErrorResponse(
+        'No check-in record found for today. Please check in first before checking out.',
+        400,
+        { code: 'NO_CHECK_IN_RECORD' }
       )
     }
 
     if (attendance.checkOut) {
-      return NextResponse.json(
-        { error: 'Already checked out today' },
-        { status: 400 }
+      return formatErrorResponse(
+        'You have already checked out today. You can only check out once per day.',
+        400,
+        { code: 'ALREADY_CHECKED_OUT' }
       )
     }
 
@@ -139,23 +145,30 @@ export async function POST(request: NextRequest) {
         hour12: false
       })
       
-      // Notify managers and admins
-      const managersAndAdmins = await getManagersAndAdmins()
-      const notifications = managersAndAdmins.map(user => ({
-        userId: user.id,
-        ...(isEarly 
-          ? NotificationTemplates.attendanceEarly(session.user.name || 'Unknown', timeString, earlyMinutes)
-          : NotificationTemplates.attendanceCheckedOut(session.user.name || 'Unknown', timeString)
-        )
-      }))
+      // Get notification recipients based on role-based access control
+      // Employee: Notify their manager + all admins
+      // Manager: Notify their manager + all admins
+      // Admin: Notify all admins
+      const recipientIds = await getAttendanceNotificationRecipients(
+        session.user.id,
+        session.user.role || 'EMPLOYEE'
+      )
 
-      if (notifications.length > 0) {
+      if (recipientIds.length > 0) {
+        const notifications = recipientIds.map(userId => ({
+          userId,
+          ...(isEarly 
+            ? NotificationTemplates.attendanceEarly(session.user.name || 'Unknown', timeString, earlyMinutes)
+            : NotificationTemplates.attendanceCheckedOut(session.user.name || 'Unknown', timeString)
+          )
+        }))
+
         await prisma.notification.createMany({
           data: notifications
         })
       }
 
-      // Notify the employee if they're checking out early
+      // Notify the employee if they're checking out early (personal notification)
       if (isEarly) {
         await createNotification({
           userId: session.user.id,
@@ -165,7 +178,7 @@ export async function POST(request: NextRequest) {
         })
       }
     } catch (notificationError) {
-      console.error('Error sending check-out notifications:', notificationError)
+      logError(notificationError, { context: 'POST /api/attendance/checkout - notifications', userId: session.user.id })
       // Don't fail the check-out if notifications fail
     }
 
@@ -177,9 +190,18 @@ export async function POST(request: NextRequest) {
         hour12: false
       });
 
-      // Broadcast to all connected users
+      // Get recipient IDs for real-time broadcast
+      const recipientIds = await getAttendanceNotificationRecipients(
+        session.user.id,
+        session.user.role || 'EMPLOYEE'
+      )
+
+      // Import sendNotificationToUser for targeted real-time notifications
+      const { sendNotificationToUser } = await import('@/lib/notifications/real-time')
+
+      // Send real-time notification only to authorized recipients
       const overtimeMessage = overtimeHours > 0 ? ` (${overtimeHours.toFixed(1)}h overtime)` : ''
-      broadcastNotification({
+      const notificationData = {
         title: 'Employee Checked Out',
         message: `${session.user.name} checked out at ${timeString}${isEarly ? ` (${earlyMinutes} minutes early)` : ''} - Total hours: ${updatedAttendance.totalHours}h${overtimeMessage}`,
         type: isEarly ? 'warning' : overtimeHours > 0 ? 'success' : 'info',
@@ -192,10 +214,18 @@ export async function POST(request: NextRequest) {
           earlyMinutes,
           totalHours: updatedAttendance.totalHours
         }
-      });
+      }
+
+      // Send to each recipient individually
+      for (const recipientId of recipientIds) {
+        sendNotificationToUser(recipientId, notificationData)
+      }
     } catch (notificationError) {
-      console.error('Error sending real-time notification:', notificationError);
+      logError(notificationError, { context: 'POST /api/attendance/checkout - real-time', userId: session.user.id });
     }
+
+    // Invalidate attendance cache
+    revalidateTag(CACHE_TAGS.ATTENDANCE)
 
     return NextResponse.json({
       success: true,
@@ -206,10 +236,10 @@ export async function POST(request: NextRequest) {
       totalHours: updatedAttendance.totalHours
     })
   } catch (error) {
-    console.error('Check-out error:', error)
-    return NextResponse.json(
-      { error: 'Failed to check out' },
-      { status: 500 }
+    logError(error, { context: 'POST /api/attendance/checkout' })
+    return formatErrorResponse(
+      'An unexpected error occurred while processing your check-out. Please try again or contact support if the problem persists.',
+      500
     )
   }
 }

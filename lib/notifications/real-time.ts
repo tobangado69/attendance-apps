@@ -1,3 +1,5 @@
+import { logger, logError } from '@/lib/utils/logger'
+
 // Store active connections for real-time notifications
 const connections = new Map<string, ReadableStreamDefaultController>();
 
@@ -21,7 +23,7 @@ export function sendNotificationToUser(userId: string, notification: Record<stri
       });
       controller.enqueue(`data: ${data}\n\n`);
     } catch (error) {
-      console.error('Error sending notification to user:', error);
+      logError(error, { context: 'sendNotificationToUser', userId });
       connections.delete(userId);
     }
   }
@@ -29,11 +31,11 @@ export function sendNotificationToUser(userId: string, notification: Record<stri
 
 // Function to broadcast notification to all connected users
 export function broadcastNotification(notification: Record<string, unknown>) {
-  console.log('Broadcasting notification to', connections.size, 'connected users');
-  console.log('Notification data:', notification);
+  logger.debug('Broadcasting notification to', connections.size, 'connected users');
+  logger.debug('Notification data:', notification);
   
   if (connections.size === 0) {
-    console.warn('No active connections to broadcast to');
+    logger.warn('No active connections to broadcast to');
     return;
   }
   
@@ -50,10 +52,10 @@ export function broadcastNotification(notification: Record<string, unknown>) {
         data: notification.data
       });
       
-      console.log('Sending notification to user', userId, ':', data);
+      logger.debug('Sending notification to user', userId, ':', data);
       controller.enqueue(`data: ${data}\n\n`);
     } catch (error) {
-      console.error('Error broadcasting notification to user', userId, ':', error);
+      logError(error, { context: 'broadcastNotification', userId });
       connections.delete(userId);
     }
   });
@@ -65,23 +67,23 @@ export function addConnection(userId: string, controller: ReadableStreamDefaultC
   if (role) {
     userRoles.set(userId, role);
   }
-  console.log(`SSE: User ${userId} connected with role ${role}. Total connections: ${connections.size}`);
+  logger.debug(`SSE: User ${userId} connected with role ${role}. Total connections: ${connections.size}`);
 }
 
 // Function to remove a connection
 export function removeConnection(userId: string) {
   connections.delete(userId);
   userRoles.delete(userId);
-  console.log(`SSE: User ${userId} disconnected. Total connections: ${connections.size}`);
+  logger.debug(`SSE: User ${userId} disconnected. Total connections: ${connections.size}`);
 }
 
 // Function to broadcast notification to specific roles only
 export function broadcastNotificationToRoles(notification: Record<string, unknown>, allowedRoles: string[]) {
-  console.log('Broadcasting notification to roles:', allowedRoles);
-  console.log('Notification data:', notification);
+  logger.debug('Broadcasting notification to roles:', allowedRoles);
+  logger.debug('Notification data:', notification);
   
   if (connections.size === 0) {
-    console.warn('No active connections to broadcast to');
+    logger.warn('No active connections to broadcast to');
     return;
   }
   
@@ -90,7 +92,7 @@ export function broadcastNotificationToRoles(notification: Record<string, unknow
     
     // Check if user role is in allowed roles
     if (!userRole || !allowedRoles.includes(userRole)) {
-      console.log(`Skipping user ${userId} with role ${userRole} - not in allowed roles:`, allowedRoles);
+      logger.debug(`Skipping user ${userId} with role ${userRole} - not in allowed roles:`, allowedRoles);
       return;
     }
     
@@ -106,10 +108,10 @@ export function broadcastNotificationToRoles(notification: Record<string, unknow
         data: notification.data
       });
       
-      console.log('Sending notification to user', userId, 'with role', userRole, ':', data);
+      logger.debug('Sending notification to user', userId, 'with role', userRole, ':', data);
       controller.enqueue(`data: ${data}\n\n`);
     } catch (error) {
-      console.error('Error broadcasting notification to user', userId, ':', error);
+      logError(error, { context: 'broadcastNotificationToRoles', userId, userRole });
       connections.delete(userId);
       userRoles.delete(userId);
     }

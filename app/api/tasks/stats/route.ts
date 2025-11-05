@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server'
+import { unstable_cache } from 'next/cache'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { formatApiResponse, formatErrorResponse } from '@/lib/api/api-utils'
+import { logError } from '@/lib/utils/logger'
+import { TaskStatus } from '@/lib/constants/status'
+import { CACHE_TAGS, CACHE_REVALIDATE } from '@/lib/utils/api-cache'
 
 export async function GET() {
   try {
@@ -25,41 +30,48 @@ export async function GET() {
       ]
     }
 
-    // Get total tasks
-    const totalTasks = await prisma.task.count({ where })
+    // Build cache key based on user role
+    const cacheKey = `tasks_stats_${session.user.id}_${session.user.role}`
+    
+    // Use cached function for task statistics
+    const getCachedTaskStats = unstable_cache(
+      async () => {
+        // Optimize: Use single query with groupBy instead of 4 separate count queries
+        const [totalTasks, statusGroups] = await Promise.all([
+          prisma.task.count({ where }),
+          prisma.task.groupBy({
+            by: ['status'],
+            where,
+            _count: {
+              id: true
+            }
+          })
+        ])
 
-    // Get pending tasks
-    const pendingTasks = await prisma.task.count({
-      where: {
-        ...where,
-        status: 'PENDING'
+        // Extract counts from grouped results
+        const pendingTasks = statusGroups.find(s => s.status === TaskStatus.PENDING)?._count.id || 0
+        const inProgressTasks = statusGroups.find(s => s.status === TaskStatus.IN_PROGRESS)?._count.id || 0
+        const completedTasks = statusGroups.find(s => s.status === TaskStatus.COMPLETED)?._count.id || 0
+
+        return {
+          totalTasks,
+          pendingTasks,
+          inProgressTasks,
+          completedTasks
+        }
+      },
+      [cacheKey],
+      {
+        revalidate: CACHE_REVALIDATE.SHORT, // 1 minute - stats change frequently
+        tags: [CACHE_TAGS.TASKS]
       }
-    })
+    )
 
-    // Get in progress tasks
-    const inProgressTasks = await prisma.task.count({
-      where: {
-        ...where,
-        status: 'IN_PROGRESS'
-      }
-    })
+    const stats = await getCachedTaskStats()
 
-    // Get completed tasks
-    const completedTasks = await prisma.task.count({
-      where: {
-        ...where,
-        status: 'COMPLETED'
-      }
-    })
-
-    return NextResponse.json({
-      totalTasks,
-      pendingTasks,
-      inProgressTasks,
-      completedTasks
-    })
+    return formatApiResponse(stats)
   } catch (error) {
-    console.error('Error fetching task stats:', error)
+    logError(error, { context: 'GET /api/tasks/stats' })
     return NextResponse.json(
       { error: 'Failed to fetch task statistics' },
       { status: 500 }

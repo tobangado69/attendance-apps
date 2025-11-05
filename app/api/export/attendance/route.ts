@@ -90,6 +90,7 @@ export async function GET(request: NextRequest) {
         salary: true,
         isActive: true,
         userId: true,
+        createdAt: true,
         department: {
           select: {
             id: true,
@@ -99,11 +100,23 @@ export async function GET(request: NextRequest) {
         user: {
           select: {
             name: true,
-            email: true
+            email: true,
+            role: true,
+            createdAt: true
           }
         }
       }
     })
+    
+    // Debug: Check if position data is being retrieved
+    if (employees.length > 0) {
+      console.log('Sample employee position check:', {
+        employeeId: employees[0].employeeId,
+        position: employees[0].position,
+        positionType: typeof employees[0].position,
+        hasPosition: employees[0].position != null
+      })
+    }
 
     // Generate daily attendance summary
     const dailyData = eachDayOfInterval(dateRange).map(date => {
@@ -149,12 +162,27 @@ export async function GET(request: NextRequest) {
         return checkInTime.getHours() > 9 || (checkInTime.getHours() === 9 && checkInTime.getMinutes() > 30)
       }).length
 
+      // Get position directly from database - ensure it's always a string
+      const dbPosition = emp.position
+      let positionValue = 'N/A'
+      
+      // Handle position value - check for null, undefined, empty string, or whitespace
+      if (dbPosition != null && dbPosition !== undefined && dbPosition !== '') {
+        const posStr = String(dbPosition).trim()
+        if (posStr.length > 0 && posStr !== 'null' && posStr !== 'undefined') {
+          positionValue = posStr
+        }
+      }
+      
+      // Final guarantee - ensure it's always a non-empty string
+      positionValue = positionValue || 'N/A'
+
       return {
         employeeId: emp.employeeId,
         name: emp.user.name,
         email: emp.user.email,
-        department: emp.department || 'Unassigned',
-        position: emp.position,
+        department: emp.department?.name || 'Unassigned',
+        position: positionValue,
         salary: emp.salary,
         presentDays,
         totalDays,
@@ -167,7 +195,7 @@ export async function GET(request: NextRequest) {
 
     // Generate department summary
     const departmentData = employees.reduce((acc, emp) => {
-      const dept = emp.department || 'Unassigned'
+      const dept = emp.department?.name || 'Unassigned'
       if (!acc[dept]) {
         acc[dept] = {
           department: dept,
@@ -188,7 +216,7 @@ export async function GET(request: NextRequest) {
       }
       
       return acc
-    }, {} as Record<string, { department: string; totalEmployees: number; totalPresentDays: number; totalDays: number; avgAttendanceRate?: number }>)
+    }, {} as Record<string, { department: string; totalEmployees: number; totalPresentDays: number; totalDays: number; avgAttendanceRate?: number; totalHours?: number }>)
 
     // Calculate department averages
     Object.values(departmentData).forEach((dept) => {
@@ -225,22 +253,68 @@ export async function GET(request: NextRequest) {
     XLSX.utils.book_append_sheet(workbook, dailySheet, 'Daily Attendance')
     
     // Employee Summary Sheet
-    const employeeSheet = XLSX.utils.json_to_sheet(
-      employeeData.map(emp => ({
-        'Employee ID': emp.employeeId,
-        'Name': emp.name,
-        'Email': emp.email,
-        'Department': emp.department || 'Unassigned',
-        'Position': emp.position,
+    const employeeSheetData = employeeData.map((emp) => {
+      // Get position directly from original employees array
+      const originalEmployee = employees.find(e => e.employeeId === emp.employeeId)
+      
+      // Get position - use original database value, fallback to employeeData, then 'N/A'
+      let positionValue: string = 'N/A'
+      
+      if (originalEmployee?.position) {
+        const pos = String(originalEmployee.position).trim()
+        if (pos && pos.length > 0) {
+          positionValue = pos
+        }
+      } else if (emp.position) {
+        const pos = String(emp.position).trim()
+        if (pos && pos.length > 0) {
+          positionValue = pos
+        }
+      }
+      
+      // Build row data - ensure Position is always included and is a string
+      const rowData: Record<string, string | number> = {
+        'Employee ID': String(emp.employeeId || ''),
+        'Name': String(emp.name || ''),
+        'Email': String(emp.email || ''),
+        'Department': String(emp.department || 'Unassigned'),
+        'Position': String(positionValue),
         'Salary': `$${emp.salary?.toLocaleString() || '0'}`,
-        'Present Days': emp.presentDays,
-        'Total Days': emp.totalDays,
-        'Attendance Rate (%)': emp.attendanceRate,
-        'Total Hours': emp.totalHours,
-        'Avg Hours/Day': emp.avgHours,
-        'Late Days': emp.lateDays
-      }))
-    )
+        'Present Days': emp.presentDays || 0,
+        'Total Days': emp.totalDays || 0,
+        'Attendance Rate (%)': emp.attendanceRate || 0,
+        'Total Hours': emp.totalHours || 0,
+        'Avg Hours/Day': emp.avgHours || 0,
+        'Late Days': emp.lateDays || 0
+      }
+      
+      // Verify Position is set
+      if (!rowData['Position'] || rowData['Position'] === '') {
+        rowData['Position'] = 'N/A'
+      }
+      
+      return rowData
+    })
+    
+    // Debug: Log first few rows to verify Position is included
+    if (employeeSheetData.length > 0) {
+      console.log('Employee Summary Sheet - First row:', JSON.stringify(employeeSheetData[0], null, 2))
+      console.log('Position value in first row:', employeeSheetData[0]['Position'])
+      console.log('Position type:', typeof employeeSheetData[0]['Position'])
+    }
+    
+    const employeeSheet = XLSX.utils.json_to_sheet(employeeSheetData)
+    
+    // Verify Position column exists in sheet
+    const range = XLSX.utils.decode_range(employeeSheet['!ref'] || 'A1')
+    const headers: string[] = []
+    for (let col = range.s.c; col <= range.e.c; col++) {
+      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col })
+      const cell = employeeSheet[cellAddress]
+      if (cell) headers.push(cell.v)
+    }
+    console.log('Excel sheet headers:', headers)
+    console.log('Position column index:', headers.indexOf('Position'))
     
     // Set column widths
     employeeSheet['!cols'] = [
@@ -286,17 +360,28 @@ export async function GET(request: NextRequest) {
     
     // Employee Details Sheet (Complete employee information)
     const employeeDetailsSheet = XLSX.utils.json_to_sheet(
-      employees.map(emp => ({
-        'Employee ID': emp.employeeId,
-        'Name': emp.user.name,
-        'Email': emp.user.email,
-        'Department': emp.department || 'Unassigned',
-        'Position': emp.position,
-        'Salary': `$${emp.salary?.toLocaleString() || '0'}`,
-        'Role': emp.user.role,
-        'Status': emp.isActive ? 'Active' : 'Inactive',
-        'Created Date': format(new Date(emp.user.createdAt), 'yyyy-MM-dd')
-      }))
+      employees.map(emp => {
+        // Ensure position is always a non-empty string value
+        let positionValue = 'N/A'
+        if (emp.position) {
+          const posStr = String(emp.position).trim()
+          if (posStr.length > 0) {
+            positionValue = posStr
+          }
+        }
+        
+        return {
+          'Employee ID': String(emp.employeeId || ''),
+          'Name': String(emp.user.name || ''),
+          'Email': String(emp.user.email || ''),
+          'Department': String(emp.department?.name || 'Unassigned'),
+          'Position': positionValue,
+          'Salary': `$${emp.salary?.toLocaleString() || '0'}`,
+          'Role': String(emp.user.role || ''),
+          'Status': emp.isActive ? 'Active' : 'Inactive',
+          'Created Date': emp.user.createdAt ? format(new Date(emp.user.createdAt), 'yyyy-MM-dd') : 'N/A'
+        }
+      })
     )
     
     // Set column widths for employee details

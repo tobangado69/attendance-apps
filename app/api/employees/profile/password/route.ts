@@ -47,6 +47,12 @@ export async function PUT(request: NextRequest) {
       if (!isCurrentPasswordValid) {
         return formatErrorResponse('Current password is incorrect', 400)
       }
+
+      // Check if new password is the same as current password
+      const isSamePassword = await bcrypt.compare(newPassword, userWithPassword.password)
+      if (isSamePassword) {
+        return formatErrorResponse('New password must be different from current password', 400)
+      }
     } else {
       // If user doesn't have a password (e.g., OAuth user), they can't change password
       return formatErrorResponse('Password change not available for this account type', 400)

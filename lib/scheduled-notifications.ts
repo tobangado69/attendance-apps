@@ -1,5 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { createNotification, NotificationTemplates } from '@/lib/notifications'
+import { logger, logError } from '@/lib/utils/logger'
+import { TaskStatus } from '@/lib/constants/status'
 
 export async function checkOverdueTasks() {
   try {
@@ -13,7 +15,7 @@ export async function checkOverdueTasks() {
           lt: today
         },
         status: {
-          in: ['PENDING', 'IN_PROGRESS']
+          in: [TaskStatus.PENDING, TaskStatus.IN_PROGRESS]
         }
       },
       include: {
@@ -52,9 +54,9 @@ export async function checkOverdueTasks() {
       }
     }
 
-    console.log(`Checked ${overdueTasks.length} overdue tasks`)
+    logger.debug(`Checked ${overdueTasks.length} overdue tasks`)
   } catch (error) {
-    console.error('Error checking overdue tasks:', error)
+    logError(error, { context: 'checkOverdueTasks' })
   }
 }
 
@@ -73,7 +75,7 @@ export async function checkTasksDueSoon() {
           lte: tomorrow
         },
         status: {
-          in: ['PENDING', 'IN_PROGRESS']
+          in: [TaskStatus.PENDING, TaskStatus.IN_PROGRESS]
         }
       },
       include: {
@@ -112,18 +114,18 @@ export async function checkTasksDueSoon() {
       }
     }
 
-    console.log(`Checked ${tasksDueSoon.length} tasks due soon`)
+    logger.debug(`Checked ${tasksDueSoon.length} tasks due soon`)
   } catch (error) {
-    console.error('Error checking tasks due soon:', error)
+    logError(error, { context: 'checkTasksDueSoon' })
   }
 }
 
 // Function to run all scheduled checks
 export async function runScheduledNotifications() {
-  console.log('Running scheduled notifications...')
+  logger.info('Running scheduled notifications...')
   await Promise.all([
     checkOverdueTasks(),
     checkTasksDueSoon()
   ])
-  console.log('Scheduled notifications completed')
+  logger.info('Scheduled notifications completed')
 }

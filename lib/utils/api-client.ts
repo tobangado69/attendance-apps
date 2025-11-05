@@ -3,6 +3,7 @@
  */
 
 import { cache, CacheKeys, CacheTTL } from './cache';
+import { logger } from './logger';
 
 interface ApiResponse<T> {
   data: T;
@@ -49,14 +50,14 @@ class ApiClient {
     if (method === 'GET' && useCache && !skipCache) {
       const cachedData = cache.get<T>(cacheKey);
       if (cachedData) {
-        console.log(`Cache hit: ${cacheKey}`);
+        logger.debug(`Cache hit: ${cacheKey}`);
         return cachedData;
       }
     }
 
     // Check for pending request to avoid duplicates
     if (pendingRequests.has(cacheKey)) {
-      console.log(`Deduplicating request: ${cacheKey}`);
+      logger.debug(`Deduplicating request: ${cacheKey}`);
       return pendingRequests.get(cacheKey)! as Promise<T>;
     }
 
@@ -79,7 +80,7 @@ class ApiClient {
       // Cache successful GET requests
       if (method === 'GET' && useCache && !skipCache) {
         cache.set(cacheKey, data, cacheTTL);
-        console.log(`Cached: ${cacheKey}`);
+        logger.debug(`Cached: ${cacheKey}`);
       }
 
       return data;
@@ -135,7 +136,7 @@ class ApiClient {
     });
   }
 
-  async getNotifications(limit = 20, skipCache = false) {
+  async getNotifications(limit = BusinessRules.NOTIFICATIONS.MAX_PER_USER, skipCache = false) {
     return this.makeRequest(`/notifications?limit=${limit}`, {
       cacheTTL: CacheTTL.SHORT,
       skipCache,
@@ -201,7 +202,7 @@ class ApiClient {
         cache.delete(key);
       }
     });
-    console.log('Invalidated task caches');
+    logger.debug('Invalidated task caches');
   }
 
   invalidateEmployeeCaches() {
@@ -211,12 +212,12 @@ class ApiClient {
         cache.delete(key);
       }
     });
-    console.log('Invalidated employee caches');
+    logger.debug('Invalidated employee caches');
   }
 
   invalidateAllCaches() {
     cache.clear();
-    console.log('Cleared all caches');
+    logger.debug('Cleared all caches');
   }
 
   // Debug methods
