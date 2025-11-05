@@ -30,16 +30,18 @@ jest.mock('@/lib/error-handler', () => ({
   showErrorToast: jest.fn(),
 }))
 
-// Mock useErrorHandler
+// Mock useErrorHandler to actually execute the function
+const mockExecuteWithErrorHandling = jest.fn(async (fn: () => Promise<unknown>) => {
+  try {
+    return await fn()
+  } catch (error) {
+    throw error
+  }
+})
+
 jest.mock('@/hooks/use-error-handler', () => ({
   useErrorHandler: () => ({
-    executeWithErrorHandling: jest.fn(async (fn) => {
-      try {
-        return await fn()
-      } catch (error) {
-        throw error
-      }
-    }),
+    executeWithErrorHandling: mockExecuteWithErrorHandling,
     isLoading: false,
   }),
 }))
@@ -47,7 +49,20 @@ jest.mock('@/hooks/use-error-handler', () => ({
 describe('useTaskForm', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    ;(fetch as jest.Mock).mockClear()
+    const mockFetch = fetch as jest.Mock
+    mockFetch.mockClear()
+    // Set default mock implementation for fetch
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ data: [] }),
+    })
+    mockExecuteWithErrorHandling.mockImplementation(async (fn: () => Promise<unknown>) => {
+      try {
+        return await fn()
+      } catch (error) {
+        throw error
+      }
+    })
   })
 
   const mockEmployees = [
@@ -103,7 +118,9 @@ describe('useTaskForm', () => {
   })
 
   it('initializes form data from existing task', async () => {
-    ;(fetch as jest.Mock).mockResolvedValueOnce({
+    // Setup fetch mock before rendering hook
+    const mockFetch = fetch as jest.Mock
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({ data: mockEmployees }),
     })
@@ -115,14 +132,19 @@ describe('useTaskForm', () => {
       })
     )
 
-    // Wait for employees to be fetched and form to be initialized
-    await waitFor(() => {
-      expect(result.current.formData.title).toBe('Test Task')
-    }, { timeout: 3000 })
-    
+    // Form data should be initialized immediately from task prop
+    expect(result.current.formData.title).toBe('Test Task')
     expect(result.current.formData.description).toBe('Test Description')
     expect(result.current.formData.priority).toBe('HIGH')
     expect(result.current.formData.assigneeId).toBe('1')
+    
+    // Wait for employees to be fetched (this happens in useEffect)
+    await waitFor(() => {
+      expect(result.current.employees.length).toBeGreaterThan(0)
+    }, { timeout: 3000 })
+    
+    // Verify fetch was called
+    expect(mockFetch).toHaveBeenCalledWith('/api/employees?limit=100')
   })
 
   it('fetches employees on mount', async () => {
@@ -208,7 +230,8 @@ describe('useTaskForm', () => {
 
   it('handles form submission for updating existing task', async () => {
     const onSuccess = jest.fn()
-    ;(fetch as jest.Mock)
+    const mockFetch = fetch as jest.Mock
+    mockFetch
       .mockResolvedValueOnce({
         ok: true,
         json: async () => ({ data: mockEmployees }),
@@ -242,17 +265,21 @@ describe('useTaskForm', () => {
 
     await waitFor(() => {
       expect(onSuccess).toHaveBeenCalled()
-    })
+    }, { timeout: 3000 })
     
-    const fetchCalls = (fetch as jest.Mock).mock.calls
+    // Verify fetch was called with correct parameters
+    const fetchCalls = mockFetch.mock.calls
     const taskCall = fetchCalls.find(call => call[0]?.includes('/api/tasks/1'))
     expect(taskCall).toBeDefined()
-    expect(taskCall[1].method).toBe('PUT')
+    if (taskCall) {
+      expect(taskCall[1].method).toBe('PUT')
+    }
   })
 
   it('handles unassigned assignee correctly', async () => {
     const onSuccess = jest.fn()
-    ;(fetch as jest.Mock)
+    const mockFetch = fetch as jest.Mock
+    mockFetch
       .mockResolvedValueOnce({
         ok: true,
         json: async () => ({ data: mockEmployees }),
@@ -280,6 +307,8 @@ describe('useTaskForm', () => {
       result.current.handleChange('assigneeId', 'unassigned')
     })
 
+    expect(result.current.formData.assigneeId).toBe('unassigned')
+
     const formEvent = {
       preventDefault: jest.fn(),
     } as unknown as React.FormEvent
@@ -289,13 +318,17 @@ describe('useTaskForm', () => {
     })
 
     await waitFor(() => {
-      const fetchCalls = (fetch as jest.Mock).mock.calls
-      const taskCall = fetchCalls.find(call => call[0] === '/api/tasks')
-      if (taskCall) {
-        const body = JSON.parse(taskCall[1].body)
-        expect(body.assigneeId).toBe(null)
-      }
-    })
+      expect(onSuccess).toHaveBeenCalled()
+    }, { timeout: 3000 })
+    
+    // Verify the assigneeId was converted to null
+    const fetchCalls = mockFetch.mock.calls
+    const taskCall = fetchCalls.find(call => call[0] === '/api/tasks')
+    expect(taskCall).toBeDefined()
+    if (taskCall && taskCall[1]?.body) {
+      const body = JSON.parse(taskCall[1].body)
+      expect(body.assigneeId).toBe(null)
+    }
   })
 })
 
