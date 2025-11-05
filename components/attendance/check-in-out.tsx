@@ -46,7 +46,7 @@ export function CheckInOut() {
     await executeWithErrorHandling(
       async () => {
         const response = await fetch("/api/employees/me");
-        
+
         if (!response.ok) {
           throw new Error(`Failed to fetch employee data: ${response.status}`);
         }
@@ -193,9 +193,7 @@ export function CheckInOut() {
           );
         }
 
-        showSuccessToast(
-          `${data.message}! Total hours: ${data.totalHours}h`
-        );
+        showSuccessToast(`${data.message}! Total hours: ${data.totalHours}h`);
         // Refresh attendance status to get the latest data
         await fetchTodayAttendance();
       },
@@ -266,9 +264,9 @@ export function CheckInOut() {
               onClick={handleCheckIn}
               disabled={Boolean(
                 isLoading ||
-                !employeeStatus?.isActive ||
-                (employeeStatus?.status &&
-                  employeeStatus.status !== EmployeeStatus.ACTIVE)
+                  !employeeStatus?.isActive ||
+                  (employeeStatus?.status &&
+                    employeeStatus.status !== EmployeeStatus.ACTIVE)
               )}
               className="flex-1"
             >
@@ -281,9 +279,9 @@ export function CheckInOut() {
               onClick={handleCheckOut}
               disabled={Boolean(
                 isLoading ||
-                !employeeStatus?.isActive ||
-                (employeeStatus?.status &&
-                  employeeStatus.status !== EmployeeStatus.ACTIVE)
+                  !employeeStatus?.isActive ||
+                  (employeeStatus?.status &&
+                    employeeStatus.status !== EmployeeStatus.ACTIVE)
               )}
               variant="outline"
               className="flex-1"
