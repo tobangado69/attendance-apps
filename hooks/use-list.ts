@@ -5,7 +5,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { showErrorToast } from '@/lib/utils';
+import { showErrorToast } from '@/lib/error-handler';
 import { logError } from '@/lib/utils/logger';
 import { useDebounce } from '@/hooks/use-debounce';
 import { BusinessRules } from '@/lib/constants/business-rules';
@@ -219,7 +219,10 @@ export function usePaginatedList<T>(
 
         onSuccess?.(transformedResult.data);
       } else {
-        throw new Error(transformedResult.error || 'Failed to fetch data');
+        const errorMessage = typeof transformedResult.error === 'string' 
+          ? transformedResult.error 
+          : transformedResult.error?.message || 'Failed to fetch data';
+        throw new Error(errorMessage);
       }
     } catch (err) {
       // Ignore abort errors
@@ -354,6 +357,24 @@ export interface UseSimpleListReturn<T> {
   refetch: () => Promise<void>;
 }
 
+/**
+ * Generic hook for fetching simple lists without pagination
+ * 
+ * @param options - Configuration options
+ * @param options.endpoint - API endpoint URL
+ * @param options.enabled - Whether to fetch data (default: true)
+ * @param options.transformResponse - Optional function to transform API response
+ * @param options.onError - Optional error callback
+ * @param options.onSuccess - Optional success callback
+ * @returns Object with data, loading state, error, and refresh function
+ * 
+ * @example
+ * ```tsx
+ * const { data: departments, loading, refresh } = useSimpleList<Department>({
+ *   endpoint: '/api/settings/departments'
+ * });
+ * ```
+ */
 export function useSimpleList<T>(
   options: UseSimpleListOptions<T>
 ): UseSimpleListReturn<T> {

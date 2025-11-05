@@ -50,6 +50,23 @@ export interface Manager {
 
 /**
  * Hook for fetching and managing company settings
+ * 
+ * @returns Object with settings data, form state, and save function
+ * @returns {CompanySettings|null} settings - Current company settings
+ * @returns {Partial<CompanySettings>} form - Form state for editing
+ * @returns {Function} setForm - Function to update form state
+ * @returns {boolean} loading - Loading state
+ * @returns {Function} saveSettings - Function to save settings
+ * @returns {Function} refetch - Function to refetch settings
+ * 
+ * @example
+ * ```tsx
+ * const { settings, form, setForm, loading, saveSettings } = useCompanySettings();
+ * 
+ * const handleSave = async () => {
+ *   await saveSettings(form);
+ * };
+ * ```
  */
 export function useCompanySettings() {
   const [settings, setSettings] = useState<CompanySettings | null>(null);
@@ -118,6 +135,16 @@ export function useCompanySettings() {
 
 /**
  * Hook for fetching and managing departments
+ * 
+ * @returns Object with departments list and loading state
+ * @returns {Department[]} departments - Array of departments
+ * @returns {boolean} loading - Loading state
+ * @returns {Function} refetch - Function to refetch departments
+ * 
+ * @example
+ * ```tsx
+ * const { departments, loading, refetch } = useDepartments();
+ * ```
  */
 export function useDepartments() {
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -153,7 +180,17 @@ export function useDepartments() {
 }
 
 /**
- * Hook for fetching managers
+ * Hook for fetching managers (users with ADMIN or MANAGER role)
+ * 
+ * @returns Object with managers list and loading state
+ * @returns {Manager[]} managers - Array of managers with user info
+ * @returns {boolean} loading - Loading state
+ * @returns {Function} refetch - Function to refetch managers
+ * 
+ * @example
+ * ```tsx
+ * const { managers, loading } = useManagers();
+ * ```
  */
 export function useManagers() {
   const [managers, setManagers] = useState<Manager[]>([]);
@@ -203,6 +240,38 @@ export function useManagers() {
 
 /**
  * Hook for managing department form state and operations
+ * Handles creating, editing, and deleting departments
+ * 
+ * @returns Object with form state and department management functions
+ * @returns {boolean} showForm - Whether form is visible
+ * @returns {Department|null} editingDepartment - Currently editing department or null
+ * @returns {Object} form - Form state object with name, description, budget, managerId
+ * @returns {Function} setForm - Function to update form state
+ * @returns {boolean} saving - Saving state
+ * @returns {Function} startEdit - Function to start editing a department
+ * @returns {Function} startCreate - Function to start creating a new department
+ * @returns {Function} resetForm - Function to reset form to initial state
+ * @returns {Function} submitForm - Function to submit form (create or update)
+ * @returns {Function} deleteDepartment - Function to delete a department
+ * 
+ * @example
+ * ```tsx
+ * const {
+ *   form,
+ *   setForm,
+ *   editingDepartment,
+ *   saving,
+ *   startEdit,
+ *   submitForm,
+ *   deleteDepartment
+ * } = useDepartmentForm();
+ * 
+ * const handleSubmit = async () => {
+ *   await submitForm(() => {
+ *     refreshDepartments(); // Refresh list after success
+ *   });
+ * };
+ * ```
  */
 export function useDepartmentForm() {
   const [showForm, setShowForm] = useState(false);

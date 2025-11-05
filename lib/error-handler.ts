@@ -1,5 +1,14 @@
+/**
+ * Error Handling Utilities
+ * Centralized error handling for API and component layers
+ * Following DRY principles and Next.js 15 best practices
+ */
+
 import { toast } from 'sonner';
 
+/**
+ * API error interface
+ */
 export interface ApiError {
   message: string;
   code?: string;
@@ -7,6 +16,9 @@ export interface ApiError {
   details?: Record<string, unknown>;
 }
 
+/**
+ * Custom application error class with additional metadata
+ */
 export class AppError extends Error {
   public code?: string;
   public status?: number;
@@ -21,6 +33,22 @@ export class AppError extends Error {
   }
 }
 
+/**
+ * Converts unknown error types to standardized ApiError format
+ * 
+ * @param error - Error of unknown type
+ * @returns ApiError object with message and optional code/status/details
+ * 
+ * @example
+ * ```typescript
+ * try {
+ *   await riskyOperation();
+ * } catch (error) {
+ *   const apiError = handleApiError(error);
+ *   console.log(apiError.message, apiError.code);
+ * }
+ * ```
+ */
 export function handleApiError(error: unknown): ApiError {
   if (error instanceof AppError) {
     return {
@@ -44,11 +72,30 @@ export function handleApiError(error: unknown): ApiError {
   };
 }
 
+/**
+ * Options for showErrorToast function
+ */
 export interface ShowErrorToastOptions {
   context?: string;
   fallbackMessage?: string;
 }
 
+/**
+ * Displays error toast notification with standardized formatting
+ * Supports both legacy string context and new options object
+ * 
+ * @param error - Error of unknown type
+ * @param options - Options object or legacy string context
+ * @param options.context - Context string for error message prefix
+ * @param options.fallbackMessage - Fallback message if error cannot be parsed
+ * 
+ * @example
+ * ```typescript
+ * showErrorToast(error, { context: 'Save Form', fallbackMessage: 'Failed to save data' });
+ * // Legacy support
+ * showErrorToast(error, 'Save Form');
+ * ```
+ */
 export function showErrorToast(error: unknown, options?: string | ShowErrorToastOptions) {
   const apiError = handleApiError(error);
   
@@ -64,6 +111,17 @@ export function showErrorToast(error: unknown, options?: string | ShowErrorToast
   });
 }
 
+/**
+ * Displays success toast notification
+ * 
+ * @param message - Success message to display
+ * @param description - Optional detailed description
+ * 
+ * @example
+ * ```typescript
+ * showSuccessToast('Employee saved successfully', 'Employee ID: EMP-123');
+ * ```
+ */
 export function showSuccessToast(message: string, description?: string) {
   toast.success(message, {
     description,
@@ -71,6 +129,12 @@ export function showSuccessToast(message: string, description?: string) {
   });
 }
 
+/**
+ * Displays warning toast notification
+ * 
+ * @param message - Warning message to display
+ * @param description - Optional detailed description
+ */
 export function showWarningToast(message: string, description?: string) {
   toast.warning(message, {
     description,
@@ -78,6 +142,12 @@ export function showWarningToast(message: string, description?: string) {
   });
 }
 
+/**
+ * Displays info toast notification
+ * 
+ * @param message - Info message to display
+ * @param description - Optional detailed description
+ */
 export function showInfoToast(message: string, description?: string) {
   toast.info(message, {
     description,
@@ -85,6 +155,20 @@ export function showInfoToast(message: string, description?: string) {
   });
 }
 
+/**
+ * Handles API response parsing and error extraction
+ * Throws AppError if response is not OK
+ * 
+ * @param response - Fetch Response object
+ * @returns Promise resolving to parsed JSON data
+ * @throws {AppError} If response is not OK or parsing fails
+ * 
+ * @example
+ * ```typescript
+ * const response = await fetch('/api/employees');
+ * const data = await handleApiResponse<Employee[]>(response);
+ * ```
+ */
 // API response handler
 export async function handleApiResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
@@ -111,6 +195,20 @@ export async function handleApiResponse<T>(response: Response): Promise<T> {
   }
 }
 
+/**
+ * Generic API call wrapper with automatic error handling
+ * 
+ * @param url - API endpoint URL
+ * @param options - Fetch options (method, headers, body, etc.)
+ * @param context - Optional context string for error messages
+ * @returns Promise resolving to typed response data
+ * @throws {AppError} If request fails
+ * 
+ * @example
+ * ```typescript
+ * const employees = await apiCall<Employee[]>('/api/employees', { method: 'GET' }, 'Fetch Employees');
+ * ```
+ */
 // Generic API call wrapper
 export async function apiCall<T>(
   url: string,
@@ -135,6 +233,22 @@ export async function apiCall<T>(
   }
 }
 
+/**
+ * API call wrapper with automatic retry mechanism
+ * Uses exponential backoff for retries
+ * 
+ * @param url - API endpoint URL
+ * @param options - Fetch options (method, headers, body, etc.)
+ * @param maxRetries - Maximum number of retry attempts (default: 3)
+ * @param context - Optional context string for error messages
+ * @returns Promise resolving to typed response data
+ * @throws {Error} If all retry attempts fail
+ * 
+ * @example
+ * ```typescript
+ * const data = await apiCallWithRetry('/api/critical-endpoint', { method: 'POST', body: JSON.stringify(data) }, 5, 'Critical Operation');
+ * ```
+ */
 // Retry mechanism for failed requests
 export async function apiCallWithRetry<T>(
   url: string,
@@ -166,6 +280,12 @@ export async function apiCallWithRetry<T>(
   throw lastError!;
 }
 
+/**
+ * Handles validation errors with user-friendly toast messages
+ * 
+ * @param error - Validation error of unknown type
+ * @param field - Optional field name to include in error message
+ */
 // Validation error handler
 export function handleValidationError(error: unknown, field?: string) {
   if (error instanceof Error) {
@@ -176,6 +296,11 @@ export function handleValidationError(error: unknown, field?: string) {
   }
 }
 
+/**
+ * Handles network errors with user-friendly toast messages
+ * 
+ * @param error - Network error of unknown type
+ */
 // Network error handler
 export function handleNetworkError(error: unknown) {
   if (error instanceof TypeError && error.message.includes('fetch')) {
@@ -185,21 +310,42 @@ export function handleNetworkError(error: unknown) {
   }
 }
 
+/**
+ * Handles permission errors with user-friendly toast messages
+ * 
+ * @param error - Permission error of unknown type
+ */
 // Permission error handler
 export function handlePermissionError(error: unknown) {
   showErrorToast(new AppError('You do not have permission to perform this action.', 'PERMISSION_ERROR'));
 }
 
+/**
+ * Handles not found errors with user-friendly toast messages
+ * 
+ * @param error - Not found error of unknown type
+ * @param resource - Resource name (e.g., 'Employee', 'Department')
+ */
 // Not found error handler
 export function handleNotFoundError(error: unknown, resource: string) {
   showErrorToast(new AppError(`${resource} not found.`, 'NOT_FOUND_ERROR'));
 }
 
+/**
+ * Handles server errors with user-friendly toast messages
+ * 
+ * @param error - Server error of unknown type
+ */
 // Server error handler
 export function handleServerError(error: unknown) {
   showErrorToast(new AppError('Server error. Please try again later.', 'SERVER_ERROR'));
 }
 
+/**
+ * Handles timeout errors with user-friendly toast messages
+ * 
+ * @param error - Timeout error of unknown type
+ */
 // Timeout error handler
 export function handleTimeoutError(error: unknown) {
   showErrorToast(new AppError('Request timed out. Please try again.', 'TIMEOUT_ERROR'));

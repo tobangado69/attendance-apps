@@ -13,6 +13,20 @@ import { logError } from '@/lib/utils/logger'
 /**
  * Validate request body with Zod schema
  * Returns formatted validation errors or validated data
+ * 
+ * @param body - Request body to validate
+ * @param schema - Zod schema for validation
+ * @returns Validation result with success flag, either validated data or error response
+ * @throws {Error} Never throws, always returns result object
+ * 
+ * @example
+ * ```typescript
+ * const validation = validateRequestBody(body, employeeSchema);
+ * if (!validation.success) {
+ *   return validation.response; // Error response with validation details
+ * }
+ * const validatedData = validation.data; // Type-safe validated data
+ * ```
  */
 export function validateRequestBody<T>(
   body: unknown,
@@ -35,6 +49,37 @@ export function validateRequestBody<T>(
   return { success: true, data: validation.data }
 }
 
+/**
+ * Generic GET by ID handler for API routes
+ * Handles authentication, authorization, data fetching, and error handling
+ * 
+ * @param request - Next.js request object
+ * @param params - Promise resolving to route params with id
+ * @param options - Configuration options
+ * @param options.findById - Function to fetch resource by ID
+ * @param options.include - Optional Prisma include object
+ * @param options.select - Optional Prisma select object
+ * @param options.authorize - Optional custom authorization function
+ * @param options.transform - Optional data transformation function
+ * @param options.notFoundMessage - Custom 404 message
+ * @returns NextResponse with resource data or error
+ * 
+ * @example
+ * ```typescript
+ * export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+ *   return handleGetById(request, params, {
+ *     findById: (id) => prisma.employee.findUnique({ where: { id } }),
+ *     authorize: async (context, id) => {
+ *       if (context.user.role !== 'ADMIN') {
+ *         return formatErrorResponse('Access denied', 403);
+ *       }
+ *       return null;
+ *     },
+ *     notFoundMessage: 'Employee not found'
+ *   });
+ * }
+ * ```
+ */
 /**
  * Generic GET by ID handler
  */
@@ -84,6 +129,38 @@ export async function handleGetById<T>(
   }
 }
 
+/**
+ * Generic UPDATE handler for API routes
+ * Handles validation, authorization, existence checks, and updates
+ * 
+ * @param request - Next.js request object
+ * @param params - Promise resolving to route params with id
+ * @param options - Configuration options
+ * @param options.schema - Zod schema for request body validation
+ * @param options.findById - Function to check if resource exists
+ * @param options.update - Function to update the resource
+ * @param options.authorize - Optional custom authorization function
+ * @param options.validate - Optional custom validation function (e.g., duplicate checks)
+ * @param options.transform - Optional data transformation function
+ * @param options.notFoundMessage - Custom 404 message
+ * @param options.successMessage - Custom success message
+ * @returns NextResponse with updated resource or error
+ * 
+ * @example
+ * ```typescript
+ * export const PUT = withAdminGuard(async (context, request, { params }) => {
+ *   return handleUpdate(request, params, {
+ *     schema: departmentUpdateSchema,
+ *     findById: (id) => prisma.department.findUnique({ where: { id } }),
+ *     update: (id, data) => prisma.department.update({ where: { id }, data }),
+ *     validate: async (existing, data) => {
+ *       // Check for duplicates
+ *       return null; // or error response
+ *     }
+ *   });
+ * });
+ * ```
+ */
 /**
  * Generic UPDATE handler
  */
@@ -161,6 +238,38 @@ export async function handleUpdate<TData, TModel>(
   }
 }
 
+/**
+ * Generic DELETE handler for API routes
+ * Handles authorization, existence checks, dependency validation, and deletion
+ * 
+ * @param request - Next.js request object
+ * @param params - Promise resolving to route params with id
+ * @param options - Configuration options
+ * @param options.findById - Function to check if resource exists
+ * @param options.deleteById - Function to delete the resource
+ * @param options.authorize - Optional custom authorization function
+ * @param options.checkDependencies - Optional function to check for dependencies before deletion
+ * @param options.notFoundMessage - Custom 404 message
+ * @param options.successMessage - Custom success message
+ * @returns NextResponse with deletion confirmation or error
+ * 
+ * @example
+ * ```typescript
+ * export const DELETE = withAdminGuard(async (context, request, { params }) => {
+ *   return handleDelete(request, params, {
+ *     findById: (id) => prisma.department.findUnique({ where: { id } }),
+ *     deleteById: (id) => prisma.department.delete({ where: { id } }),
+ *     checkDependencies: async (id) => {
+ *       const dept = await prisma.department.findUnique({ where: { id }, include: { employees: true } });
+ *       if (dept && dept.employees.length > 0) {
+ *         return formatErrorResponse('Cannot delete department with employees', 400);
+ *       }
+ *       return null;
+ *     }
+ *   });
+ * });
+ * ```
+ */
 /**
  * Generic DELETE handler
  */
