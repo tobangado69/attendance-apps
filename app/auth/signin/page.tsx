@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,50 @@ export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const emailInputRef = useRef<HTMLInputElement>(null);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
+
+  // Handle browser autofill - check on blur and focus events
+  const handleEmailBlur = () => {
+    // Sync state with actual input value (handles autofill)
+    if (emailInputRef.current && emailInputRef.current.value !== email) {
+      setEmail(emailInputRef.current.value);
+    }
+  };
+
+  const handlePasswordFocus = () => {
+    // When password field is focused, check if email was autofilled or pasted
+    // This ensures email value is preserved when clicking into password field
+    if (emailInputRef.current && emailInputRef.current.value !== email) {
+      setEmail(emailInputRef.current.value);
+    }
+  };
+
+  const handlePasswordBlur = () => {
+    // Sync state with actual input value (handles autofill)
+    if (passwordInputRef.current && passwordInputRef.current.value !== password) {
+      setPassword(passwordInputRef.current.value);
+    }
+  };
+
+  // Handle paste events - update state after native paste completes
+  const handleEmailPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    // Allow native paste to complete first, then update state
+    setTimeout(() => {
+      if (emailInputRef.current) {
+        setEmail(emailInputRef.current.value);
+      }
+    }, 0);
+  };
+
+  const handlePasswordPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    // Allow native paste to complete first, then update state
+    setTimeout(() => {
+      if (passwordInputRef.current) {
+        setPassword(passwordInputRef.current.value);
+      }
+    }, 0);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,6 +108,7 @@ export default function SignInPage() {
               <div>
                 <Label htmlFor="email">Email address</Label>
                 <Input
+                  ref={emailInputRef}
                   id="email"
                   name="email"
                   type="email"
@@ -71,6 +116,8 @@ export default function SignInPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  onPaste={handleEmailPaste}
+                  onBlur={handleEmailBlur}
                   className="mt-1"
                 />
               </div>
@@ -78,6 +125,7 @@ export default function SignInPage() {
               <div>
                 <Label htmlFor="password">Password</Label>
                 <Input
+                  ref={passwordInputRef}
                   id="password"
                   name="password"
                   type="password"
@@ -85,6 +133,9 @@ export default function SignInPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onPaste={handlePasswordPaste}
+                  onBlur={handlePasswordBlur}
+                  onFocus={handlePasswordFocus}
                   className="mt-1"
                 />
               </div>
