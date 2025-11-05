@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { formatApiResponse, formatErrorResponse } from '@/lib/api/api-utils'
+import { logError } from '@/lib/utils/logger'
 
 export async function GET() {
   try {
@@ -44,17 +46,14 @@ export async function GET() {
       }
     })
 
-    return NextResponse.json({
+    return formatApiResponse({
       totalEmployees,
       totalDepartments,
       departmentNames,
       newThisMonth
     })
   } catch (error) {
-    console.error('Error fetching employee stats:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch employee statistics' },
-      { status: 500 }
-    )
+    logError(error, { context: 'GET /api/employees/stats' })
+    return formatErrorResponse('Failed to fetch employee statistics', 500)
   }
 }

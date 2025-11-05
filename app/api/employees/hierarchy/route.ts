@@ -5,6 +5,7 @@ import {
   formatApiResponse, 
   formatErrorResponse
 } from '@/lib/api/api-utils'
+import { logError } from '@/lib/utils/logger'
 
 export async function GET(request: NextRequest) {
   try {
@@ -144,7 +145,7 @@ export async function GET(request: NextRequest) {
 
     return formatApiResponse(hierarchy)
   } catch (error) {
-    console.error('Error fetching hierarchy data:', error)
+    logError(error, { context: 'GET /api/employees/hierarchy' })
     return formatErrorResponse('Failed to fetch hierarchy data', 500)
   }
 }

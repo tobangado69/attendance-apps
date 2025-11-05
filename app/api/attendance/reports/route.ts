@@ -7,6 +7,7 @@ import {
   validateRole
 } from '@/lib/api/api-utils'
 import { AttendanceStatus } from '@/lib/constants/status'
+import { logError } from '@/lib/utils/logger'
 
 export async function GET(request: NextRequest) {
   try {
@@ -202,7 +203,7 @@ export async function GET(request: NextRequest) {
 
     return formatApiResponse(reportData)
   } catch (error) {
-    console.error('Attendance reports error:', error)
+    logError(error, { context: 'GET /api/attendance/reports' })
     return formatErrorResponse('Failed to generate attendance reports', 500)
   }
 }

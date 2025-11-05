@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { employeeUpdateSchema } from '@/lib/validations'
-import { formatErrorResponse } from '@/lib/api/api-utils'
+import { formatApiResponse, formatErrorResponse } from '@/lib/api/api-utils'
 import bcrypt from 'bcryptjs'
 import { logError } from '@/lib/utils/logger'
 
@@ -68,6 +68,7 @@ export async function GET(
 
     return formatApiResponse(employee)
   } catch (error) {
+    const { id } = await params
     logError(error, { context: 'GET /api/employees/[id]', employeeId: id })
     return formatErrorResponse('Failed to fetch employee', 500)
   }

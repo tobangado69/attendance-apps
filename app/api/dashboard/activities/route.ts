@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { formatDistanceToNow } from 'date-fns'
 import { formatApiResponse, formatErrorResponse } from '@/lib/api/api-utils'
+import { logError } from '@/lib/utils/logger'
 
 export async function GET() {
   try {
@@ -122,7 +123,7 @@ export async function GET() {
 
     return formatApiResponse(activities.slice(0, 10)) // Return top 10 activities
   } catch (error) {
-    console.error('Error fetching activities:', error)
+    logError(error, { context: 'GET /api/dashboard/activities' })
     return formatErrorResponse('Failed to fetch activities', 500)
   }
 }

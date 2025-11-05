@@ -5,6 +5,7 @@ import {
   formatApiResponse, 
   formatErrorResponse
 } from '@/lib/api/api-utils'
+import { logError } from '@/lib/utils/logger'
 
 export async function GET(request: NextRequest) {
   try {
@@ -101,7 +102,7 @@ export async function GET(request: NextRequest) {
 
     return formatApiResponse(organizationData)
   } catch (error) {
-    console.error('Error fetching organization data:', error)
+    logError(error, { context: 'GET /api/employees/organization' })
     return formatErrorResponse('Failed to fetch organization data', 500)
   }
 }
