@@ -216,15 +216,34 @@ export function formatErrorResponse(
   const response: {
     success: boolean
     error: string
+    code?: string
     details?: Record<string, unknown>
+    statusCode?: number
   } = {
     success: false,
     error
   }
 
+  // Add error code based on status
+  if (status === 400) {
+    response.code = 'VALIDATION_ERROR'
+  } else if (status === 401) {
+    response.code = 'UNAUTHORIZED'
+  } else if (status === 403) {
+    response.code = 'FORBIDDEN'
+  } else if (status === 404) {
+    response.code = 'NOT_FOUND'
+  } else if (status === 409) {
+    response.code = 'DUPLICATE_ENTRY'
+  } else if (status >= 500) {
+    response.code = 'INTERNAL_SERVER_ERROR'
+  }
+
   if (details) {
     response.details = details
   }
+
+  response.statusCode = status
 
   return NextResponse.json(response, { status })
 }

@@ -58,27 +58,18 @@ export async function GET(
     })
 
     if (!employee) {
-      return NextResponse.json(
-        { error: 'Employee not found' },
-        { status: 404 }
-      )
+      return formatErrorResponse('Employee not found', 404)
     }
 
     // If not admin/manager, only allow viewing own record
     if (session.user.role === 'EMPLOYEE' && employee.userId !== session.user.id) {
-      return NextResponse.json(
-        { error: 'Forbidden' },
-        { status: 403 }
-      )
+      return formatErrorResponse('Forbidden', 403)
     }
 
-    return NextResponse.json({ data: employee })
+    return formatApiResponse(employee)
   } catch (error) {
     logError(error, { context: 'GET /api/employees/[id]', employeeId: id })
-    return NextResponse.json(
-      { error: 'Failed to fetch employee' },
-      { status: 500 }
-    )
+    return formatErrorResponse('Failed to fetch employee', 500)
   }
 }
 
@@ -102,16 +93,12 @@ export async function PUT(
     // Validate the request body
     const validation = employeeUpdateSchema.safeParse(body)
     if (!validation.success) {
-      return NextResponse.json(
-        { 
-          error: 'Validation failed',
-          details: validation.error.issues.map((err) => ({
-            field: err.path.join('.'),
-            message: err.message
-          }))
-        },
-        { status: 400 }
-      )
+      return formatErrorResponse('Validation failed', 400, {
+        details: validation.error.issues.map((err) => ({
+          field: err.path.join('.'),
+          message: err.message
+        }))
+      })
     }
     
     const { name, email, role, department, position, salary, status, manager } = validation.data
