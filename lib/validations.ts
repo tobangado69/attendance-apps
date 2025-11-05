@@ -66,7 +66,11 @@ export const checkOutSchema = z.object({
 export const departmentSchema = z.object({
   name: z.string().min(1, 'Department name is required').max(50, 'Department name must be less than 50 characters'),
   description: z.string().max(200, 'Description must be less than 200 characters').optional(),
+  budget: z.number().min(0, 'Budget cannot be negative').optional(),
+  managerId: z.string().optional(),
 })
+
+export const departmentUpdateSchema = departmentSchema.partial()
 
 // Notification validation schemas
 export const notificationSchema = z.object({
