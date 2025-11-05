@@ -161,8 +161,8 @@ export async function GET(request: NextRequest) {
         name: emp.user.name,
         email: emp.user.email,
         department: emp.department?.name || 'Unassigned',
-        position: emp.position,
-        salary: emp.salary,
+        position: emp.position || 'N/A', // Ensure position is always a string
+        salary: emp.salary || 0,
         presentDays,
         totalDays,
         attendanceRate,

@@ -53,16 +53,24 @@ export function handleApiError(error: unknown): ApiError {
   if (error instanceof AppError) {
     return {
       message: error.message,
-      code: error.code,
+      code: error.code || 'UNKNOWN_ERROR',
       status: error.status,
       details: error.details,
     };
   }
 
   if (error instanceof Error) {
+    // Try to extract error code from error message or name if it's a structured error
+    let code = 'UNKNOWN_ERROR';
+    
+    // Check if error has a code property (some errors might have it)
+    if ('code' in error && typeof (error as { code?: string }).code === 'string') {
+      code = (error as { code: string }).code;
+    }
+    
     return {
       message: error.message,
-      code: 'UNKNOWN_ERROR',
+      code,
     };
   }
 
@@ -78,20 +86,25 @@ export function handleApiError(error: unknown): ApiError {
 export interface ShowErrorToastOptions {
   context?: string;
   fallbackMessage?: string;
+  useDialog?: boolean; // Show as dialog instead of toast for important errors
 }
 
 /**
  * Displays error toast notification with standardized formatting
  * Supports both legacy string context and new options object
+ * For important errors (like employee status), use useDialog option to show as centered dialog
  * 
  * @param error - Error of unknown type
  * @param options - Options object or legacy string context
  * @param options.context - Context string for error message prefix
  * @param options.fallbackMessage - Fallback message if error cannot be parsed
+ * @param options.useDialog - Show as dialog instead of toast (for important errors)
  * 
  * @example
  * ```typescript
  * showErrorToast(error, { context: 'Save Form', fallbackMessage: 'Failed to save data' });
+ * // Show as dialog for important errors
+ * showErrorToast(error, { useDialog: true, context: 'Check In' });
  * // Legacy support
  * showErrorToast(error, 'Save Form');
  * ```
@@ -102,11 +115,40 @@ export function showErrorToast(error: unknown, options?: string | ShowErrorToast
   // Support both old signature (string context) and new signature (options object)
   const context = typeof options === 'string' ? options : options?.context;
   const fallbackMessage = typeof options === 'object' ? options.fallbackMessage : undefined;
+  const useDialog = typeof options === 'object' ? options.useDialog : false;
   
-  const message = fallbackMessage || (context ? `${context}: ${apiError.message}` : apiError.message);
+  // Determine if this is an important error that should be shown as dialog
+  const importantErrorCodes = [
+    'EMPLOYEE_INACTIVE',
+    'EMPLOYEE_STATUS_RESTRICTED',
+    'FORBIDDEN',
+    'UNAUTHORIZED',
+  ];
   
-  toast.error(message, {
-    description: apiError.code ? `Error Code: ${apiError.code}` : undefined,
+  const isImportantError = apiError.code && importantErrorCodes.includes(apiError.code);
+  
+  // Show as dialog if explicitly requested or if it's an important error
+  if (useDialog || isImportantError) {
+    // Try to use error dialog context if available
+    if (typeof window !== 'undefined') {
+      // Dispatch custom event for error dialog
+      const event = new CustomEvent('show-error-dialog', {
+        detail: {
+          error: apiError,
+          title: context || 'Error',
+        },
+      });
+      window.dispatchEvent(event);
+      return;
+    }
+  }
+  
+  // Default to toast notification
+  // Show only the actual error message, no error code
+  const message = fallbackMessage || apiError.message;
+  const toastTitle = context ? `${context}: ${message}` : message;
+  
+  toast.error(toastTitle, {
     duration: 5000,
   });
 }

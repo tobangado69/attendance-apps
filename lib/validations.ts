@@ -29,6 +29,9 @@ export const employeeSchema = z.object({
   status: z.nativeEnum(EmployeeStatus).default('ACTIVE'),
   hireDate: z.string().optional(),
   manager: z.string().optional(),
+  phone: z.string().max(20, 'Phone number must be less than 20 characters').optional(),
+  address: z.string().max(500, 'Address must be less than 500 characters').optional(),
+  bio: z.string().max(1000, 'Bio must be less than 1000 characters').optional(),
 })
 
 export const employeeUpdateSchema = employeeSchema.partial().omit({ password: true })

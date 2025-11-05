@@ -5,6 +5,7 @@ import {
   formatApiResponse, 
   formatErrorResponse
 } from '@/lib/api/api-utils'
+import { logError } from '@/lib/utils/logger'
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,6 +17,7 @@ export async function GET(request: NextRequest) {
     const { user } = apiContext
 
     // Get employee data for the current user
+    // Note: If you get errors about phone/address/bio fields, run: npx prisma generate
     const employee = await prisma.employee.findUnique({
       where: {
         userId: user.id
@@ -41,6 +43,9 @@ export async function GET(request: NextRequest) {
             name: true,
             email: true,
             image: true,
+            phone: true,
+            address: true,
+            bio: true,
             role: true,
             createdAt: true
           }
@@ -54,7 +59,24 @@ export async function GET(request: NextRequest) {
 
     return formatApiResponse(employee)
   } catch (error) {
-    console.error('Employee me fetch error:', error)
+    // Enhanced error logging for Prisma client issues
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    const isPrismaClientError = errorMessage.includes('Unknown arg') || 
+                                 errorMessage.includes('Unknown field') ||
+                                 errorMessage.includes('phone') ||
+                                 errorMessage.includes('address') ||
+                                 errorMessage.includes('bio')
+    
+    if (isPrismaClientError) {
+      logError(error, {
+        context: 'Employee me fetch error - Prisma client issue',
+        message: 'Prisma client may need regeneration. Run: npx prisma generate',
+        suggestion: 'Stop the dev server and run: npx prisma generate'
+      })
+    } else {
+      logError(error, { context: 'Employee me fetch error' })
+    }
+    
     return formatErrorResponse('Failed to fetch employee data', 500)
   }
 }

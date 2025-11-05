@@ -25,6 +25,9 @@ const getCachedEmployee = unstable_cache(
             name: true,
             email: true,
             role: true,
+            phone: true,
+            address: true,
+            bio: true,
             createdAt: true
           }
         },
@@ -120,7 +123,7 @@ export async function PUT(
       })
     }
     
-    const { name, email, role, department, position, salary, status, manager } = validation.data
+    const { name, email, role, department, position, salary, status, manager, phone, address, bio } = validation.data
 
     const employee = await prisma.employee.findUnique({
       where: { id },
@@ -150,7 +153,10 @@ export async function PUT(
         data: {
           ...(name && { name }),
           ...(email && { email }),
-          ...(role && ['ADMIN', 'MANAGER'].includes(session.user.role) && { role })
+          ...(role && ['ADMIN', 'MANAGER'].includes(session.user.role) && { role }),
+          ...(phone !== undefined && { phone: phone || null }),
+          ...(address !== undefined && { address: address || null }),
+          ...(bio !== undefined && { bio: bio || null })
         }
       })
 
@@ -211,15 +217,18 @@ export async function PUT(
           ...(status !== undefined && { status })
         } as Record<string, unknown>,
         include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              role: true,
-              createdAt: true
-            }
-          },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            phone: true,
+            address: true,
+            bio: true,
+            createdAt: true
+          }
+        },
           manager: {
             select: {
               id: true,

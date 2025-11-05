@@ -131,6 +131,96 @@ export async function getManagersAndAdmins() {
   }
 }
 
+/**
+ * Get notification recipients for attendance events based on role-based access control
+ * 
+ * Business Logic:
+ * - Employee check-in/out: Notify their manager (if exists) + all admins
+ * - Manager check-in/out: Notify all admins + their manager (if exists)
+ * - Admin check-in/out: Notify all admins (optional, can be removed if not needed)
+ * 
+ * @param employeeUserId - The user ID of the employee who checked in/out
+ * @param employeeRole - The role of the employee (ADMIN, MANAGER, EMPLOYEE)
+ * @returns Array of user IDs who should receive the notification
+ */
+export async function getAttendanceNotificationRecipients(
+  employeeUserId: string,
+  employeeRole: string
+): Promise<string[]> {
+  try {
+    const recipients: string[] = []
+
+    // Always notify all admins
+    const admins = await prisma.user.findMany({
+      where: {
+        role: 'ADMIN'
+      },
+      select: {
+        id: true
+      }
+    })
+    recipients.push(...admins.map(admin => admin.id))
+
+    // Get employee record to find manager
+    const employee = await prisma.employee.findUnique({
+      where: {
+        userId: employeeUserId
+      },
+      include: {
+        manager: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                role: true
+              }
+            }
+          }
+        }
+      }
+    })
+
+    if (employee) {
+      // Notify the employee's manager if they exist
+      if (employee.manager?.user) {
+        recipients.push(employee.manager.user.id)
+      }
+
+      // If the employee is a manager, also notify their direct manager (if exists)
+      // This is handled by the manager relationship above
+    }
+
+    // Remove duplicates and the employee themselves (they get their own notification separately if needed)
+    const uniqueRecipients = Array.from(new Set(recipients)).filter(id => id !== employeeUserId)
+
+    return uniqueRecipients
+  } catch (error) {
+    logError(error, { context: 'getAttendanceNotificationRecipients', employeeUserId, employeeRole })
+    // Fallback to all admins if error occurs
+    const admins = await prisma.user.findMany({
+      where: { role: 'ADMIN' },
+      select: { id: true }
+    })
+    return admins.map(admin => admin.id)
+  }
+}
+
+/**
+ * Get all user IDs that should receive notifications for a specific employee's attendance
+ * This includes managers of that employee and all admins
+ * 
+ * @param employeeUserId - The user ID of the employee
+ * @returns Array of user IDs who should receive notifications
+ */
+export async function getNotificationRecipientsForEmployee(employeeUserId: string): Promise<string[]> {
+  try {
+    return await getAttendanceNotificationRecipients(employeeUserId, 'EMPLOYEE')
+  } catch (error) {
+    logError(error, { context: 'getNotificationRecipientsForEmployee', employeeUserId })
+    return []
+  }
+}
+
 // Helper function to get all employees in a department
 export async function getEmployeesInDepartment(department: string) {
   try {

@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { useEmployeeForm, type Employee } from "@/hooks/use-employee-form";
 import {
   FormField,
@@ -44,7 +45,7 @@ export function EmployeeForm({
   }, [hasUnsavedChanges, onFormChange]);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4 relative">
       <div className="grid grid-cols-2 gap-4">
         <FormField
           label="Name"
@@ -172,6 +173,7 @@ export function EmployeeForm({
             value={formData.status}
             onChange={(value) => handleChange("status", value)}
             error={getFieldError("status")}
+            employeeId={employee?.id}
           />
         </FormField>
       )}
@@ -194,6 +196,48 @@ export function EmployeeForm({
           </FormField>
         </div>
       )}
+
+      <div className="grid grid-cols-2 gap-4">
+        <FormField
+          label="Phone Number"
+          error={getFieldError("phone")}
+        >
+          <TextInput
+            id="phone"
+            type="tel"
+            value={formData.phone}
+            onChange={(value) => handleChange("phone", value)}
+            error={getFieldError("phone")}
+            placeholder="Enter phone number"
+          />
+        </FormField>
+        <FormField
+          label="Address"
+          error={getFieldError("address")}
+        >
+          <TextInput
+            id="address"
+            value={formData.address}
+            onChange={(value) => handleChange("address", value)}
+            error={getFieldError("address")}
+            placeholder="Enter address"
+          />
+        </FormField>
+      </div>
+
+      <FormField
+        label="Bio"
+        error={getFieldError("bio")}
+      >
+        <Textarea
+          id="bio"
+          value={formData.bio}
+          onChange={(e) => handleChange("bio", e.target.value)}
+          placeholder="Tell us about the employee"
+          rows={3}
+          className={getFieldError("bio") ? "border-red-500" : ""}
+        />
+      </FormField>
 
       <div className="flex justify-end space-x-2 pt-4">
         <Button type="button" variant="outline" onClick={onSuccess}>

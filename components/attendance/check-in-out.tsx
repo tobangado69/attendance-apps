@@ -142,7 +142,14 @@ export function CheckInOut() {
         const data = await response.json();
 
         if (!response.ok || !data.success) {
-          throw new Error(data.error || "Failed to check in");
+          // Create AppError with proper code and details from API response
+          const { AppError } = await import("@/lib/error-handler");
+          throw new AppError(
+            data.error || "Failed to check in",
+            data.code || "UNKNOWN_ERROR",
+            data.statusCode || response.status,
+            data.details
+          );
         }
 
         showSuccessToast("Successfully checked in!");
@@ -185,11 +192,16 @@ export function CheckInOut() {
         const data = await response.json();
 
         if (!response.ok || !data.success) {
-          throw new Error(
+          // Create AppError with proper code and details from API response
+          const { AppError } = await import("@/lib/error-handler");
+          throw new AppError(
             data.error ||
               (response.status === 400
                 ? "Cannot check out - no check-in record found for today"
-                : "Failed to check out")
+                : "Failed to check out"),
+            data.code || "UNKNOWN_ERROR",
+            data.statusCode || response.status,
+            data.details
           );
         }
 

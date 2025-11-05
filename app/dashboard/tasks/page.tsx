@@ -28,8 +28,13 @@ export default function TasksPage() {
   const fetchTaskStats = async () => {
     try {
       const response = await fetch("/api/tasks/stats");
-      const data = await response.json();
-      setStats(data);
+      const result = await response.json();
+      
+      if (result.success && result.data) {
+        setStats(result.data);
+      } else {
+        console.error("Failed to fetch task stats:", result);
+      }
     } catch (error) {
       console.error("Error fetching task stats:", error);
     } finally {

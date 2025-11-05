@@ -93,6 +93,9 @@ export async function GET(request: NextRequest) {
               name: true,
               email: true,
               role: true,
+              phone: true,
+              address: true,
+              bio: true,
               createdAt: true
             }
           }
@@ -130,7 +133,7 @@ export const POST = withAdminManagerGuard(async (context, request: NextRequest) 
       })
     }
 
-    const { name, email, password, role, employeeId, department, position, salary, status, manager } = validation.data
+    const { name, email, password, role, employeeId, department, position, salary, status, manager, phone, address, bio } = validation.data
 
     // Check for existing records
     const existing = await checkExistingRecords(email, employeeId)
@@ -154,6 +157,9 @@ export const POST = withAdminManagerGuard(async (context, request: NextRequest) 
         position,
         salary,
         manager,
+        phone,
+        address,
+        bio,
       })
     } catch (createError) {
       const errorMessage = createError instanceof Error ? createError.message : 'Failed to create employee'

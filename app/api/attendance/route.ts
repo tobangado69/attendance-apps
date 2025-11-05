@@ -143,11 +143,13 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    return formatApiResponse(attendance, {
+    return formatApiResponse({
+      attendance,
+      departments: departments.map(d => d.name)
+    }, {
       total,
       page: pagination.page,
-      limit: pagination.limit,
-      departments: departments.map(d => d.name)
+      limit: pagination.limit
     })
   } catch (error) {
     logError(error, { context: 'GET /api/attendance' })

@@ -24,6 +24,9 @@ export function TaskForm({ task, onSuccess }: TaskFormProps) {
     onSuccess,
   });
 
+  // Get today's date in YYYY-MM-DD format for min attribute
+  const today = new Date().toISOString().split('T')[0];
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
@@ -93,6 +96,7 @@ export function TaskForm({ task, onSuccess }: TaskFormProps) {
           type="date"
           value={formData.dueDate}
           onChange={(e) => handleChange("dueDate", e.target.value)}
+          min={today}
         />
       </div>
 

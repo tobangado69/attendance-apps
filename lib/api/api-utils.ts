@@ -357,23 +357,33 @@ export function formatErrorResponse(
     error
   }
 
-  // Add error code based on status
-  if (status === 400) {
-    response.code = 'VALIDATION_ERROR'
-  } else if (status === 401) {
-    response.code = 'UNAUTHORIZED'
-  } else if (status === 403) {
-    response.code = 'FORBIDDEN'
-  } else if (status === 404) {
-    response.code = 'NOT_FOUND'
-  } else if (status === 409) {
-    response.code = 'DUPLICATE_ENTRY'
-  } else if (status >= 500) {
-    response.code = 'INTERNAL_SERVER_ERROR'
-  }
+  // Use custom error code from details if provided, otherwise use default based on status
+  if (details?.code && typeof details.code === 'string') {
+    response.code = details.code
+    // Remove code from details to avoid duplication
+    const { code, ...restDetails } = details
+    if (Object.keys(restDetails).length > 0) {
+      response.details = restDetails
+    }
+  } else {
+    // Add error code based on status
+    if (status === 400) {
+      response.code = 'VALIDATION_ERROR'
+    } else if (status === 401) {
+      response.code = 'UNAUTHORIZED'
+    } else if (status === 403) {
+      response.code = 'FORBIDDEN'
+    } else if (status === 404) {
+      response.code = 'NOT_FOUND'
+    } else if (status === 409) {
+      response.code = 'DUPLICATE_ENTRY'
+    } else if (status >= 500) {
+      response.code = 'INTERNAL_SERVER_ERROR'
+    }
 
-  if (details) {
-    response.details = details
+    if (details) {
+      response.details = details
+    }
   }
 
   response.statusCode = status

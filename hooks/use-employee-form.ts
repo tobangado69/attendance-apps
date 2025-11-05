@@ -67,6 +67,9 @@ export interface EmployeeFormState {
   salary: string;
   status: string;
   manager: string;
+  phone: string;
+  address: string;
+  bio: string;
 }
 
 /**
@@ -236,6 +239,9 @@ export function initializeFormData(
       salary: '',
       status: EmployeeStatus.ACTIVE,
       manager: '',
+      phone: '',
+      address: '',
+      bio: '',
     };
   }
 
@@ -251,8 +257,11 @@ export function initializeFormData(
     department: departmentId,
     position: employee.position || 'Software Developer',
     salary: employee.salary?.toString() || '',
-    status: employee.status || EmployeeStatus.ACTIVE,
+    status: employee.status?.toUpperCase() || EmployeeStatus.ACTIVE,
     manager: managerUserId,
+    phone: (employee.user as { phone?: string })?.phone || '',
+    address: (employee.user as { address?: string })?.address || '',
+    bio: (employee.user as { bio?: string })?.bio || '',
   };
 }
 

@@ -19,6 +19,9 @@ interface EmployeeCreateData {
   salary?: number;
   status?: string;
   manager?: string;
+  phone?: string;
+  address?: string;
+  bio?: string;
 }
 
 interface CreateEmployeeResult {
@@ -106,7 +109,15 @@ export async function checkExistingRecords(
  */
 export async function createUserRecord(
   tx: Prisma.TransactionClient,
-  data: { name: string; email: string; password?: string; role: string }
+  data: { 
+    name: string; 
+    email: string; 
+    password?: string; 
+    role: string;
+    phone?: string;
+    address?: string;
+    bio?: string;
+  }
 ) {
   return tx.user.create({
     data: {
@@ -114,6 +125,9 @@ export async function createUserRecord(
       email: data.email,
       password: data.password ? await bcrypt.hash(data.password, 12) : null,
       role: data.role || 'EMPLOYEE',
+      phone: data.phone || null,
+      address: data.address || null,
+      bio: data.bio || null,
     },
   });
 }
@@ -165,6 +179,9 @@ export async function createEmployeeWithUser(
       email: data.email,
       password: data.password,
       role: data.role || 'EMPLOYEE',
+      phone: data.phone,
+      address: data.address,
+      bio: data.bio,
     });
 
     // Create employee

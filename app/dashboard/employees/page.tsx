@@ -43,8 +43,16 @@ function EmployeesPageContent() {
   const fetchEmployeeStats = async () => {
     try {
       const response = await fetch("/api/employees/stats");
-      const data = await response.json();
-      setStats(data);
+      const result = await response.json();
+      
+      if (result.success && result.data) {
+        setStats(result.data);
+      } else {
+        logError(new Error('Failed to fetch employee stats'), { 
+          context: "EmployeesPage - fetchEmployeeStats",
+          response: result 
+        });
+      }
     } catch (error) {
       logError(error, { context: "EmployeesPage - fetchEmployeeStats" });
     } finally {

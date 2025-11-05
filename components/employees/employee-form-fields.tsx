@@ -79,7 +79,7 @@ interface SelectInputProps {
   required?: boolean;
   placeholder?: string;
   children: React.ReactNode;
-  key?: string;
+  selectKey?: string; // Renamed from 'key' to avoid React special prop conflict
 }
 
 export function SelectInput({
@@ -90,20 +90,21 @@ export function SelectInput({
   required,
   placeholder,
   children,
-  key,
+  selectKey,
 }: SelectInputProps) {
   return (
     <Select
-      key={key}
+      key={selectKey}
       value={value}
       onValueChange={onChange}
+      modal={false}
     >
       <SelectTrigger
         className={error ? "border-red-500" : ""}
       >
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent position="item-aligned">
         {children}
       </SelectContent>
     </Select>
@@ -130,7 +131,7 @@ export function DepartmentSelect({
   return (
     <SelectInput
       id="department"
-      key={`department-${employeeId || "new"}`}
+      selectKey={`department-${employeeId || "new"}`}
       value={value}
       onChange={onChange}
       error={error}
@@ -175,22 +176,26 @@ export function ManagerSelect({
   employeeId,
   employee,
 }: ManagerSelectProps) {
+  // Normalize value to "no-manager" if empty
+  const normalizedValue = value || "no-manager";
+  
   return (
     <Select
-      key={`manager-${employeeId || "new"}-${value}`}
-      value={value || "no-manager"}
+      key={`manager-${employeeId || "new"}-${normalizedValue}`}
+      value={normalizedValue}
       onValueChange={onChange}
+      modal={false}
     >
       <SelectTrigger
         className={`w-full ${error ? "border-red-500" : ""}`}
       >
         <SelectValue placeholder="Select manager (optional)">
-          {value && value !== "no-manager" 
-            ? getManagerName(value, managers, employee)
-            : null}
+          {normalizedValue !== "no-manager" 
+            ? getManagerName(normalizedValue, managers, employee)
+            : "No Manager"}
         </SelectValue>
       </SelectTrigger>
-      <SelectContent className="min-w-[var(--radix-select-trigger-width)] max-w-[var(--radix-select-trigger-width)]">
+      <SelectContent position="item-aligned" className="min-w-[var(--radix-select-trigger-width)] max-w-[var(--radix-select-trigger-width)]">
         <SelectItem value="no-manager" className="whitespace-normal">
           No Manager
         </SelectItem>
@@ -223,33 +228,34 @@ interface StatusSelectProps {
   value: string;
   onChange: (value: string) => void;
   error?: string;
+  employeeId?: string;
 }
 
 export function StatusSelect({
   value,
   onChange,
   error,
+  employeeId,
 }: StatusSelectProps) {
+  // Ensure value is uppercase to match enum values
+  const normalizedValue = value ? value.toUpperCase() : EmployeeStatus.ACTIVE;
+  
   return (
     <SelectInput
       id="status"
-      value={value}
+      selectKey={`status-${employeeId || "new"}`}
+      value={normalizedValue}
       onChange={onChange}
       error={error}
       required
       placeholder="Select status"
     >
-      <SelectTrigger className={error ? "border-red-500" : ""}>
-        <SelectValue placeholder="Select status" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value={EmployeeStatus.ACTIVE}>Active</SelectItem>
-        <SelectItem value={EmployeeStatus.INACTIVE}>Inactive</SelectItem>
-        <SelectItem value={EmployeeStatus.LAYOFF}>Layoff</SelectItem>
-        <SelectItem value={EmployeeStatus.TERMINATED}>Terminated</SelectItem>
-        <SelectItem value={EmployeeStatus.ON_LEAVE}>On Leave</SelectItem>
-        <SelectItem value={EmployeeStatus.SUSPENDED}>Suspended</SelectItem>
-      </SelectContent>
+      <SelectItem value={EmployeeStatus.ACTIVE}>Active</SelectItem>
+      <SelectItem value={EmployeeStatus.INACTIVE}>Inactive</SelectItem>
+      <SelectItem value={EmployeeStatus.LAYOFF}>Layoff</SelectItem>
+      <SelectItem value={EmployeeStatus.TERMINATED}>Terminated</SelectItem>
+      <SelectItem value={EmployeeStatus.ON_LEAVE}>On Leave</SelectItem>
+      <SelectItem value={EmployeeStatus.SUSPENDED}>Suspended</SelectItem>
     </SelectInput>
   );
 }
@@ -267,22 +273,21 @@ export function RoleSelect({
   error,
   employeeId,
 }: RoleSelectProps) {
+  // Ensure value is uppercase to match enum values
+  const normalizedValue = value ? value.toUpperCase() : "EMPLOYEE";
+  
   return (
     <SelectInput
       id="role"
-      key={`role-${employeeId || "new"}`}
-      value={value || "EMPLOYEE"}
+      selectKey={`role-${employeeId || "new"}`}
+      value={normalizedValue}
       onChange={onChange}
       error={error}
+      placeholder="Select role"
     >
-      <SelectTrigger className={error ? "border-red-500" : ""}>
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="EMPLOYEE">Employee</SelectItem>
-        <SelectItem value="MANAGER">Manager</SelectItem>
-        <SelectItem value="ADMIN">Admin</SelectItem>
-      </SelectContent>
+      <SelectItem value="EMPLOYEE">Employee</SelectItem>
+      <SelectItem value="MANAGER">Manager</SelectItem>
+      <SelectItem value="ADMIN">Admin</SelectItem>
     </SelectInput>
   );
 }

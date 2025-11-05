@@ -122,9 +122,26 @@ export function EmployeeList({ showAll = true }: EmployeeListProps) {
     }, 500);
   };
 
-  const handleEdit = (employee: Employee) => {
-    setEditingEmployee(employee);
-    setIsFormOpen(true);
+  const handleEdit = async (employee: Employee) => {
+    try {
+      // Fetch full employee details with all fields for editing
+      const response = await fetch(`/api/employees/${employee.id}`);
+      const result = await response.json();
+      
+      if (result.success && result.data) {
+        setEditingEmployee(result.data);
+        setIsFormOpen(true);
+      } else {
+        // Fallback to list data if detail fetch fails
+        setEditingEmployee(employee);
+        setIsFormOpen(true);
+      }
+    } catch (error) {
+      console.error("Error fetching employee details:", error);
+      // Fallback to list data if fetch fails
+      setEditingEmployee(employee);
+      setIsFormOpen(true);
+    }
   };
 
   const handleDialogClose = (open: boolean) => {
@@ -282,7 +299,7 @@ export function EmployeeList({ showAll = true }: EmployeeListProps) {
                       Add Employee
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                  <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto overflow-x-hidden [&>*]:overflow-visible">
                     <DialogHeader>
                       <DialogTitle>
                         {editingEmployee ? "Edit Employee" : "Add New Employee"}

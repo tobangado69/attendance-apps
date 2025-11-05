@@ -252,22 +252,30 @@ export async function GET(request: NextRequest) {
           totalHours: aggregated?._sum.totalHours || 0
         }
       }
-      if (record.status === AttendanceStatus.PRESENT) acc[userId].presentDays++
-      else if (record.status === AttendanceStatus.ABSENT) acc[userId].absentDays++
-      else if (record.status === AttendanceStatus.LATE) acc[userId].lateDays++
-      else if (record.status === AttendanceStatus.EARLY_LEAVE) acc[userId].earlyLeaveDays++
+      const userStats = acc[userId]
+      if (!userStats) return acc
+      
+      if (record.status === AttendanceStatus.PRESENT) {
+        userStats.presentDays++
+      } else if (record.status === AttendanceStatus.ABSENT) {
+        userStats.absentDays++
+      } else if (record.status === AttendanceStatus.LATE) {
+        userStats.lateDays++
+      } else if (record.status === AttendanceStatus.EARLY_LEAVE) {
+        userStats.earlyLeaveDays++
+      }
       return acc
     }, {} as Record<string, { 
       user: { id: string; name: string; email: string }
       employee: { id: string; employeeId: string; position: string | null; department: { id: string; name: string } | null } | null
       totalDays: number
       presentDays: number
+      absentDays: number
+      lateDays: number
+      earlyLeaveDays: number
       totalHours: number
       attendancePercentage?: number
       averageHours?: number
-      lateDays?: number
-      absentDays?: number
-      earlyLeaveDays?: number
     }>)
 
     // Calculate attendance percentage for each employee

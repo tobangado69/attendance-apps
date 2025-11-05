@@ -109,9 +109,9 @@ export default function ProfilePage() {
         setProfileForm({
           name: profileData.user.name || "",
           email: profileData.user.email || "",
-          phone: "", // Add phone field to schema if needed
-          address: "", // Add address field to schema if needed
-          bio: "", // Add bio field to schema if needed
+          phone: profileData.user.phone || "",
+          address: profileData.user.address || "",
+          bio: profileData.user.bio || "",
         });
         // Always set the image from the database
         console.log(
@@ -166,6 +166,22 @@ export default function ProfilePage() {
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validate required fields
+    if (!passwordForm.currentPassword.trim()) {
+      showErrorToast("Current password is required");
+      return;
+    }
+
+    if (!passwordForm.newPassword.trim()) {
+      showErrorToast("New password is required");
+      return;
+    }
+
+    if (!passwordForm.confirmPassword.trim()) {
+      showErrorToast("Please confirm your new password");
+      return;
+    }
+
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       showErrorToast("New passwords do not match");
       return;
@@ -173,6 +189,12 @@ export default function ProfilePage() {
 
     if (passwordForm.newPassword.length < 8) {
       showErrorToast("New password must be at least 8 characters long");
+      return;
+    }
+
+    // Check if new password is same as current password
+    if (passwordForm.currentPassword === passwordForm.newPassword) {
+      showErrorToast("New password must be different from current password");
       return;
     }
 
@@ -192,7 +214,7 @@ export default function ProfilePage() {
 
       const result = await response.json();
 
-      if (result.success) {
+      if (response.ok && result.success) {
         showSuccessToast("Password changed successfully");
         setPasswordForm({
           currentPassword: "",
@@ -200,11 +222,11 @@ export default function ProfilePage() {
           confirmPassword: "",
         });
       } else {
-        showErrorToast(result.message || "Failed to change password");
+        showErrorToast(result.message || result.error || "Failed to change password");
       }
     } catch (error) {
       console.error("Error changing password:", error);
-      showErrorToast("Error changing password");
+      showErrorToast("Error changing password. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -526,6 +548,7 @@ export default function ProfilePage() {
                             }))
                           }
                           placeholder="Enter current password"
+                          required
                         />
                         <Button
                           type="button"
@@ -557,6 +580,8 @@ export default function ProfilePage() {
                             }))
                           }
                           placeholder="Enter new password"
+                          required
+                          minLength={8}
                         />
                         <Button
                           type="button"
@@ -590,6 +615,8 @@ export default function ProfilePage() {
                             }))
                           }
                           placeholder="Confirm new password"
+                          required
+                          minLength={8}
                         />
                         <Button
                           type="button"

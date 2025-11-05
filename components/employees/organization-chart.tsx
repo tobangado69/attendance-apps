@@ -27,22 +27,18 @@ interface Employee {
   position: string;
   role: string;
   image?: string;
-  isManager: boolean;
-  directReports: number;
-  totalReports: number;
-}
-
-interface Department {
-  id: string;
-  name: string;
-  manager: Employee | null;
-  employees: Employee[];
-  employeeCount: number;
+  department?: string | null;
+  managerId?: string | null;
+  directReports: Employee[];
+  directReportsCount: number;
+  totalReportsCount: number;
 }
 
 interface HierarchyData {
-  ceo: Employee | null;
-  departments: Department[];
+  admin: Employee | null;
+  managers: Employee[];
+  adminDirectEmployees?: Employee[];
+  unassignedEmployees: Employee[];
   totalEmployees: number;
 }
 
@@ -76,11 +72,13 @@ export function OrganizationChart({ className }: OrganizationChartProps) {
         // Expand all nodes by default
         const allNodeIds = new Set(
           [
-            result.data.ceo?.id,
-            ...result.data.departments.map((dept: Department) => dept.id),
-            ...result.data.departments.flatMap((dept: Department) =>
-              dept.employees.map((emp: Employee) => emp.id)
+            result.data.admin?.id,
+            ...(result.data.managers || []).map((mgr: Employee) => mgr.id),
+            ...(result.data.managers || []).flatMap((mgr: Employee) =>
+              mgr.directReports.map((emp: Employee) => emp.id)
             ),
+            ...(result.data.adminDirectEmployees || []).map((emp: Employee) => emp.id),
+            ...(result.data.unassignedEmployees || []).map((emp: Employee) => emp.id),
           ].filter(Boolean)
         );
         setExpandedNodes(allNodeIds);
@@ -130,22 +128,22 @@ export function OrganizationChart({ className }: OrganizationChartProps) {
 
   const EmployeeCard = ({
     employee,
-    isCEO = false,
+    isAdmin = false,
     isManager = false,
   }: {
     employee: Employee;
-    isCEO?: boolean;
+    isAdmin?: boolean;
     isManager?: boolean;
   }) => {
-    const hasReports = employee.directReports > 0;
+    const hasReports = employee.directReportsCount > 0;
     const isExpanded = expandedNodes.has(employee.id);
 
     return (
       <div className="flex flex-col items-center">
         <Card
           className={`cursor-pointer transition-all hover:shadow-lg ${
-            isCEO
-              ? "ring-2 ring-yellow-400 bg-gradient-to-br from-yellow-50 to-orange-50"
+            isAdmin
+              ? "ring-2 ring-red-400 bg-gradient-to-br from-red-50 to-orange-50"
               : isManager
               ? "ring-1 ring-blue-300 bg-blue-50"
               : "hover:shadow-md"
@@ -156,9 +154,9 @@ export function OrganizationChart({ className }: OrganizationChartProps) {
         >
           <CardContent className="p-4 text-center min-w-[200px]">
             <div className="flex flex-col items-center space-y-2">
-              <Avatar className={`${isCEO ? "h-16 w-16" : "h-12 w-12"}`}>
+              <Avatar className={`${isAdmin ? "h-16 w-16" : "h-12 w-12"}`}>
                 <AvatarImage src={employee.image || ""} alt={employee.name} />
-                <AvatarFallback className={isCEO ? "text-lg" : "text-sm"}>
+                <AvatarFallback className={isAdmin ? "text-lg" : "text-sm"}>
                   {employee.name
                     .split(" ")
                     .map((n) => n[0])
@@ -169,12 +167,12 @@ export function OrganizationChart({ className }: OrganizationChartProps) {
               <div className="space-y-1">
                 <h4
                   className={`font-semibold ${
-                    isCEO ? "text-lg" : "text-sm"
+                    isAdmin ? "text-lg" : "text-sm"
                   } truncate max-w-[180px]`}
                 >
                   {employee.name}
-                  {isCEO && (
-                    <Crown className="h-4 w-4 text-yellow-500 ml-1 inline" />
+                  {isAdmin && (
+                    <Crown className="h-4 w-4 text-red-500 ml-1 inline" />
                   )}
                   {isManager && (
                     <Users className="h-3 w-3 text-blue-500 ml-1 inline" />
@@ -183,7 +181,7 @@ export function OrganizationChart({ className }: OrganizationChartProps) {
 
                 <p
                   className={`text-xs text-gray-600 truncate max-w-[180px] ${
-                    isCEO ? "font-medium" : ""
+                    isAdmin ? "font-medium" : ""
                   }`}
                 >
                   {employee.position}
@@ -205,11 +203,11 @@ export function OrganizationChart({ className }: OrganizationChartProps) {
               {hasReports && (
                 <div className="flex items-center gap-1 text-xs text-gray-600">
                   <span className="bg-gray-100 px-2 py-1 rounded-full">
-                    {employee.directReports} direct
+                    {employee.directReportsCount} direct
                   </span>
-                  {employee.totalReports > employee.directReports && (
+                  {employee.totalReportsCount > employee.directReportsCount && (
                     <span className="bg-blue-100 px-2 py-1 rounded-full">
-                      {employee.totalReports} total
+                      {employee.totalReportsCount} total
                     </span>
                   )}
                 </div>
@@ -324,8 +322,14 @@ export function OrganizationChart({ className }: OrganizationChartProps) {
             </span>
             <span className="flex items-center gap-1">
               <Building2 className="h-4 w-4" />
-              {hierarchyData.departments.length} departments
+              {hierarchyData.managers?.length || 0} managers
             </span>
+            {hierarchyData.unassignedEmployees?.length > 0 && (
+              <span className="flex items-center gap-1 text-orange-600">
+                <User className="h-4 w-4" />
+                {hierarchyData.unassignedEmployees.length} unassigned
+              </span>
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -337,50 +341,59 @@ export function OrganizationChart({ className }: OrganizationChartProps) {
             }}
           >
             <div className="flex flex-col items-center space-y-8 min-w-max">
-              {/* CEO Level */}
-              {hierarchyData.ceo && (
+              {/* Admin Level - Top */}
+              {hierarchyData.admin && (
                 <div className="flex flex-col items-center space-y-4">
-                  <EmployeeCard employee={hierarchyData.ceo} isCEO={true} />
+                  <EmployeeCard employee={hierarchyData.admin} isAdmin={true} />
 
-                  {hierarchyData.ceo.directReports > 0 && (
+                  {hierarchyData.admin.directReportsCount > 0 && (
                     <>
                       <ConnectionLine />
 
-                      {/* Department Managers Level */}
+                      {/* Managers and Direct Employees under Admin */}
                       <div className="flex flex-wrap justify-center gap-8">
-                        {hierarchyData.departments
-                          .filter((dept) => dept.manager)
-                          .map((department, index) => (
+                        {/* Show Managers first */}
+                        {hierarchyData.managers.map((manager, index) => {
+                          const isExpanded = expandedNodes.has(manager.id);
+                          return (
                             <div
-                              key={department.id}
+                              key={manager.id}
                               className="flex flex-col items-center space-y-4"
                             >
                               {index > 0 && <HorizontalLine />}
-                              <EmployeeCard
-                                employee={department.manager!}
-                                isManager={true}
-                              />
+                              <EmployeeCard employee={manager} isManager={true} />
 
-                              {expandedNodes.has(department.manager!.id) &&
-                                department.employees.length > 1 && (
-                                  <>
-                                    <ConnectionLine />
-                                    <div className="flex flex-wrap justify-center gap-4">
-                                      {department.employees
-                                        .filter(
-                                          (emp) =>
-                                            emp.id !== department.manager!.id
-                                        )
-                                        .map((employee) => (
-                                          <EmployeeCard
-                                            key={employee.id}
-                                            employee={employee}
-                                          />
-                                        ))}
-                                    </div>
-                                  </>
-                                )}
+                              {/* Employees under Manager */}
+                              {isExpanded && manager.directReports.length > 0 && (
+                                <>
+                                  <ConnectionLine />
+                                  <div className="flex flex-wrap justify-center gap-4">
+                                    {manager.directReports.map((employee) => (
+                                      <EmployeeCard
+                                        key={employee.id}
+                                        employee={employee}
+                                      />
+                                    ))}
+                                  </div>
+                                </>
+                              )}
                             </div>
+                          );
+                        })}
+
+                        {/* Show Employees directly under Admin (not managers) */}
+                        {hierarchyData.adminDirectEmployees &&
+                          hierarchyData.adminDirectEmployees.length > 0 &&
+                          hierarchyData.managers.length > 0 && (
+                            <HorizontalLine />
+                          )}
+                        {hierarchyData.adminDirectEmployees &&
+                          hierarchyData.adminDirectEmployees.length > 0 &&
+                          hierarchyData.adminDirectEmployees.map((employee) => (
+                            <EmployeeCard
+                              key={employee.id}
+                              employee={employee}
+                            />
                           ))}
                       </div>
                     </>
@@ -388,44 +401,62 @@ export function OrganizationChart({ className }: OrganizationChartProps) {
                 </div>
               )}
 
-              {/* Departments without CEO */}
-              {!hierarchyData.ceo && (
+              {/* No Admin - Show Managers directly */}
+              {!hierarchyData.admin && hierarchyData.managers.length > 0 && (
                 <div className="flex flex-wrap justify-center gap-8">
-                  {hierarchyData.departments.map((department) => (
-                    <div
-                      key={department.id}
-                      className="flex flex-col items-center space-y-4"
-                    >
-                      <EmployeeCard
-                        employee={department.manager || department.employees[0]}
-                        isManager={!!department.manager}
-                      />
+                  {hierarchyData.managers.map((manager, index) => {
+                    const isExpanded = expandedNodes.has(manager.id);
+                    return (
+                      <div
+                        key={manager.id}
+                        className="flex flex-col items-center space-y-4"
+                      >
+                        {index > 0 && <HorizontalLine />}
+                        <EmployeeCard employee={manager} isManager={true} />
 
-                      {expandedNodes.has(department.id) &&
-                        department.employees.length > 1 && (
+                        {isExpanded && manager.directReports.length > 0 && (
                           <>
                             <ConnectionLine />
                             <div className="flex flex-wrap justify-center gap-4">
-                              {department.employees
-                                .filter(
-                                  (emp) =>
-                                    emp.id !==
-                                    (department.manager?.id ||
-                                      department.employees[0].id)
-                                )
-                                .map((employee) => (
-                                  <EmployeeCard
-                                    key={employee.id}
-                                    employee={employee}
-                                  />
-                                ))}
+                              {manager.directReports.map((employee) => (
+                                <EmployeeCard
+                                  key={employee.id}
+                                  employee={employee}
+                                />
+                              ))}
                             </div>
                           </>
                         )}
-                    </div>
-                  ))}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
+
+              {/* Unassigned Employees Section */}
+              {hierarchyData.unassignedEmployees &&
+                hierarchyData.unassignedEmployees.length > 0 && (
+                  <>
+                    <div className="w-full mt-12 pt-8 border-t-2 border-dashed border-gray-300">
+                      <div className="flex flex-col items-center space-y-4">
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <User className="h-5 w-5" />
+                          <h3 className="text-lg font-semibold text-gray-700">
+                            Unassigned Employees
+                          </h3>
+                        </div>
+                        <div className="flex flex-wrap justify-center gap-4">
+                          {hierarchyData.unassignedEmployees.map((employee) => (
+                            <EmployeeCard
+                              key={employee.id}
+                              employee={employee}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
             </div>
           </div>
         </CardContent>
@@ -481,11 +512,11 @@ export function OrganizationChart({ className }: OrganizationChartProps) {
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Users className="h-4 w-4 text-gray-500" />
-                  <span>Direct Reports: {selectedEmployee.directReports}</span>
+                  <span>Direct Reports: {selectedEmployee.directReportsCount}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Building2 className="h-4 w-4 text-gray-500" />
-                  <span>Total Reports: {selectedEmployee.totalReports}</span>
+                  <span>Total Reports: {selectedEmployee.totalReportsCount}</span>
                 </div>
               </div>
 

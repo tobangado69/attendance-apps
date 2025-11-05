@@ -28,6 +28,7 @@ import {
 import { format } from "date-fns";
 import { SessionProp } from "@/lib/types/session";
 import { useDebounce } from "@/hooks/use-debounce";
+import { TaskStatus } from "@/lib/constants/status";
 
 interface TaskFiltersProps {
   onFiltersChange: (filters: TaskFilters) => void;
