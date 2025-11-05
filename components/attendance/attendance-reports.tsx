@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,114 +14,21 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Calendar,
   Download,
   BarChart3,
   TrendingUp,
-  Users,
   Clock,
   CheckCircle,
   XCircle,
   AlertTriangle,
-  UserCheck,
 } from "lucide-react";
-import { format, parseISO, subDays, startOfMonth, endOfMonth } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { RoleGuard } from "@/components/auth/role-guard";
 import { Role } from "@prisma/client";
-
-interface AttendanceReport {
-  summary: {
-    totalRecords: number;
-    presentCount: number;
-    absentCount: number;
-    lateCount: number;
-    earlyLeaveCount: number;
-    uniqueEmployees: number;
-    averageHours: number;
-    attendanceRate: number;
-  };
-  departmentStats: Record<string, { department: string; totalEmployees: number; totalPresentDays: number; totalDays: number; avgAttendanceRate: number }>;
-  dailyTrends: Record<string, { date: string; present: number; absent: number; late: number }>;
-  topPerformers: Array<{
-    user: { id: string; name: string; email: string };
-    employee: {
-      department: { id: string; name: string } | string;
-      position: string;
-    };
-    totalDays: number;
-    presentDays: number;
-    attendancePercentage: number;
-    averageHours: number;
-  }>;
-  dateRange: {
-    startDate: string;
-    endDate: string;
-  };
-  departments: string[];
-}
+import { useAttendanceReports } from "@/hooks/use-attendance-reports";
 
 function AttendanceReportsContent() {
-  const [reportData, setReportData] = useState<AttendanceReport | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({
-    startDate: format(startOfMonth(new Date()), "yyyy-MM-dd"),
-    endDate: format(endOfMonth(new Date()), "yyyy-MM-dd"),
-    department: "all",
-    type: "summary",
-  });
-
-  const fetchReports = async () => {
-    try {
-      setLoading(true);
-      const params = new URLSearchParams();
-      if (filters.startDate) params.append("startDate", filters.startDate);
-      if (filters.endDate) params.append("endDate", filters.endDate);
-      if (filters.department && filters.department !== "all")
-        params.append("department", filters.department);
-      if (filters.type) params.append("type", filters.type);
-
-      const response = await fetch(`/api/attendance/reports?${params}`);
-      if (response.ok) {
-        const data = await response.json();
-        setReportData(data.data);
-      } else {
-        console.error("Failed to fetch reports");
-      }
-    } catch (error) {
-      console.error("Error fetching reports:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchReports();
-  }, [filters]);
-
-  const handleExport = async () => {
-    try {
-      const params = new URLSearchParams();
-      if (filters.startDate) params.append("startDate", filters.startDate);
-      if (filters.endDate) params.append("endDate", filters.endDate);
-      if (filters.department && filters.department !== "all")
-        params.append("department", filters.department);
-
-      const response = await fetch(`/api/attendance/export?${params}`);
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `attendance-report-${filters.startDate}-to-${filters.endDate}.xlsx`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      }
-    } catch (error) {
-      console.error("Error exporting report:", error);
-    }
-  };
+  const { reportData, loading, filters, setFilters, handleExport } = useAttendanceReports();
 
   if (loading) {
     return (
