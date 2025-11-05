@@ -6,16 +6,15 @@ import {
   formatErrorResponse
 } from '@/lib/api/api-utils'
 import { logError } from '@/lib/utils/logger'
+import { unstable_cache } from 'next/cache'
+import { CACHE_TAGS, CACHE_REVALIDATE } from '@/lib/utils/api-cache'
 
-export async function GET(request: NextRequest) {
-  try {
-    const apiContext = await buildApiContext(request)
-    if (apiContext instanceof NextResponse) {
-      return apiContext
-    }
-
-    const { user } = apiContext
-
+/**
+ * Cached function to fetch employee hierarchy
+ * Hierarchy structure changes infrequently, so we can cache for longer
+ */
+const getCachedEmployeeHierarchy = unstable_cache(
+  async () => {
     // Get all employees with their department and manager information
     const employees = await prisma.employee.findMany({
       where: {
@@ -129,7 +128,7 @@ export async function GET(request: NextRequest) {
           directReports: dept.employeeCount - 1, // Exclude self
           totalReports: dept.employeeCount - 1
         } : null,
-        employees: dept.employees.map(emp => ({
+        employees: dept.employees.map((emp: Record<string, unknown>) => ({
           ...emp,
           directReports: emp.isManager ? dept.employeeCount - 1 : 0,
           totalReports: emp.isManager ? dept.employeeCount - 1 : 0
@@ -139,9 +138,27 @@ export async function GET(request: NextRequest) {
 
     // Calculate CEO's direct reports (department managers)
     if (hierarchy.ceo) {
-      hierarchy.ceo.directReports = hierarchy.departments.filter(dept => dept.manager).length
+      hierarchy.ceo.directReports = hierarchy.departments.filter((dept: Record<string, unknown>) => dept.manager).length
       hierarchy.ceo.totalReports = hierarchy.totalEmployees - 1
     }
+
+    return hierarchy
+  },
+  ['employee-hierarchy'],
+  {
+    revalidate: CACHE_REVALIDATE.LONG, // 30 minutes - hierarchy changes infrequently
+    tags: [CACHE_TAGS.EMPLOYEES]
+  }
+)
+
+export async function GET(request: NextRequest) {
+  try {
+    const apiContext = await buildApiContext(request)
+    if (apiContext instanceof NextResponse) {
+      return apiContext
+    }
+
+    const hierarchy = await getCachedEmployeeHierarchy()
 
     return formatApiResponse(hierarchy)
   } catch (error) {

@@ -6,23 +6,17 @@ import { employeeUpdateSchema } from '@/lib/validations'
 import { formatApiResponse, formatErrorResponse } from '@/lib/api/api-utils'
 import bcrypt from 'bcryptjs'
 import { logError } from '@/lib/utils/logger'
+import { unstable_cache } from 'next/cache'
+import { CACHE_TAGS, CACHE_REVALIDATE } from '@/lib/utils/api-cache'
+import { revalidateTag } from 'next/cache'
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
-
-    const { id } = await params
-    const employee = await prisma.employee.findUnique({
+/**
+ * Cached function to fetch employee by ID
+ * Individual employee data changes less frequently than lists
+ */
+const getCachedEmployee = unstable_cache(
+  async (id: string) => {
+    return prisma.employee.findUnique({
       where: { id },
       include: {
         user: {
@@ -56,6 +50,30 @@ export async function GET(
         }
       }
     })
+  },
+  ['employee-detail'],
+  {
+    revalidate: CACHE_REVALIDATE.MEDIUM, // 5 minutes - individual employee data
+    tags: [CACHE_TAGS.EMPLOYEES]
+  }
+)
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    const { id } = await params
+    const employee = await getCachedEmployee(id)
 
     if (!employee) {
       return formatErrorResponse('Employee not found', 404)
@@ -228,17 +246,14 @@ export async function PUT(
       return updatedEmployee
     })
 
-    return NextResponse.json({
-      success: true,
-      data: result,
-      message: 'Employee updated successfully'
-    })
+    // Invalidate employee cache when employee is updated
+    revalidateTag(CACHE_TAGS.EMPLOYEES)
+
+    return formatApiResponse(result, undefined, 'Employee updated successfully')
   } catch (error) {
+    const { id } = await params
     logError(error, { context: 'PUT /api/employees/[id]', employeeId: id })
-    return NextResponse.json(
-      { error: 'Failed to update employee' },
-      { status: 500 }
-    )
+    return formatErrorResponse('Failed to update employee', 500)
   }
 }
 
@@ -282,15 +297,13 @@ export async function DELETE(
       data: { isActive: false }
     })
 
-    return NextResponse.json({
-      success: true,
-      message: 'Employee deactivated successfully'
-    })
+    // Invalidate employee cache when employee is deleted
+    revalidateTag(CACHE_TAGS.EMPLOYEES)
+
+    return formatApiResponse({ id }, undefined, 'Employee deactivated successfully')
   } catch (error) {
+    const { id } = await params
     logError(error, { context: 'DELETE /api/employees/[id]', employeeId: id })
-    return NextResponse.json(
-      { error: 'Failed to delete employee' },
-      { status: 500 }
-    )
+    return formatErrorResponse('Failed to delete employee', 500)
   }
 }

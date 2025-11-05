@@ -4,18 +4,15 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { formatApiResponse, formatErrorResponse } from '@/lib/api/api-utils'
 import { logError } from '@/lib/utils/logger'
+import { unstable_cache } from 'next/cache'
+import { CACHE_TAGS, CACHE_REVALIDATE } from '@/lib/utils/api-cache'
 
-export async function GET() {
-  try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
-
+/**
+ * Cached function to fetch employee statistics
+ * Statistics don't change frequently, so we can cache for longer
+ */
+const getCachedEmployeeStats = unstable_cache(
+  async () => {
     // Get total active employees
     const totalEmployees = await prisma.employee.count({
       where: { isActive: true }
@@ -46,12 +43,34 @@ export async function GET() {
       }
     })
 
-    return formatApiResponse({
+    return {
       totalEmployees,
       totalDepartments,
       departmentNames,
       newThisMonth
-    })
+    }
+  },
+  ['employee-stats'],
+  {
+    revalidate: CACHE_REVALIDATE.MEDIUM, // 5 minutes - stats change less frequently
+    tags: [CACHE_TAGS.EMPLOYEES]
+  }
+)
+
+export async function GET() {
+  try {
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    const stats = await getCachedEmployeeStats()
+
+    return formatApiResponse(stats)
   } catch (error) {
     logError(error, { context: 'GET /api/employees/stats' })
     return formatErrorResponse('Failed to fetch employee statistics', 500)

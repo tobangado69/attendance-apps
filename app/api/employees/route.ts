@@ -15,6 +15,8 @@ import {
   checkExistingRecords,
   createEmployeeWithUser,
 } from '@/lib/services/employee-service'
+import { revalidateTag } from 'next/cache'
+import { CACHE_TAGS } from '@/lib/utils/api-cache'
 
 export async function GET(request: NextRequest) {
   try {
@@ -49,7 +51,9 @@ export async function GET(request: NextRequest) {
     }
     // Admin and Manager can see all employees (no additional filtering needed)
 
-    // Execute query
+    // Execute query with optimized select
+    // Note: Not caching filtered queries as cache keys would need to include all filter parameters
+    // Cache invalidation is handled on create/update/delete operations
     const [employees, total] = await Promise.all([
       prisma.employee.findMany({
         where,
@@ -181,6 +185,9 @@ export const POST = withAdminManagerGuard(async (context, request: NextRequest) 
       logError(notificationError, { context: 'POST /api/employees - notifications', employeeId: result.employee.id })
       // Don't fail the employee creation if notifications fail
     }
+
+    // Invalidate employee cache when new employee is created
+    revalidateTag(CACHE_TAGS.EMPLOYEES)
 
     return formatApiResponse(result, undefined, 'Employee created successfully')
   } catch (error) {
