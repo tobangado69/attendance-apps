@@ -8,15 +8,14 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
-  Select,
-  SelectContent,
+  FormField,
+  FormTextareaField,
+  FormNumberField,
+  FormSelectField,
+} from "@/components/forms/form-fields";
+import {
   SelectItem,
-  SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { Manager } from "@/hooks/use-settings";
 
@@ -59,91 +58,79 @@ export function DepartmentForm({
       <CardContent className="overflow-visible">
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="deptName">Department Name *</Label>
-              <Input
-                id="deptName"
-                value={form.name}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    name: e.target.value,
-                  })
-                }
-                placeholder="Enter department name"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="deptManager">Manager</Label>
-              <Select
-                key={`manager-select-${editingDepartment?.id || "new"}-${form.managerId}`}
-                value={form.managerId || "no-manager"}
-                onValueChange={(value) =>
-                  setForm({
-                    ...form,
-                    managerId: value,
-                  })
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select manager" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="no-manager">No Manager</SelectItem>
-                  {managers
-                    .filter(
-                      (manager) =>
-                        manager && manager.id && manager.name
-                    )
-                    .map((manager, index) => (
-                      <SelectItem
-                        key={manager.id || `manager-${index}`}
-                        value={manager.id}
-                      >
-                        {manager.name}{" "}
-                        {manager.position && `(${manager.position})`}{" "}
-                        - {manager.role}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="deptDescription">Description</Label>
-            <Textarea
-              id="deptDescription"
-              value={form.description}
-              onChange={(e) =>
+            <FormField
+              label="Department Name"
+              id="deptName"
+              value={form.name}
+              onChange={(value) =>
                 setForm({
                   ...form,
-                  description: e.target.value,
+                  name: value,
                 })
               }
-              placeholder="Enter department description"
-              rows={3}
+              required
+              placeholder="Enter department name"
             />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="deptBudget">Budget</Label>
-            <Input
-              id="deptBudget"
-              type="number"
-              min="0"
-              step="0.01"
-              value={form.budget}
-              onChange={(e) =>
+            <FormSelectField
+              label="Manager"
+              id="deptManager"
+              value={form.managerId || "no-manager"}
+              onChange={(value) =>
                 setForm({
                   ...form,
-                  budget: e.target.value,
+                  managerId: value === "no-manager" ? "" : value,
                 })
               }
-              placeholder="Enter budget amount"
-            />
+              placeholder="Select manager"
+              key={`manager-select-${editingDepartment?.id || "new"}-${form.managerId}`}
+            >
+              <SelectItem value="no-manager">No Manager</SelectItem>
+              {managers
+                .filter(
+                  (manager) =>
+                    manager && manager.id && manager.name
+                )
+                .map((manager, index) => (
+                  <SelectItem
+                    key={manager.id || `manager-${index}`}
+                    value={manager.id}
+                  >
+                    {manager.name}{" "}
+                    {manager.position && `(${manager.position})`}{" "}
+                    - {manager.role}
+                  </SelectItem>
+                ))}
+            </FormSelectField>
           </div>
+
+          <FormTextareaField
+            label="Description"
+            id="deptDescription"
+            value={form.description}
+            onChange={(value) =>
+              setForm({
+                ...form,
+                description: value,
+              })
+            }
+            placeholder="Enter department description"
+            rows={3}
+          />
+
+          <FormNumberField
+            label="Budget"
+            id="deptBudget"
+            value={form.budget}
+            onChange={(value) =>
+              setForm({
+                ...form,
+                budget: String(value),
+              })
+            }
+            placeholder="Enter budget amount"
+            min={0}
+            step={0.01}
+          />
 
           <div className="flex gap-2">
             <Button type="submit" disabled={saving}>
