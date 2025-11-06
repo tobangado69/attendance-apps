@@ -166,12 +166,14 @@ export function useAttendanceList({ showAll = false }: UseAttendanceListOptions 
       const response = await fetch(`/api/attendance?${params}`);
       const data = await response.json();
 
-      if (data.data) {
-        setAttendance(data.data);
-        setTotalPages(data.meta.totalPages);
-        setTotalRecords(data.meta.total);
-        if (data.meta.departments) {
-          setDepartments(data.meta.departments);
+      if (data.success && data.data) {
+        // The API returns { success: true, data: { attendance: [...], departments: [...] } }
+        const attendanceArray = data.data.attendance || [];
+        setAttendance(attendanceArray);
+        setTotalPages(data.meta?.totalPages || 1);
+        setTotalRecords(data.meta?.total || 0);
+        if (data.data.departments) {
+          setDepartments(data.data.departments);
         }
       }
     } catch (error) {

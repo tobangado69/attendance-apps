@@ -120,8 +120,10 @@ export function QuickActions({ className }: QuickActionsProps) {
       if (response.ok) {
         const data = await response.json();
 
+        // The API returns { success: true, data: { attendance: [...], departments: [...] } }
         // The API automatically filters by userId for non-admin users
-        const todayAttendance = data.data?.[0]; // Get the first (and should be only) record for today
+        const attendanceArray = data.data?.attendance || [];
+        const todayAttendance = attendanceArray[0]; // Get the first (and should be only) record for today
 
         if (todayAttendance) {
           setAttendanceStatus({

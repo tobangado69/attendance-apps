@@ -1331,6 +1331,52 @@ function processEmployee(employee: Employee) {
 }
 ```
 
+#### Focused Changes
+When fixing bugs or adding new features, avoid modifying unrelated code — only change what's necessary and correlated to the fix or feature.
+
+```typescript
+// ❌ Bad: Modifying unrelated code while fixing a bug
+function handleCheckIn() {
+  // Fix: Correct attendance status check
+  const attendance = await fetchAttendance()
+  
+  // Unrelated: Refactoring employee status check (not needed for this fix)
+  const employeeStatus = await fetchEmployeeStatus()
+  if (employeeStatus.isActive) {
+    // ... new logic that wasn't part of the bug fix
+  }
+  
+  // Original bug fix continues...
+}
+
+// ✅ Good: Only modify code related to the fix
+function handleCheckIn() {
+  // Fix: Correct attendance status check
+  const attendance = await fetchAttendance()
+  
+  // Only change what's necessary for the bug fix
+  if (attendance.hasCheckedIn) {
+    throw new Error('Already checked in')
+  }
+  
+  // Continue with check-in logic...
+}
+```
+
+**Guidelines:**
+- **Scope Changes**: Only modify files and functions directly related to the bug or feature
+- **Avoid Refactoring**: Don't refactor unrelated code "while you're at it"
+- **Separate Concerns**: If refactoring is needed, create a separate PR/commit
+- **Minimize Risk**: Smaller, focused changes reduce the chance of introducing new bugs
+- **Easier Reviews**: Focused changes are easier to review and understand
+- **Clear History**: Git history remains clear about what was changed and why
+
+**When to Make Broader Changes:**
+- When the unrelated code is directly blocking the fix/feature
+- When there's a clear dependency that must be addressed
+- When explicitly requested in the task/issue
+- When creating a separate refactoring task/PR
+
 ### Code Review Processes
 
 #### Review Checklist
@@ -1571,6 +1617,7 @@ npm run test:coverage # Generate coverage report
 - [ ] Documentation updated
 - [ ] TypeScript types are correct
 - [ ] No magic numbers/strings
+- [ ] Only modified code related to the fix/feature (no unrelated changes)
 
 ### During Code Review
 - [ ] Security vulnerabilities checked

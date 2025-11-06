@@ -98,8 +98,11 @@ export function CheckInOut() {
       const response = await fetch(`/api/attendance?${params}`);
       const data = await response.json();
 
-      if (data.data && data.data.length > 0) {
-        const todayRecord = data.data[0];
+      // The API returns { success: true, data: { attendance: [...], departments: [...] } }
+      const attendanceArray = data.data?.attendance || [];
+      
+      if (attendanceArray.length > 0) {
+        const todayRecord = attendanceArray[0];
         setAttendanceStatus({
           isCheckedIn: !!todayRecord.checkIn,
           isCheckedOut: !!todayRecord.checkOut,
